@@ -37,16 +37,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Publish to Docker hub
-      - name: Store version number (on release)
-        if: ${{ github.event_name == 'release' }}
-        id: version
-        # GITHUB_REF looks like "refs/tags/0.3.1" - we need to extract the actual version without the v prefix
-        run: echo ::set-output name=number::${GITHUB_REF##*/}
-
       - name: Build and push (tag latest)
         uses: docker/build-push-action@v5
-        if: ${{ github.event.inputs.tag-latest }}
+        if: ${{ github.event.inputs.tag-latest == 'true' }}
         with:
           push: true
           context: images/${{ github.event.inputs.image }}
@@ -58,7 +51,7 @@ jobs:
 
       - name: Build and push (don't tag latest)
         uses: docker/build-push-action@v5
-        if: ${{ !github.event.inputs.tag-latest }}
+        if: ${{ github.event.inputs.tag-latest == 'false' }}
         with:
           push: true
           context: images/${{ github.event.inputs.image }}
