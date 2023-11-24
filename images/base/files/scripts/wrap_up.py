@@ -1,10 +1,5 @@
 import subprocess
 
-# Copy README
-# subprocess.run(
-#     ["cp", "/tmp/notebooks_sample_files/README.md", "/home/jovyan/README.md"]
-# )
-
 # Delete work directory if any, and create tmp instead
 subprocess.run(["rmdir", "/home/jovyan/work"])
 subprocess.run(["mkdir", "/home/jovyan/tmp"])

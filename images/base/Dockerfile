@@ -136,7 +136,7 @@ RUN pip install -U \
 COPY files/scripts/fuse.conf /etc/.
 COPY files/scripts/* /home/jovyan/.hexa_scripts/
 
-COPY files/sample_files/* home/jovyan/.
+COPY files/sample_files/* /home/jovyan/.
 
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
