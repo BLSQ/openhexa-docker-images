@@ -141,7 +141,7 @@ COPY files/scripts/fuse.conf /etc/.
 COPY files/sample_files/ /tmp/notebooks_sample_files/
 
 # k8s: same as sample files, we need to copy those to a temp location
-COPY files/scripts/* /tmp/hexa_scripts/
+COPY files/scripts/* /tmp/.hexa_scripts/
 
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
