@@ -11,9 +11,9 @@ on:
       tag:
         description: Image tag
         required: true
-      set-latest:
+      tag-latest:
         type: boolean
-        description: Enable to tag the built image as latest
+        description: Also tag as latest
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
 
       - name: Build and push (tag latest)
         uses: docker/build-push-action@v5
-        if: ${{ github.event.inputs.set-latest }}
+        if: ${{ github.event.inputs.tag-latest }}
         with:
           push: true
           context: images/${{ github.event.inputs.image }}
@@ -55,7 +55,7 @@ jobs:
 
       - name: Build and push (don't tag latest)
         uses: docker/build-push-action@v5
-        if: ${{ !github.event.inputs.set-latest }}
+        if: ${{ !github.event.inputs.tag-latest }}
         with:
           push: true
           context: images/${{ github.event.inputs.image }}
