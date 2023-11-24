@@ -134,7 +134,7 @@ RUN pip install -U \
 
 # Fuse
 COPY files/scripts/fuse.conf /etc/.
-COPY files/scripts/ /home/jovyan/.hexa_scripts/
+COPY files/scripts/* /home/jovyan/.hexa_scripts/
 
 COPY files/sample_files/* home/jovyan/
 
