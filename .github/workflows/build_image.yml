@@ -6,7 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: The image to build (see /images)
+        type: choice
+        description: Image to build
+        options:
+          - base
         required: true
       tag:
         description: Image tag
