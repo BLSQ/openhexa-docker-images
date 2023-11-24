@@ -1,4 +1,4 @@
-name: Build base environment image
+name: Build environment image
 
 on:
   release:
