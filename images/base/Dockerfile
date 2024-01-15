@@ -1,22 +1,25 @@
-FROM jupyter/datascience-notebook:2023-10-20
+FROM quay.io/jupyter/datascience-notebook:2024-01-08
 
 USER root
 
 # System libraries
 RUN apt-get update
 
+# FUSE Amazon S3
+RUN sudo apt-get install -y s3fs
+
 # FUSE Google Cloud Storage
 RUN apt-get install -y \
-    gnupg \
-    lsb-release && \
-    gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
-    echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
-    tee /etc/apt/sources.list.d/gcsfuse.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-    apt-key add - && \
-    apt-get update && \
-    apt-get install -y gcsfuse && \
-    apt-get clean
+  gnupg \
+  lsb-release && \
+  gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
+  echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+  tee /etc/apt/sources.list.d/gcsfuse.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+  apt-key add - && \
+  apt-get update && \
+  apt-get install -y gcsfuse && \
+  apt-get clean
 
 WORKDIR $HOME
 
@@ -24,54 +27,104 @@ WORKDIR $HOME
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
 RUN update-locale
 
+# Install AWS CLI tools
+RUN mkdir -p /usr/local/src/awcli
+WORKDIR /usr/local/src/awcli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+WORKDIR $HOME
+RUN rm -rf /usr/local/src/awcli
+
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
 RUN chown jovyan /home/hexa
 
 USER ${NB_UID}
 
+# R packages (cran) -> To CHECK if they are available with mamba
+# RUN R -e "install.packages('isotree', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# RUN R -e "install.packages('MMWRweek', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# RUN R -e "install.packages('imputeTS', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# RUN R -e "install.packages('tsbox', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+
+# R packages (mamba + conda-forge)
+# TODO: Maybe mamba is not needed anymore, conda-forge may be enough
+RUN conda install --yes -c conda-forge \
+  'r-arrow=14.*' \
+  'r-getpass=0.*' \
+  'r-readxl=1.*' \
+  'r-rcolorbrewer=1.*' \
+  'r-rjson=0.2.*' \
+  'r-rpostgres=1.*' \
+  'r-styler=1.*' \
+  'r-tidyverse=2.*' \
+  'r-viridis=0.6.*' \
+  'r-nloptr=2.*' \
+  && conda clean --yes --all
+
+
 # Python packages (mamba + conda-forge)
-RUN mamba install --yes -c conda-forge \
-    'black=22.*' \
-    'fsspec=2022.*' \
-    'gcsfs=2022.*' \
-    'isort=5.*' \
-    'papermill==2.*' \
-    'plotly=5.*' \
-    'psycopg2=2.*' \
-    && mamba clean --yes --all
+RUN conda install --yes -c conda-forge \
+  'black=23.12.*' \
+  'fsspec=2023.12.2' \
+  'gcsfs=2023.12.2' \
+  'ipywidgets=8.*' \
+  'isort=5.*' \
+  'lxml=5.*' \
+  'nbresuse=0.4.*' \
+  'netCDF4=1.*' \
+  'papermill=2.*' \
+  'polars=0.20.*' \
+  'psycopg2=2.*' \
+  'pyarrow=14.*' \
+  'rapidfuzz=3.*' \
+  'rpy2=3.*' \
+  'xarray=2023.12.0' \
+  'zarr=2.*' \
+  # Jupyter extensions
+  'jupyterlab-git=0.*' \
+  'jupyter-resource-usage=1.*' \
+  'jupyterlab_code_formatter=2.*' \
+  && conda clean --yes --all
 
 # Python packages (pip)
 RUN pip install -U \
-    'requests'
-
-# Jupyter extensions
-RUN mamba install -c conda-forge --yes \
-    'dash=2.*' \
-    'jupyter-resource-usage=0.*' \
-    'jupyterlab_code_formatter=1.*' \
-    && mamba clean --yes --all
+  'contextily=1.*' \
+  'docxtpl=0.16.*' \
+  'tabpy=2.*'
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y && \
-    jupyter lab clean -y && \
-    npm cache clean --force && \
-    rm -rf "/home/${NB_USER}/.cache/yarn"
+  jupyter lab clean -y && \
+  npm cache clean --force && \
+  rm -rf "/home/${NB_USER}/.cache/yarn"
 
-# Custom config
+# custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
 
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
 RUN pip install -U \
-    'openhexa-sdk==0.1.33' \
-    'openhexa-toolbox==0.1.7'
+  'openhexa-sdk==0.1.33' \
+  'openhexa-toolbox==0.1.7'
 
-# Fuse
+# s3f fuse
 COPY files/scripts/fuse.conf /etc/.
+# k8s: same as sample files, we need to copy those to a temp location
+COPY files/scripts/* /tmp/hexa_scripts/
+# Please note that if a PVC is mounted at /home/jovyan (for OpenHEXA legacy notebooks), this directory will be
+# "lost" - they need to be copied again from /tmp after mounting the PVC
 COPY files/scripts/* /home/jovyan/.hexa_scripts/
 
-COPY files/sample_files/* /home/jovyan/.
+# sample files
+# k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
+# a postStart hook defined in config.yaml, and also by the wrap_up.py file
+# TODO: postStart hook should not be necessary anymore
+# (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
+COPY files/sample_files/* /tmp/notebooks_sample_files/
 
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
@@ -79,3 +132,6 @@ COPY entrypoint.sh /usr/local/bin/
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD singleuser
+
+RUN echo "$(conda list)"
+

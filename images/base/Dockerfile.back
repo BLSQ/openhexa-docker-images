@@ -1,0 +1,142 @@
+FROM quay.io/jupyter/datascience-notebook:2024-01-08
+
+USER root
+
+# System libraries
+RUN apt-get update
+
+# FUSE Amazon S3
+RUN sudo apt-get install -y s3fs
+
+# FUSE Google Cloud Storage
+RUN apt-get install -y \
+    gnupg \
+    lsb-release && \
+    gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
+    echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+    tee /etc/apt/sources.list.d/gcsfuse.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add - && \
+    apt-get update && \
+    apt-get install -y gcsfuse && \
+    apt-get clean
+
+WORKDIR $HOME
+
+# Add locales
+RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
+RUN update-locale
+
+# Install AWS CLI tools
+RUN mkdir -p /usr/local/src/awcli
+WORKDIR /usr/local/src/awcli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+WORKDIR $HOME
+RUN rm -rf /usr/local/src/awcli
+
+# /home/hexa symlink (preferred path for data pipelines)
+RUN ln -s /home/jovyan /home/hexa
+RUN chown jovyan /home/hexa
+
+USER ${NB_UID}
+
+RUN conda install -c conda-forge -y \
+    'r-arrow' \
+    'r-aws.s3' \
+    'r-getpass' \
+    'r-readxl' \
+    'r-rcolorbrewer' \
+    'r-rjson' \
+    'r-rpostgres' \
+    'r-styler' \
+    'r-tidyverse' \
+    'r-viridis' \
+    'r-nloptr' \
+    && mamba clean --yes --all
+
+# R packages (cran) -> To CHECK if they are available with mamba
+RUN R -e "install.packages('isotree', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('MMWRweek', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('imputeTS', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('tsbox', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+
+
+# R packages (mamba + conda-forge)
+# # TODO: Maybe mamba is not needed anymore, conda-forge may be enough
+# RUN mamba install --yes -c conda-forge \
+#     'r-arrow' \
+#     'r-aws.s3' \
+#     'r-getpass=0.*' \
+#     'r-readxl' \
+#     'r-rcolorbrewer' \
+#     'r-rjson' \
+#     'r-rpostgres=1.*' \
+#     'r-styler' \
+#     'r-tidyverse' \
+#     'r-viridis=' \
+#     'r-nloptr' \
+#     && mamba clean --yes --all
+
+# Python packages (mamba + conda-forge)
+### TODO: PIP FREEZE & Mamba freze to pin versions
+RUN mamba install --yes -c conda-forge \
+    'black' \
+    'fsspec' \
+    'gcsfs' \
+    'ipywidgets' \
+    'isort' \
+    'lxml' \
+    'nbresuse' \
+    'netCDF4' \
+    'papermill' \
+    'psycopg2' \
+    'pyarrow' \
+    'rapidfuzz' \
+    'rpy2' \
+    'xarray' \
+    'zarr' \
+    'polars' \
+    # Jupyter extensions
+    'jupyterlab-git=0.*' \
+    'jupyter-resource-usage=1.*' \
+    'jupyterlab_code_formatter=2.*' \
+    && mamba clean --yes --all
+
+# Python packages (pip)
+RUN pip install -U \
+    'contextily' \
+    'docxtpl' \
+    'tabpy'
+
+
+# Build Jupyterlab - needed for extensions
+RUN jupyter lab build -y && \
+    jupyter lab clean -y && \
+    npm cache clean --force && \
+    rm -rf "/home/${NB_USER}/.cache/yarn"
+
+# Custom config
+COPY jupyter_notebook_config.py /etc/jupyter/
+
+# Install openhexa-sdk & openhexa-toolbox
+ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
+RUN pip install -U \
+    'openhexa-sdk==0.1.33' \
+    'openhexa-toolbox==0.1.7'
+
+# Fuse
+COPY files/scripts/fuse.conf /etc/.
+COPY files/scripts/* /home/jovyan/.hexa_scripts/
+
+COPY files/sample_files/* /home/jovyan/.
+
+# Copy the entrypoint at the same location as the ones defined in the base image
+COPY entrypoint.sh /usr/local/bin/
+
+# Redefine the entrypoint to be able to launch pipelines as well
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh" ]
+CMD singleuser
