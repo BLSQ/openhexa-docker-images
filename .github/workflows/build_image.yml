@@ -3,20 +3,6 @@ name: Build environment image
 on:
   release:
     types: [ published ]
-  workflow_dispatch:
-    inputs:
-      image:
-        type: choice
-        description: Image to build
-        options:
-          - base
-        required: true
-      tag:
-        description: Image tag
-        required: true
-      tag-latest:
-        type: boolean
-        description: Also tag as latest
 
 jobs:
   build:
@@ -36,27 +22,43 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push (tag latest)
-        uses: docker/build-push-action@v5
-        if: ${{ github.event.inputs.tag-latest == 'true' }}
+      
+      - name: Store version number (on release)
+        id: version
+        # GITHUB_REF looks like "refs/tags/0.3.1" - we need to extract the actual version without the v prefix
+        run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+      
+      # Build all images
+      - name: Build and push "base" image
+        uses: docker/build-push-action@v4
         with:
           push: true
-          context: images/${{ github.event.inputs.image }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          context: images/base
           tags: |
-            blsq/openhexa-base-environment:${{ github.event.inputs.tag }}
+            blsq/openhexa-base-environment:${{ steps.version.outputs.number }}
             blsq/openhexa-base-environment:latest
-
-      - name: Build and push (don't tag latest)
-        uses: docker/build-push-action@v5
-        if: ${{ github.event.inputs.tag-latest == 'false' }}
-        with:
-          push: true
-          context: images/${{ github.event.inputs.image }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      
+      - name: Build and push "legacy" image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: images/legacy
           tags: |
-            blsq/openhexa-base-environment:${{ github.event.inputs.tag }}
+            blsq/openhexa-legacy-environment:${{ steps.version.outputs.number }}
+            blsq/openhexa-legacy-environment:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+      - name: Build and push "blsq" image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: images/blsq
+          tags: |
+            blsq/openhexa-blsq-environment:${{ steps.version.outputs.number }}
+            blsq/openhexa-blsq-environment:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
