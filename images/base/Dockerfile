@@ -94,7 +94,7 @@ RUN mamba install --yes -c conda-forge \
   'jupyter-resource-usage=1.*' \
   'jupyterlab_code_formatter=2.*' \
   && mamba clean --yes --all
-  
+
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y && \

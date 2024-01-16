@@ -4,15 +4,15 @@ USER root
 
 # System libraries
 RUN apt-get update
-
 # For rgdal & sf (R)
 RUN apt-get install -y libgdal-dev libudunits2-dev
+
 
 USER ${NB_UID}
 WORKDIR $HOME
 
 RUN mamba install --yes -c conda-forge \
-  # Python packages
+  # Blsq Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
   'geoalchemy2=0.14.*' \
@@ -22,6 +22,12 @@ RUN mamba install --yes -c conda-forge \
   'slack_sdk=3.*' \
   'mapclassify=2.*' \
   'rasterstats=0.19.*' \
+  # Legacy Python packages
+  's3contents=0.9.*' \
+  's3fs=2021.*' \
+  'hybridcontents=0.3.*' \
+  'fake-useragent==1.4.*' \
+  'hdx-python-api==6.*' \
   # R Packages
   'r-rgdal=1.*' \
   'r-rgeos=0.6.*' \
@@ -34,5 +40,17 @@ RUN mamba install --yes -c conda-forge \
   'r-plotly=4.*' \
   'r-raster=3.*' \
   'r-sf=1.*' \
+  # Legacy R packages
+  'r-rjava=1.*' \
+  'r-aws.s3=0.3.*' \
+  # Legacy Jupyter extensions
+  'dash=2.*' \
+  'jupyter-server-proxy=4.*' \
   && mamba clean --yes --all
 
+
+# Build Jupyterlab - needed for extensions
+RUN jupyter lab build -y && \
+  jupyter lab clean -y && \
+  npm cache clean --force && \
+  rm -rf "/home/${NB_USER}/.cache/yarn"
