@@ -42,20 +42,16 @@ RUN chown jovyan /home/hexa
 
 USER ${NB_UID}
 
-# R packages (cran) -> To CHECK if they are available with mamba
-# RUN R -e "install.packages('isotree', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-# RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-# RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-# RUN R -e "install.packages('MMWRweek', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-# RUN R -e "install.packages('imputeTS', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-# RUN R -e "install.packages('tsbox', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+# R packages (only available on cran)
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 
 # R packages (mamba + conda-forge)
-# TODO: Maybe mamba is not needed anymore, conda-forge may be enough
-RUN conda install --yes -c conda-forge \
+RUN mamba install --yes -c conda-forge \
   'r-arrow=14.*' \
   'r-getpass=0.*' \
   'r-readxl=1.*' \
+  'r-isotree=0.5.*' \ 
   'r-rcolorbrewer=1.*' \
   'r-rjson=0.2.*' \
   'r-rpostgres=1.*' \
@@ -63,11 +59,17 @@ RUN conda install --yes -c conda-forge \
   'r-tidyverse=2.*' \
   'r-viridis=0.6.*' \
   'r-nloptr=2.*' \
-  && conda clean --yes --all
+  && mamba clean --yes --all
+
+RUN mamba install --yes -c R \
+  'r-imputets=3.*'  \
+  'r-tsbox=0.3.*' \
+  'r-mmwrweek=0.1.*' \
+  && mamba clean --yes --all
 
 
 # Python packages (mamba + conda-forge)
-RUN conda install --yes -c conda-forge \
+RUN mamba install --yes -c conda-forge \
   'black=23.12.*' \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
@@ -84,17 +86,15 @@ RUN conda install --yes -c conda-forge \
   'rpy2=3.*' \
   'xarray=2023.12.0' \
   'zarr=2.*' \
+  'contextily=1.*' \
+  'tabpy=2.*' \
+  'docxtpl=0.11.*' \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
   'jupyterlab_code_formatter=2.*' \
-  && conda clean --yes --all
-
-# Python packages (pip)
-RUN pip install -U \
-  'contextily=1.*' \
-  'docxtpl=0.16.*' \
-  'tabpy=2.*'
+  && mamba clean --yes --all
+  
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y && \
@@ -132,6 +132,3 @@ COPY entrypoint.sh /usr/local/bin/
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD singleuser
-
-RUN echo "$(conda list)"
-
