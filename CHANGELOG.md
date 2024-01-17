@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.0...1.0.1) (2024-01-17)
+
+
+### Bug Fixes
+
+* chmod on /home/jovyan crashes the server ([ef27ae7](https://github.com/BLSQ/openhexa-docker-images/commit/ef27ae76ea857f6687d4ca6cfb6e21a471dcfa96))
+
 ## 1.0.0 (2024-01-16)
 
 
