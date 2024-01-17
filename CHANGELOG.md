@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.1...1.0.2) (2024-01-17)
+
+
+### Bug Fixes
+
+* Legacy configuration was not using the correct mounting options ([6cdfc5c](https://github.com/BLSQ/openhexa-docker-images/commit/6cdfc5c692df025365e6aea2aa6325540e5393af))
+
 ## [1.0.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.0...1.0.1) (2024-01-17)
 
 
