@@ -12,7 +12,6 @@ import time
 # Yes, it's strange, but unless we want to fork gcsfuse, we will have to live with this
 GCS_TOKEN = os.environ.get("GCS_TOKEN", "")
 WORKSPACE_BUCKET_NAME = os.environ.get("WORKSPACE_BUCKET_NAME", "")
-print("FUSE_MOUNT", flush=True)
 if GCS_TOKEN and WORKSPACE_BUCKET_NAME:
 
     class serveGCStoken(http.server.BaseHTTPRequestHandler):

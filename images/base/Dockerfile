@@ -120,11 +120,7 @@ COPY files/scripts/* /tmp/hexa_scripts/
 COPY files/scripts/* /home/jovyan/.hexa_scripts/
 
 # sample files
-# k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
-# a postStart hook defined in config.yaml, and also by the wrap_up.py file
-# TODO: postStart hook should not be necessary anymore
-# (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
-COPY files/sample_files/* /tmp/notebooks_sample_files/
+COPY files/sample_files/* /home/jovyan
 
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
