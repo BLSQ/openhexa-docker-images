@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.2...1.0.3) (2024-01-25)
+
+
+### Miscellaneous
+
+* **deps:** Update openhexa-sdk-python to 0.1.35 ([3c3e1f3](https://github.com/BLSQ/openhexa-docker-images/commit/3c3e1f3a8a03e6f9e0c6d9ae587c604160007a53))
+
 ## [1.0.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.1...1.0.2) (2024-01-17)
 
 
