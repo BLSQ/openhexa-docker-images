@@ -108,7 +108,7 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
 RUN pip install -U \
-  'openhexa-sdk==0.1.33' \
+  'openhexa-sdk==0.1.35' \
   'openhexa-toolbox==0.1.7'
 
 # s3f fuse
