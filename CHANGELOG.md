@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.3...1.1.0) (2024-01-30)
+
+
+### Features
+
+* bump OpenHEXA SDK to 0.1.36 ([#7](https://github.com/BLSQ/openhexa-docker-images/issues/7)) ([e26ff88](https://github.com/BLSQ/openhexa-docker-images/commit/e26ff884b13d3e97718e0584021371e400fd207b))
+
 ## [1.0.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.2...1.0.3) (2024-01-25)
 
 
