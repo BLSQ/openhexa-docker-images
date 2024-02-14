@@ -68,11 +68,11 @@ elif STORAGE_ENGINE_TYPE == "s3":
     )
 
     # tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
-    os.environ["AWSACCESSKEYID"] = aws_fuse_config.get("AWS_ACCESS_KEY_ID", "")
-    os.environ["AWSSECRETACCESSKEY"] = aws_fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
-    os.environ["AWSSESSIONTOKEN"] = aws_fuse_config.get("AWS_SESSION_TOKEN", "")
+    os.environ["AWSACCESSKEYID"] = fuse_config.get("AWS_ACCESS_KEY_ID", "")
+    os.environ["AWSSECRETACCESSKEY"] = fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
+    os.environ["AWSSESSIONTOKEN"] = fuse_config.get("AWS_SESSION_TOKEN", "")
 
-    aws_endpoint = aws_fuse_config.get("AWS_ENDPOINT", "")
+    aws_endpoint = fuse_config.get("AWS_ENDPOINT", "")
     s3_is_minio = True if aws_endpoint else False
 
     command =   [
