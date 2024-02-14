@@ -61,15 +61,12 @@ if STORAGE_ENGINE_TYPE == "gcp":
 
 elif STORAGE_ENGINE_TYPE == "s3":
     # b64("{}") == b'e30='
-    fuse_config = json.loads(
+    aws_fuse_config = json.loads(
         base64.b64decode(
             os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_FUSE_CONFIG", b"e30=")
         )
     )
 
-    aws_fuse_config = json.loads(
-        base64.b64decode(os.environ.get("AWS_S3_FUSE_CONFIG", b"e30="))
-    )
     # tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
     os.environ["AWSACCESSKEYID"] = aws_fuse_config.get("AWS_ACCESS_KEY_ID", "")
     os.environ["AWSSECRETACCESSKEY"] = aws_fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
@@ -78,8 +75,7 @@ elif STORAGE_ENGINE_TYPE == "s3":
     aws_endpoint = aws_fuse_config.get("AWS_ENDPOINT", "")
     s3_is_minio = True if aws_endpoint else False
 
-    results = subprocess.run(
-        [
+    command =   [
             "s3fs",
             WORKSPACE_BUCKET_NAME,
             path_to_mount,
@@ -94,7 +90,9 @@ elif STORAGE_ENGINE_TYPE == "s3":
             # "-o",
             # "curldbg",
         ]
-        # always rw  # + (["-o", "ro"] if bucket["mode"] == "RO" else [])
-        # MinIO doesn't support the subdomain request style, use the older path request style.
-        + (["-o", "use_path_request_style"] if s3_is_minio else [])
-    )
+        
+    # MinIO doesn't support the subdomain request style, use the older path request style.
+    command = command+ (["-o", "use_path_request_style"] if s3_is_minio else [])
+
+    print(f"debug fusemount {command}")
+    results = subprocess.run(command)
