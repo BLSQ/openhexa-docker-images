@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.1.0...1.2.0) (2024-02-20)
+
+
+### Features
+
+* **S3:** Make the base image compatible with a local hosting solution ([161e70f](https://github.com/BLSQ/openhexa-docker-images/commit/161e70f1e5c82d4de3cc5fd17cdb7113ba5dd6ce))
+* Update openhexa-sdk to 0.1.37 ([0b11136](https://github.com/BLSQ/openhexa-docker-images/commit/0b1113696ec55b3818f5b5973fb0e5bf216e482c))
+
+
+### Miscellaneous
+
+* **localhosting:** Add a way to mount S3 compatible bukets ([719896e](https://github.com/BLSQ/openhexa-docker-images/commit/719896e017ac3146d4e124cc401a1944449d456d))
+
 ## [1.1.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.0.3...1.1.0) (2024-01-30)
 
 
