@@ -3,10 +3,9 @@ FROM quay.io/jupyter/datascience-notebook:2024-01-08
 USER root
 
 # System libraries
-RUN apt-get update
-
-# FUSE Amazon S3
-RUN sudo apt-get install -y s3fs
+RUN apt-get update && \ 
+  # FUSE Amazon S3 & ICU (for R)
+  apt-get install -y s3fs libicu-dev
 
 # FUSE Google Cloud Storage
 RUN apt-get install -y \
@@ -97,7 +96,7 @@ RUN mamba install --yes -c conda-forge \
 
 
 # Build Jupyterlab - needed for extensions
-RUN jupyter lab build -y && \
+RUN jupyter lab build -y --dev-build=False && \
   jupyter lab clean -y && \
   npm cache clean --force && \
   rm -rf "/home/${NB_USER}/.cache/yarn"
