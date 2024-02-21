@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.0...1.2.1) (2024-02-21)
+
+
+### Bug Fixes
+
+* **blsq:** Add ICU developement package to handle unicode in R ([f74a067](https://github.com/BLSQ/openhexa-docker-images/commit/f74a06781b2e558e43720b2ed0d017796cf7c2e8))
+
 ## [1.2.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.1.0...1.2.0) (2024-02-20)
 
 
