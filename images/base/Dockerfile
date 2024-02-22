@@ -69,6 +69,29 @@ RUN mamba install --yes -c R \
 
 # Python packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
+  'black=23.12.*' \
+  'fsspec=2023.12.2' \
+  'gcsfs=2023.12.2' \
+  'ipywidgets=8.*' \
+  'isort=5.*' \
+  'lxml=5.*' \
+  'nbresuse=0.4.*' \
+  'netCDF4=1.*' \
+  'papermill=2.*' \
+  'polars=0.20.*' \
+  'psycopg2=2.*' \
+  'pyarrow=14.*' \
+  'rapidfuzz=3.*' \
+  'rpy2=3.*' \
+  'xarray=2023.12.0' \
+  'zarr=2.*' \
+  'contextily=1.*' \
+  'tabpy=2.*' \
+  'docxtpl=0.11.*' \
+  # Jupyter extensions
+  'jupyterlab-git=0.*' \
+  'jupyter-resource-usage=1.*' \
+  'jupyterlab_code_formatter=2.*' \
   && mamba clean --yes --all
 
 
