@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.1...1.2.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* Install stringi from conda-forge ([7a41f98](https://github.com/BLSQ/openhexa-docker-images/commit/7a41f98c99b863b227b89a469d2b1a27b7b09920))
+
 ## [1.2.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.0...1.2.1) (2024-02-21)
 
 
