@@ -40,8 +40,8 @@ jobs:
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=blsq/openhexa-base-environment:buildcache
+          cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
       
       - name: Build and push "legacy" image
         uses: docker/build-push-action@v4
@@ -51,8 +51,8 @@ jobs:
           tags: |
             blsq/openhexa-legacy-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-legacy-environment:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=blsq/openhexa-legacy-environment:buildcache
+          cache-to: type=registry,ref=blsq/openhexa-legacy-environment:buildcache,mode=max
 
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v4
@@ -62,5 +62,5 @@ jobs:
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=blsq/openhexa-blsq-environment:buildcache
+          cache-to: type=registry,ref=blsq/openhexa-blsq-environment:buildcache,mode=max
