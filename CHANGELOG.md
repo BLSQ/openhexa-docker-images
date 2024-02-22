@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.3...1.2.4) (2024-02-22)
+
+
+### Bug Fixes
+
+* add missing python libraries ([ce6f5fe](https://github.com/BLSQ/openhexa-docker-images/commit/ce6f5fe0beef8d411b9a059d24c373ab36f75366))
+
 ## [1.2.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.2...1.2.3) (2024-02-22)
 
 
