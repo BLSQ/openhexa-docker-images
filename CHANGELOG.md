@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.2...1.2.3) (2024-02-22)
+
+
+### Bug Fixes
+
+* do not add link ([a54498b](https://github.com/BLSQ/openhexa-docker-images/commit/a54498b556092a8bd89b91a8e8842b20522d94ff))
+
 ## [1.2.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.1...1.2.2) (2024-02-22)
 
 
