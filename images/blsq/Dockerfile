@@ -34,5 +34,6 @@ RUN mamba install --yes -c conda-forge \
   'r-plotly=4.*' \
   'r-raster=3.*' \
   'r-sf=1.*' \
+  'r-stringi=1.*' \
   && mamba clean --yes --all
 

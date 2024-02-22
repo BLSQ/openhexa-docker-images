@@ -23,8 +23,8 @@ RUN apt-get install -y \
 WORKDIR $HOME
 
 # Add locales
-RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
-RUN update-locale
+RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
+    update-locale
 
 # Install AWS CLI tools
 RUN mkdir -p /usr/local/src/awcli
@@ -42,11 +42,12 @@ RUN chown jovyan /home/hexa
 USER ${NB_UID}
 
 # R packages (only available on cran)
-RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
+    R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
+  # R packages
   'r-arrow=14.*' \
   'r-getpass=0.*' \
   'r-readxl=1.*' \
@@ -58,17 +59,7 @@ RUN mamba install --yes -c conda-forge \
   'r-tidyverse=2.*' \
   'r-viridis=0.6.*' \
   'r-nloptr=2.*' \
-  && mamba clean --yes --all
-
-RUN mamba install --yes -c R \
-  'r-imputets=3.*'  \
-  'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*' \
-  && mamba clean --yes --all
-
-
-# Python packages (mamba + conda-forge)
-RUN mamba install --yes -c conda-forge \
+  # Python packages
   'black=23.12.*' \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
@@ -91,9 +82,12 @@ RUN mamba install --yes -c conda-forge \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
-  'jupyterlab_code_formatter=2.*' \
-  && mamba clean --yes --all
+  'jupyterlab_code_formatter=2.*' 
 
+RUN mamba install --yes -c R \
+  'r-imputets=3.*'  \
+  'r-tsbox=0.3.*' \
+  'r-mmwrweek=0.1.*'
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y --dev-build=False && \
@@ -102,7 +96,7 @@ RUN jupyter lab build -y --dev-build=False && \
   rm -rf "/home/${NB_USER}/.cache/yarn"
 
 # custom config
-COPY jupyter_notebook_config.py /etc/jupyter/
+COPY --link jupyter_notebook_config.py /etc/jupyter/
 
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
@@ -111,18 +105,18 @@ RUN pip install -U \
   'openhexa-toolbox==0.1.7'
 
 # s3f fuse
-COPY files/scripts/fuse.conf /etc/.
+COPY --link files/scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
-COPY files/scripts/* /tmp/hexa_scripts/
+COPY --link files/scripts/* /tmp/hexa_scripts/
 # Please note that if a PVC is mounted at /home/jovyan (for OpenHEXA legacy notebooks), this directory will be
 # "lost" - they need to be copied again from /tmp after mounting the PVC
-COPY files/scripts/* /home/jovyan/.hexa_scripts/
+COPY --link files/scripts/* /home/jovyan/.hexa_scripts/
 
 # sample files
-COPY files/sample_files/* /home/jovyan
+COPY --link files/sample_files/* /home/jovyan
 
 # Copy the entrypoint at the same location as the ones defined in the base image
-COPY entrypoint.sh /usr/local/bin/
+COPY --link entrypoint.sh /usr/local/bin/
 
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
