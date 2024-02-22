@@ -47,7 +47,6 @@ RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='htt
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-  # R packages
   'r-arrow=14.*' \
   'r-getpass=0.*' \
   'r-readxl=1.*' \
@@ -59,35 +58,19 @@ RUN mamba install --yes -c conda-forge \
   'r-tidyverse=2.*' \
   'r-viridis=0.6.*' \
   'r-nloptr=2.*' \
-  # Python packages
-  'black=23.12.*' \
-  'fsspec=2023.12.2' \
-  'gcsfs=2023.12.2' \
-  'ipywidgets=8.*' \
-  'isort=5.*' \
-  'lxml=5.*' \
-  'nbresuse=0.4.*' \
-  'netCDF4=1.*' \
-  'papermill=2.*' \
-  'polars=0.20.*' \
-  'psycopg2=2.*' \
-  'pyarrow=14.*' \
-  'rapidfuzz=3.*' \
-  'rpy2=3.*' \
-  'xarray=2023.12.0' \
-  'zarr=2.*' \
-  'contextily=1.*' \
-  'tabpy=2.*' \
-  'docxtpl=0.11.*' \
-  # Jupyter extensions
-  'jupyterlab-git=0.*' \
-  'jupyter-resource-usage=1.*' \
-  'jupyterlab_code_formatter=2.*' 
+  && mamba clean --yes --all
 
 RUN mamba install --yes -c R \
   'r-imputets=3.*'  \
   'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*'
+  'r-mmwrweek=0.1.*' \
+  && mamba clean --yes --all
+
+
+# Python packages (mamba + conda-forge)
+RUN mamba install --yes -c conda-forge \
+  && mamba clean --yes --all
+
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y --dev-build=False && \
@@ -96,7 +79,7 @@ RUN jupyter lab build -y --dev-build=False && \
   rm -rf "/home/${NB_USER}/.cache/yarn"
 
 # custom config
-COPY --link jupyter_notebook_config.py /etc/jupyter/
+COPY jupyter_notebook_config.py /etc/jupyter/
 
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
@@ -105,18 +88,18 @@ RUN pip install -U \
   'openhexa-toolbox==0.1.7'
 
 # s3f fuse
-COPY --link files/scripts/fuse.conf /etc/.
+COPY files/scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
-COPY --link files/scripts/* /tmp/hexa_scripts/
+COPY files/scripts/* /tmp/hexa_scripts/
 # Please note that if a PVC is mounted at /home/jovyan (for OpenHEXA legacy notebooks), this directory will be
 # "lost" - they need to be copied again from /tmp after mounting the PVC
-COPY --link files/scripts/* /home/jovyan/.hexa_scripts/
+COPY files/scripts/* /home/jovyan/.hexa_scripts/
 
 # sample files
-COPY --link files/sample_files/* /home/jovyan
+COPY files/sample_files/* /home/jovyan
 
 # Copy the entrypoint at the same location as the ones defined in the base image
-COPY --link entrypoint.sh /usr/local/bin/
+COPY entrypoint.sh /usr/local/bin/
 
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
