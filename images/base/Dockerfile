@@ -33,9 +33,10 @@ RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
 # Install AWS CLI tools
 RUN mkdir -p /usr/local/src/awcli
 WORKDIR /usr/local/src/awcli
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+  unzip awscliv2.zip &&\
+  ./aws/install
+
 WORKDIR $HOME
 RUN rm -rf /usr/local/src/awcli
 

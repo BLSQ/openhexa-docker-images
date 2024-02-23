@@ -12,6 +12,9 @@ USER ${NB_UID}
 WORKDIR $HOME
 
 RUN  conda install --yes -c conda-forge \
+  # Override base packages (we need to downgrade some of them)
+  'fsspec=2022.*' \
+  'gcsfs=2022.*' \
   # Blsq Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -23,8 +26,8 @@ RUN  conda install --yes -c conda-forge \
   'mapclassify=2.*' \
   'rasterstats=0.19.*' \
   # Legacy Python packages
-  's3contents=0.9.*' \
-  's3fs=2021.*' \
+  's3contents' \
+  's3fs=2022.*' \
   'hybridcontents=0.3.*' \
   'fake-useragent==1.4.*' \
   'hdx-python-api==6.*' \
