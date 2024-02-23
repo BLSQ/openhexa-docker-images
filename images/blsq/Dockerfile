@@ -10,8 +10,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 USER ${NB_UID}
 WORKDIR $HOME
 
-RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
-  conda install --yes -c conda-forge \
+RUN conda install --yes -c conda-forge \
   # Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -34,4 +33,5 @@ RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \
   'r-plotly=4.*' \
   'r-raster=3.*' \
   'r-sf=1.*' \
-  'r-stringi=1.*'
+  'r-stringi=1.*' &&\
+  conda clean --all -y

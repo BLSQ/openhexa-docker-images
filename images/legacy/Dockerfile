@@ -11,8 +11,7 @@ RUN apt-get install -y libgdal-dev libudunits2-dev
 USER ${NB_UID}
 WORKDIR $HOME
 
-RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
-  conda install --yes -c conda-forge \
+RUN  conda install --yes -c conda-forge \
   # Blsq Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -46,7 +45,8 @@ RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \
   'r-aws.s3=0.3.*' \
   # Legacy Jupyter extensions
   'dash=2.*' \
-  'jupyter-server-proxy=4.*'
+  'jupyter-server-proxy=4.*' && \
+  conda clean --all -y
 
 # k8s: same as sample files, we need to copy those to a temp location
 COPY files/scripts/* /tmp/hexa_scripts/

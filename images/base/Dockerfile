@@ -56,12 +56,13 @@ RUN conda install -n base conda-libmamba-solver && \
   conda config --set solver libmamba
 
 # R packages on R channel
-RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
-  conda install --yes -c R \
+RUN conda install --yes -c R \
   'r-imputets=3.*'  \
   'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*' && \
-  conda install --yes -c conda-forge \
+  'r-mmwrweek=0.1.*' &&\
+  conda clean --all -y
+
+RUN  conda install --yes -c conda-forge \
   # R packages on conda-forge
   'r-arrow=14.*' \
   'r-getpass=0.*' \
@@ -97,7 +98,8 @@ RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
-  'jupyterlab_code_formatter=2.*'
+  'jupyterlab_code_formatter=2.*' && \
+  conda clean --all -y
 
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y --dev-build=False && \
