@@ -101,7 +101,6 @@ RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \
   'jupyter-resource-usage=1.*' \
   'jupyterlab_code_formatter=2.*'
 
-
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y --dev-build=False && \
   jupyter lab clean -y && \

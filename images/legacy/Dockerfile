@@ -11,7 +11,8 @@ RUN apt-get install -y libgdal-dev libudunits2-dev
 USER ${NB_UID}
 WORKDIR $HOME
 
-RUN mamba install --yes -c conda-forge \
+RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
+  conda install --yes -c conda-forge \
   # Blsq Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -45,8 +46,7 @@ RUN mamba install --yes -c conda-forge \
   'r-aws.s3=0.3.*' \
   # Legacy Jupyter extensions
   'dash=2.*' \
-  'jupyter-server-proxy=4.*' \
-  && mamba clean --yes --all
+  'jupyter-server-proxy=4.*'
 
 # k8s: same as sample files, we need to copy those to a temp location
 COPY files/scripts/* /tmp/hexa_scripts/
