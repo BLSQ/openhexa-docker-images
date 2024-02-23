@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.5...1.2.6) (2024-02-23)
+
+
+### Bug Fixes
+
+* remove cache ([640e5c0](https://github.com/BLSQ/openhexa-docker-images/commit/640e5c0c4403fe7cd921e9511d35d9deaf784fdb))
+* Use the same layer to install R & python deps ([#16](https://github.com/BLSQ/openhexa-docker-images/issues/16)) ([36e8f61](https://github.com/BLSQ/openhexa-docker-images/commit/36e8f610a20d1825efd8e3ed363ad199903a88c6))
+
 ## [1.2.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.4...1.2.5) (2024-02-23)
 
 
