@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.4...1.2.5) (2024-02-23)
+
+
+### Bug Fixes
+
+* Add cache for local builds, use conda with mamba resolver ([c6705bc](https://github.com/BLSQ/openhexa-docker-images/commit/c6705bccb01000d08fe56c9eb10cd3993fd23d8f))
+* use conda for legacy ([656be32](https://github.com/BLSQ/openhexa-docker-images/commit/656be32859739d9608caef4a3e3f9d40db06ebcd))
+
+
+### Miscellaneous
+
+* **ci:** build images also on pushes on main ([306ab19](https://github.com/BLSQ/openhexa-docker-images/commit/306ab192167fa0e25814163a75248972103843b6))
+* set default tag to main ([9e1e9da](https://github.com/BLSQ/openhexa-docker-images/commit/9e1e9da8b41348e0270fd43d6a167bf6de9f257c))
+
 ## [1.2.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.3...1.2.4) (2024-02-22)
 
 
