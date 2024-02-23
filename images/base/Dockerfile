@@ -60,9 +60,7 @@ RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \
   conda install --yes -c R \
   'r-imputets=3.*'  \
   'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*'
-
-RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
+  'r-mmwrweek=0.1.*' && \
   conda install --yes -c conda-forge \
   # R packages on conda-forge
   'r-arrow=14.*' \
