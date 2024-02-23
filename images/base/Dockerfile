@@ -2,16 +2,20 @@ FROM quay.io/jupyter/datascience-notebook:2024-01-08
 
 USER root
 
+
 # System libraries
-RUN apt-get update && \ 
-  # FUSE Amazon S3 & ICU (for R)
-  apt-get install -y s3fs libicu-dev
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && \ 
+  # FUSE Amazon S3 
+  apt-get install -y s3fs \
+  # ICU (for R)
+  libicu-dev \
+  # Fuse requirements
+  gnupg lsb-release
 
 # FUSE Google Cloud Storage
-RUN apt-get install -y \
-  gnupg \
-  lsb-release && \
-  gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
+RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
   tee /etc/apt/sources.list.d/gcsfuse.list && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
@@ -45,8 +49,22 @@ USER ${NB_UID}
 RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
     R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 
-# R packages (mamba + conda-forge)
-RUN mamba install --yes -c conda-forge \
+# Set environment variable for Conda cache directory inside the container
+ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
+
+RUN conda install -n base conda-libmamba-solver && \
+  conda config --set solver libmamba
+
+# R packages on R channel
+RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
+  conda install --yes -c R \
+  'r-imputets=3.*'  \
+  'r-tsbox=0.3.*' \
+  'r-mmwrweek=0.1.*'
+
+RUN --mount=type=cache,target=${CONDA_PKGS_DIRS} \ 
+  conda install --yes -c conda-forge \
+  # R packages on conda-forge
   'r-arrow=14.*' \
   'r-getpass=0.*' \
   'r-readxl=1.*' \
@@ -58,17 +76,7 @@ RUN mamba install --yes -c conda-forge \
   'r-tidyverse=2.*' \
   'r-viridis=0.6.*' \
   'r-nloptr=2.*' \
-  && mamba clean --yes --all
-
-RUN mamba install --yes -c R \
-  'r-imputets=3.*'  \
-  'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*' \
-  && mamba clean --yes --all
-
-
-# Python packages (mamba + conda-forge)
-RUN mamba install --yes -c conda-forge \
+  # Python packages on conda-forge
   'black=23.12.*' \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
@@ -91,8 +99,7 @@ RUN mamba install --yes -c conda-forge \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
-  'jupyterlab_code_formatter=2.*' \
-  && mamba clean --yes --all
+  'jupyterlab_code_formatter=2.*'
 
 
 # Build Jupyterlab - needed for extensions

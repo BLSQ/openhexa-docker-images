@@ -3,15 +3,14 @@ FROM blsq/openhexa-base-environment
 USER root
 
 # System libraries
-RUN apt-get update
-
-# For rgdal & sf (R)
-RUN apt-get install -y libgdal-dev libudunits2-dev
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 
 USER ${NB_UID}
 WORKDIR $HOME
 
-RUN mamba install --yes -c conda-forge \
+RUN conda install --yes -c conda-forge \
   # Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -35,5 +34,5 @@ RUN mamba install --yes -c conda-forge \
   'r-raster=3.*' \
   'r-sf=1.*' \
   'r-stringi=1.*' \
-  && mamba clean --yes --all
+  && conda clean -a -y
 
