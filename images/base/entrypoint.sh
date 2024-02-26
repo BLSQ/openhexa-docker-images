@@ -32,6 +32,9 @@ case "$command" in
 "pipeline")
   python /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
   ;;
+"openhexa")
+  openhexa $arguments
+  ;;
 "help")
   show_help
   ;;
