@@ -1,5 +1,9 @@
 FROM quay.io/jupyter/datascience-notebook:2024-01-08
 
+LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
+LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
+LABEL org.opencontainers.image.licenses=MIT
+
 USER root
 
 

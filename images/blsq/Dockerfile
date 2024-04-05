@@ -1,5 +1,9 @@
 FROM blsq/openhexa-base-environment
 
+LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
+LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries specific to BLSQ use cases."
+LABEL org.opencontainers.image.licenses=MIT
+
 USER root
 
 # System libraries
