@@ -43,6 +43,7 @@ def configure_cloud_run():
 
     print("Downloading pipeline...")
     os.mkdir("pipeline")
+
     download_pipeline(
         server_url,
         access_token,
@@ -79,7 +80,9 @@ def version_info():
     installed = []
     uninstalled = []
     for lib in ["openhexa.sdk", "openhexa.toolbox"]:
-        completed_process = subprocess.run(f"pip freeze | grep {lib}", shell=True, capture_output=True)
+        completed_process = subprocess.run(
+            f"pip freeze | grep {lib}", shell=True, capture_output=True
+        )
         lib_version = completed_process.stdout.decode("utf-8").strip()
         if lib_version == "":
             uninstalled.append(lib)
@@ -101,10 +104,14 @@ if __name__ == "__main__":
         configure_cloud_run()
 
     if args.command in ("cloudrun", "run"):
-        args_config = json.loads(base64.b64decode(args.config).decode("utf-8")) if args.config else {}
+        args_config = (
+            json.loads(base64.b64decode(args.config).decode("utf-8"))
+            if args.config
+            else {}
+        )
         run_pipeline(args_config)
         if args.command == "cloudrun" and os.path.exists(
-                "/home/jovyan/.hexa_scripts/fuse_umount.py"
+            "/home/jovyan/.hexa_scripts/fuse_umount.py"
         ):
             # clean up fuse & umount at the end
             import fuse_umount  # noqa: F401, E402
