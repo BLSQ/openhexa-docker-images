@@ -25,6 +25,9 @@ RUN conda install --yes -c conda-forge \
   'slack_sdk=3.*' \
   'mapclassify=2.*' \
   'rasterstats=0.19.*' \
+  'connectorx==0.2.*' \
+  'xlsx2csv==0.8.*' \
+  'xlsxwriter==3.2.*' \
   # R Packages
   'r-rgdal=1.*' \
   'r-rgeos=0.6.*' \
