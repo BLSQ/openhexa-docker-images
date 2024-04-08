@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.6...1.2.7) (2024-04-08)
+
+
+### Miscellaneous
+
+* Add labels in dockerfile for base & blsq image ([c9b839e](https://github.com/BLSQ/openhexa-docker-images/commit/c9b839e2567567ed16654ed4779a23f00ccd81ee))
+* **deps:** Add connectorx, xlsx2csv, xlswriter to blsq image ([993f7cb](https://github.com/BLSQ/openhexa-docker-images/commit/993f7cbf0ddae406a48b6d30bee7bb2b601edb88))
+* **deps:** Update openhexa.sdk & openhexa.toolbox ([e096c9a](https://github.com/BLSQ/openhexa-docker-images/commit/e096c9aa795d1b5882debd9df50ad37e6e2eaa25))
+* format bootstrap_pipeline ([8582c1f](https://github.com/BLSQ/openhexa-docker-images/commit/8582c1f132a28be284cf348bcac0ddeb16214018))
+
 ## [1.2.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.5...1.2.6) (2024-02-23)
 
 
