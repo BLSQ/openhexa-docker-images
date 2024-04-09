@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.8...1.2.9) (2024-04-09)
+
+
+### Bug Fixes
+
+* **sdk:** Update the version of the openhexa sdk used in images ([bdcc37b](https://github.com/BLSQ/openhexa-docker-images/commit/bdcc37bf5deec340767492c1ce88055e3bbb6bea))
+
 ## [1.2.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.7...1.2.8) (2024-04-09)
 
 
