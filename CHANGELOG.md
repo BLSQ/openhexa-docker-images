@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.7...1.2.8) (2024-04-09)
+
+
+### Bug Fixes
+
+* **BLSQ:** Wrong versions of packages for conda-forge ([a4c9724](https://github.com/BLSQ/openhexa-docker-images/commit/a4c97241a010f1ad635c5d840e687260466d09f1))
+
 ## [1.2.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.6...1.2.7) (2024-04-08)
 
 
