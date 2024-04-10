@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.10](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.9...1.2.10) (2024-04-10)
+
+
+### Miscellaneous
+
+* Add a stub file to warn users about the home folder ([d72e488](https://github.com/BLSQ/openhexa-docker-images/commit/d72e488137341492914efc04b564b83b987dc02c))
+* Add a stub file to warn users about the home folder ([#21](https://github.com/BLSQ/openhexa-docker-images/issues/21)) ([078a29a](https://github.com/BLSQ/openhexa-docker-images/commit/078a29a9e11e01579a4c6f3c27ea591a0f7dbd17))
+* **docker:** Set the openhexa.sdk version to install to 0.1.* ([3cf2da8](https://github.com/BLSQ/openhexa-docker-images/commit/3cf2da832295b46a6c0297cfa3ca7afdb2ce2ca1))
+
 ## [1.2.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.8...1.2.9) (2024-04-09)
 
 
