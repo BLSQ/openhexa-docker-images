@@ -3,6 +3,7 @@ import argparse
 import base64
 import json
 import os
+import papermill as pm
 import sys
 import subprocess
 
@@ -11,7 +12,14 @@ from openhexa.sdk.pipelines import download_pipeline, import_pipeline
 
 
 def run_pipeline(config):
-    if not os.path.exists("pipeline/pipeline.py"):
+    if os.environ["HEXA_PIPELINE_NOTEBOOK"]:
+        notebook_path = f'./workspace/{os.environ["HEXA_PIPELINE_NOTEBOOK"]}'
+        return pm.execute_notebook(
+            input_path=notebook_path,
+            output_path=f"{os.path.dirname(notebook_path)}/output.ipynb",
+        )
+
+    if not os.path.exists("pipeline/pipeline.py") and os.environ:
         print("No pipeline.py found", file=sys.stderr)
         sys.exit(1)
 
@@ -31,7 +39,7 @@ def run_pipeline(config):
 
 
 def configure_cloud_run():
-    # cloud run -> need to download the code from cloud
+    # cloud run -> need to download the code from cloud (except for notebooks as pipeline)
     if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
         print("Need token and url to download the code", file=sys.stderr)
         sys.exit(1)
@@ -41,16 +49,17 @@ def configure_cloud_run():
     run_id = os.environ["HEXA_RUN_ID"]
     workspace_slug = os.environ["HEXA_WORKSPACE"]
 
-    print("Downloading pipeline...")
-    os.mkdir("pipeline")
+    if not os.environ["HEXA_PIPELINE_NOTEBOOK"]:
+        print("Downloading pipeline...")
+        os.mkdir("pipeline")
 
-    download_pipeline(
-        server_url,
-        access_token,
-        run_id,
-        "pipeline",
-    )
-    print("Pipeline downloaded.")
+        download_pipeline(
+            server_url,
+            access_token,
+            run_id,
+            "pipeline",
+        )
+        print("Pipeline downloaded.")
 
     print("Injecting credentials...")
     r = requests.post(
