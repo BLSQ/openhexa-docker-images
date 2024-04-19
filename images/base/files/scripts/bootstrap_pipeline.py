@@ -9,17 +9,26 @@ import subprocess
 
 import requests
 from openhexa.sdk.pipelines import download_pipeline, import_pipeline
+from pathlib import Path
 
 
 def run_pipeline(config):
-    if os.environ["HEXA_PIPELINE_NOTEBOOK"]:
-        notebook_path = f'./workspace/{os.environ["HEXA_PIPELINE_NOTEBOOK"]}'
+    if "HEXA_NOTEBOOK_PATH" in os.environ:
+        notebook_path = (
+            Path("/home/jovyan/workspace") / os.environ["HEXA_NOTEBOOK_PATH"]
+        )
+        if not notebook_path.exists():
+            print(f"{notebook_path} not found", file=sys.stderr)
+            sys.exit(1)
+
+        output_path = notebook_path.parent.absolute() / ".runs_outputs"
+        output_path.mkdir(exist_ok=True)
         return pm.execute_notebook(
             input_path=notebook_path,
-            output_path=f"{os.path.dirname(notebook_path)}/output.ipynb",
+            output_path=output_path / notebook_path.name,
         )
 
-    if not os.path.exists("pipeline/pipeline.py") and os.environ:
+    if not os.path.exists("pipeline/pipeline.py"):
         print("No pipeline.py found", file=sys.stderr)
         sys.exit(1)
 
@@ -46,20 +55,7 @@ def configure_cloud_run():
 
     access_token = os.environ["HEXA_TOKEN"]
     server_url = os.environ["HEXA_SERVER_URL"]
-    run_id = os.environ["HEXA_RUN_ID"]
     workspace_slug = os.environ["HEXA_WORKSPACE"]
-
-    if not os.environ["HEXA_PIPELINE_NOTEBOOK"]:
-        print("Downloading pipeline...")
-        os.mkdir("pipeline")
-
-        download_pipeline(
-            server_url,
-            access_token,
-            run_id,
-            "pipeline",
-        )
-        print("Pipeline downloaded.")
 
     print("Injecting credentials...")
     r = requests.post(
@@ -118,6 +114,28 @@ if __name__ == "__main__":
             if args.config
             else {}
         )
+        # cloud run -> need to download the code from cloud (except for notebooks as pipeline)
+        if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
+            print("Need token and url to download the code", file=sys.stderr)
+            sys.exit(1)
+
+        if "HEXA_NOTEBOOK_PATH" not in os.environ:
+            run_id = os.environ["HEXA_RUN_ID"]
+            access_token = os.environ["HEXA_TOKEN"]
+            server_url = os.environ["HEXA_SERVER_URL"]
+
+            print("Downloading pipeline...")
+            os.mkdir("pipeline")
+
+            download_pipeline(
+                server_url,
+                access_token,
+                run_id,
+                "pipeline",
+            )
+
+            print("Pipeline downloaded.")
+
         run_pipeline(args_config)
         if args.command == "cloudrun" and os.path.exists(
             "/home/jovyan/.hexa_scripts/fuse_umount.py"
