@@ -3,20 +3,19 @@ import argparse
 import base64
 import json
 import os
-import papermill as pm
-import sys
 import subprocess
-
-import requests
-from openhexa.sdk.pipelines import download_pipeline, import_pipeline
+import sys
 from pathlib import Path
+
+import papermill as pm
+import requests
+from openhexa.sdk import workspace
+from openhexa.sdk.pipelines import download_pipeline, import_pipeline
 
 
 def run_pipeline(config):
-    if "HEXA_NOTEBOOK_PATH" in os.environ:
-        notebook_path = (
-            Path("/home/jovyan/workspace") / os.environ["HEXA_NOTEBOOK_PATH"]
-        )
+    if os.getenv("HEXA_PIPELINE_TYPE", "zipFile") == "notebook":
+        notebook_path = Path(workspace.files_path) / os.environ["HEXA_NOTEBOOK_PATH"]
         if not notebook_path.exists():
             print(f"{notebook_path} not found", file=sys.stderr)
             sys.exit(1)
@@ -27,24 +26,24 @@ def run_pipeline(config):
             input_path=notebook_path,
             output_path=output_path / notebook_path.name,
         )
+    else:
+        if not os.path.exists("pipeline/pipeline.py"):
+            print("No pipeline found", file=sys.stderr)
+            sys.exit(1)
 
-    if not os.path.exists("pipeline/pipeline.py"):
-        print("No pipeline.py found", file=sys.stderr)
-        sys.exit(1)
+        if os.path.exists("./pipeline/requirements.txt"):
+            print("Installing requirements...")
+            os.system("pip install -r ./pipeline/requirements.txt")
 
-    if os.path.exists("./pipeline/requirements.txt"):
-        print("Installing requirements...")
-        os.system("pip install -r ./pipeline/requirements.txt")
+        installed, uninstalled = version_info()
+        if len(installed) > 0:
+            print("Using {}".format(", ".join(installed)))
+        if len(uninstalled) > 0:
+            print("Warning, uninstalled libraries: {}".format(", ".join(uninstalled)))
 
-    installed, uninstalled = version_info()
-    if len(installed) > 0:
-        print("Using {}".format(", ".join(installed)))
-    if len(uninstalled) > 0:
-        print("Warning, uninstalled libraries: {}".format(", ".join(uninstalled)))
-
-    print("Running pipeline...")
-    pipeline = import_pipeline("pipeline")
-    pipeline(config=config)
+        print("Running pipeline...")
+        pipeline = import_pipeline("pipeline")
+        pipeline(config=config)
 
 
 def configure_cloud_run():
@@ -75,10 +74,6 @@ def configure_cloud_run():
         # import fuse mount script _after_ env variables injection
         sys.path.insert(1, "/home/jovyan/.hexa_scripts")
         import fuse_mount  # noqa: F401, E402
-
-    if os.path.exists("/home/jovyan/.hexa_scripts/wrap_up.py"):
-        # setup sample files, et co...
-        os.environ["OPENHEXA_LEGACY"] = "false"
 
 
 def version_info():
@@ -118,8 +113,7 @@ if __name__ == "__main__":
         if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
             print("Need token and url to download the code", file=sys.stderr)
             sys.exit(1)
-
-        if "HEXA_NOTEBOOK_PATH" not in os.environ:
+        if os.getenv("HEXA_PIPELINE_TYPE", "zipFile") == "zipFile":
             run_id = os.environ["HEXA_RUN_ID"]
             access_token = os.environ["HEXA_TOKEN"]
             server_url = os.environ["HEXA_SERVER_URL"]
@@ -137,6 +131,8 @@ if __name__ == "__main__":
             print("Pipeline downloaded.")
 
         run_pipeline(args_config)
+
+        # FIXME: We should find a better place to handle this (if it is even needed).
         if args.command == "cloudrun" and os.path.exists(
             "/home/jovyan/.hexa_scripts/fuse_umount.py"
         ):
