@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.10...1.3.0) (2024-05-17)
+
+
+### Features
+
+* run notebook as pipeline ([#23](https://github.com/BLSQ/openhexa-docker-images/issues/23)) ([8eb87c6](https://github.com/BLSQ/openhexa-docker-images/commit/8eb87c6b134ab3140a132846b1c34c748b0b6389))
+
 ## [1.2.10](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.9...1.2.10) (2024-04-10)
 
 
