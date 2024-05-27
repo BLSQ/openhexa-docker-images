@@ -99,6 +99,9 @@ if __name__ == "__main__":
         "--config", default=None, help="Pipeline configuration base64 encoded"
     )
     args = parser.parse_args()
+    pipeline_config = (
+        json.loads(base64.b64decode(args.config).decode("utf-8")) if args.config else {}
+    )
 
     if args.command == "cloudrun":
         configure_cloud_run()
@@ -106,13 +109,6 @@ if __name__ == "__main__":
         if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
             print("Need token and url to download the code", file=sys.stderr)
             sys.exit(1)
-
-    if args.command in ("cloudrun", "run"):
-        args_config = (
-            json.loads(base64.b64decode(args.config).decode("utf-8"))
-            if args.config
-            else {}
-        )
         if os.getenv("HEXA_PIPELINE_TYPE", "zipFile") == "zipFile":
             run_id = os.environ["HEXA_RUN_ID"]
             access_token = os.environ["HEXA_TOKEN"]
@@ -130,14 +126,11 @@ if __name__ == "__main__":
 
             print("Pipeline downloaded.")
 
-        run_pipeline(args_config)
+    run_pipeline(pipeline_config)
 
-        # FIXME: We should find a better place to handle this (if it is even needed).
-        if args.command == "cloudrun" and os.path.exists(
-            "/home/jovyan/.hexa_scripts/fuse_umount.py"
-        ):
-            # clean up fuse & umount at the end
-            import fuse_umount  # noqa: F401, E402
-    else:
-        parser.print_help()
-        sys.exit(1)
+    # FIXME: We should find a better place to handle this (if it is even needed).
+    if args.command == "cloudrun" and os.path.exists(
+        "/home/jovyan/.hexa_scripts/fuse_umount.py"
+    ):
+        # clean up fuse & umount at the end
+        import fuse_umount  # noqa: F401, E402
