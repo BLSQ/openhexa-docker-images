@@ -7,9 +7,7 @@ LABEL org.opencontainers.image.licenses=MIT
 USER root
 
 # System libraries
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt-get update && apt-get install -y libgdal-dev libudunits2-dev
+RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 
 USER ${NB_UID}
 WORKDIR $HOME
