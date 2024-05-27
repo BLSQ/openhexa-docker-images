@@ -135,6 +135,9 @@ COPY files/sample_files/* /home/jovyan
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
 
+# Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
+ENV PYTHONUNBUFFERED=1
+
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD singleuser

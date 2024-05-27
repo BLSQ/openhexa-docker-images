@@ -40,3 +40,6 @@ RUN conda install --yes -c conda-forge \
   'r-sf=1.*' \
   'r-stringi=1.*' &&\
   conda clean --all -y
+
+# Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
+ENV PYTHONUNBUFFERED=1

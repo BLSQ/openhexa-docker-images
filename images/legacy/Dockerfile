@@ -7,6 +7,8 @@ RUN apt-get update
 # For rgdal & sf (R)
 RUN apt-get install -y libgdal-dev libudunits2-dev
 
+# Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
+ENV PYTHONUNBUFFERED=1
 
 USER ${NB_UID}
 WORKDIR $HOME
