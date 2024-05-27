@@ -102,6 +102,10 @@ if __name__ == "__main__":
 
     if args.command == "cloudrun":
         configure_cloud_run()
+        # cloud run -> need to download the code from cloud (except for notebooks as pipeline)
+        if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
+            print("Need token and url to download the code", file=sys.stderr)
+            sys.exit(1)
 
     if args.command in ("cloudrun", "run"):
         args_config = (
@@ -109,10 +113,6 @@ if __name__ == "__main__":
             if args.config
             else {}
         )
-        # cloud run -> need to download the code from cloud (except for notebooks as pipeline)
-        if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
-            print("Need token and url to download the code", file=sys.stderr)
-            sys.exit(1)
         if os.getenv("HEXA_PIPELINE_TYPE", "zipFile") == "zipFile":
             run_id = os.environ["HEXA_RUN_ID"]
             access_token = os.environ["HEXA_TOKEN"]
