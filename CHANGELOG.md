@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.0...1.3.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* **pipelines:** Local pipelines run without a token or a server url ([1eb50ad](https://github.com/BLSQ/openhexa-docker-images/commit/1eb50ad7879178759225cbc2b6c2db0e7d04fe8f))
+
+
+### Miscellaneous
+
+* **Dockerfile:** Remove the cache for apt-get to not rebuild the packages ([4276831](https://github.com/BLSQ/openhexa-docker-images/commit/427683108f61d56ff3ec34f12de835d525a24e47))
+* **Pipeline:** Refactor main function ([524a29d](https://github.com/BLSQ/openhexa-docker-images/commit/524a29dba5aa18185c3cc996a9781da100b32d24))
+
 ## [1.3.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.2.10...1.3.0) (2024-05-17)
 
 
