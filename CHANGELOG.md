@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.1...1.3.2) (2024-05-28)
+
+
+### Bug Fixes
+
+* Set PYTHONUNBUFFERED to send to stdout & stderr directly ([3041386](https://github.com/BLSQ/openhexa-docker-images/commit/30413863015a2640f565f48479dd5c47f8cda66e))
+
 ## [1.3.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.0...1.3.1) (2024-05-27)
 
 
