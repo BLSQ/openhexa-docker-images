@@ -132,10 +132,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Pipeline failed: {e}", file=sys.stderr)
         sys.exit(1)
-
-    # FIXME: We should find a better place to handle this (if it is even needed).
-    if args.command == "cloudrun" and os.path.exists(
-        "/home/jovyan/.hexa_scripts/fuse_umount.py"
-    ):
-        # clean up fuse & umount at the end
-        import fuse_umount  # noqa: F401, E402
