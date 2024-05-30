@@ -126,7 +126,12 @@ if __name__ == "__main__":
 
             print("Pipeline downloaded.")
 
-    run_pipeline(pipeline_config)
+    try:
+        run_pipeline(pipeline_config)
+        print("Pipeline completed.")
+    except Exception as e:
+        print(f"Pipeline failed: {e}", file=sys.stderr)
+        sys.exit(1)
 
     # FIXME: We should find a better place to handle this (if it is even needed).
     if args.command == "cloudrun" and os.path.exists(
