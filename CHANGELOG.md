@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.2...1.3.3) (2024-06-05)
+
+
+### Bug Fixes
+
+* **Pipeline:** Try..catch around the pipeline execution to catch all errors that can occur and exit the program with an error ([fc0da2a](https://github.com/BLSQ/openhexa-docker-images/commit/fc0da2a3bdf380fc65ff6a252f0eb394db3e8849))
+* The pipeline job is not stopped in case of error ([#27](https://github.com/BLSQ/openhexa-docker-images/issues/27)) ([1ee95b8](https://github.com/BLSQ/openhexa-docker-images/commit/1ee95b812cfabc941ce0b000a61a60633519f129))
+
+
+### Miscellaneous
+
+* Add a wildcard for the patch number of openhexa.toolbox ([3d13ef9](https://github.com/BLSQ/openhexa-docker-images/commit/3d13ef94fea6098cc37a683de5d2449839c7cf8f))
+* Removing the fuse unmount (done by the system) ([9c57eb6](https://github.com/BLSQ/openhexa-docker-images/commit/9c57eb6c0b9da690bfd6d59246d4f3911d5ceab5))
+
 ## [1.3.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.1...1.3.2) (2024-05-28)
 
 
