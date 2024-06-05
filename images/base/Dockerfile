@@ -119,7 +119,7 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
 RUN pip install -U \
   'openhexa-sdk==0.1.*' \
-  'openhexa-toolbox==0.2'
+  'openhexa-toolbox==0.2.*'
 
 # s3f fuse
 COPY files/scripts/fuse.conf /etc/.
