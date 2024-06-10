@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.3...1.3.4) (2024-06-10)
+
+
+### Bug Fixes
+
+* Use conda instead of pip to install requirements.txt ([dc2f430](https://github.com/BLSQ/openhexa-docker-images/commit/dc2f4309e1826f33e080eb30948e583abd37c284))
+
 ## [1.3.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.2...1.3.3) (2024-06-05)
 
 
