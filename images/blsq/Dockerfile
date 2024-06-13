@@ -9,6 +9,18 @@ USER root
 # System libraries
 RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 
+# R packages (only available on cran)
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
+    R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+
+# R packages on R channel
+RUN conda install --yes -c R \
+  'r-imputets=3.*'  \
+  'r-tsbox=0.3.*' \
+  'r-mmwrweek=0.1.*' &&\
+  conda clean --all -y
+
+
 USER ${NB_UID}
 WORKDIR $HOME
 

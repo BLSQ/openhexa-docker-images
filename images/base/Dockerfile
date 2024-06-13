@@ -35,14 +35,14 @@ RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
     update-locale
 
 # Install AWS CLI tools
-RUN mkdir -p /usr/local/src/awcli
-WORKDIR /usr/local/src/awcli
+RUN mkdir -p /usr/local/src/awscli
+WORKDIR /usr/local/src/awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
   unzip awscliv2.zip &&\
   ./aws/install
 
 WORKDIR $HOME
-RUN rm -rf /usr/local/src/awcli
+RUN rm -rf /usr/local/src/awscli
 
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
@@ -50,24 +50,13 @@ RUN chown jovyan /home/hexa
 
 USER ${NB_UID}
 
-# R packages (only available on cran)
-RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
-    R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
-
 # Set environment variable for Conda cache directory inside the container
 ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 
 RUN conda install -n base conda-libmamba-solver && \
   conda config --set solver libmamba
 
-# R packages on R channel
-RUN conda install --yes -c R \
-  'r-imputets=3.*'  \
-  'r-tsbox=0.3.*' \
-  'r-mmwrweek=0.1.*' &&\
-  conda clean --all -y
-
-RUN  conda install --yes -c conda-forge \
+RUN conda install --yes -c conda-forge -c R \
   # R packages on conda-forge
   'r-arrow=14.*' \
   'r-getpass=0.*' \

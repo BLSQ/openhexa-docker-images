@@ -13,6 +13,11 @@ ENV PYTHONUNBUFFERED=1
 USER ${NB_UID}
 WORKDIR $HOME
 
+# R packages (only available on cran)
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
+    R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+
+
 RUN  conda install --yes -c conda-forge \
   # Override base packages (we need to downgrade some of them)
   'fsspec=2022.*' \
