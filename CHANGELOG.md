@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.4...1.3.5) (2024-06-14)
+
+
+### Miscellaneous
+
+* Move libraries from base to the others ([#31](https://github.com/BLSQ/openhexa-docker-images/issues/31)) ([3ad0d01](https://github.com/BLSQ/openhexa-docker-images/commit/3ad0d0104c6b65172567147558d85b440608b15b))
+* Release 1.3.5 ([43049ed](https://github.com/BLSQ/openhexa-docker-images/commit/43049edcdb37d924b5f8ac7cc89c41a4fbc50533))
+
 ## [1.3.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.3...1.3.4) (2024-06-10)
 
 
