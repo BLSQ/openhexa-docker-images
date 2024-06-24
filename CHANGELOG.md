@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.5...1.3.6) (2024-06-24)
+
+
+### Bug Fixes
+
+* **Dockerfile:** use conda for internal ([#32](https://github.com/BLSQ/openhexa-docker-images/issues/32)) ([8811841](https://github.com/BLSQ/openhexa-docker-images/commit/8811841dd8872f6453720b8b7d7cc8dfd82a4628))
+
 ## [1.3.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.4...1.3.5) (2024-06-14)
 
 
