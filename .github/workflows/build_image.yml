@@ -33,7 +33,7 @@ jobs:
       
       # Build all images
       - name: Build and push "base" image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
           context: images/base
@@ -44,7 +44,7 @@ jobs:
           cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
       
       - name: Build and push "legacy" image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
           context: images/legacy
@@ -55,7 +55,7 @@ jobs:
           cache-to: type=registry,ref=blsq/openhexa-legacy-environment:buildcache,mode=max
 
       - name: Build and push "blsq" image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
           context: images/blsq
