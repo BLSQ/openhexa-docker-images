@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.7...1.3.8) (2024-06-25)
+
+
+### Miscellaneous
+
+* Add renovate.json ([#35](https://github.com/BLSQ/openhexa-docker-images/issues/35)) ([8a85f78](https://github.com/BLSQ/openhexa-docker-images/commit/8a85f78087f7caa16c2abf4d98644e46b00c389e))
+* **deps:** update actions/checkout action to v4 ([#36](https://github.com/BLSQ/openhexa-docker-images/issues/36)) ([b6befe2](https://github.com/BLSQ/openhexa-docker-images/commit/b6befe24cfd8f1efa59c020ea603a0a0911e7f1b))
+* **deps:** update docker/build-push-action action to v6 ([#38](https://github.com/BLSQ/openhexa-docker-images/issues/38)) ([c81065b](https://github.com/BLSQ/openhexa-docker-images/commit/c81065b44ede5394bfc0a9c6467212d61c8d3d0c))
+
 ## [1.3.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.6...1.3.7) (2024-06-25)
 
 
