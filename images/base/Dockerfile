@@ -56,7 +56,7 @@ ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 RUN conda install -n base conda-libmamba-solver && \
   conda config --set solver libmamba
 
-RUN conda install --yes -c conda-forge -c R \
+RUN conda install --yes -c conda-forge -c R -c blsqtech \
   # R packages on conda-forge
   'r-arrow=14.*' \
   'r-getpass=0.*' \
@@ -89,6 +89,9 @@ RUN conda install --yes -c conda-forge -c R \
   'contextily=1.*' \
   'tabpy=2.*' \
   'docxtpl=0.11.*' \
+  # Install openhexa-sdk & openhexa-toolbox from anaconda
+  'openhexa.sdk=0.1.49' \
+  'openhexa.toolbox=0.2.*' \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
@@ -106,12 +109,6 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
-
-# Install openhexa-sdk & openhexa-toolbox from anaconda
-RUN conda install --yes -c blsqtech \
-'openhexa.sdk=0.1.*' \
-'openhexa.toolbox=0.2.*' && \
-conda clean --all -y
 
 
 # s3f fuse
