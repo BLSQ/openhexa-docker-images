@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.6...1.3.7) (2024-06-25)
+
+
+### Bug Fixes
+
+* **SDK:** Upgrade openehxa.sdk to latest version to fix connections ([3ff4db5](https://github.com/BLSQ/openhexa-docker-images/commit/3ff4db5deb79bdcae55f7fed53d4971c049cdb9f))
+
 ## [1.3.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.5...1.3.6) (2024-06-24)
 
 
