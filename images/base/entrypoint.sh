@@ -24,7 +24,7 @@ show_help() {
 
 case "$command" in
 "notebook")
-  start-notebook.sh
+  start-notebook.sh --ServerApp.root_dir=/home/jovyan/workspace
   ;;
 "singleuser")
   start-singleuser.sh
