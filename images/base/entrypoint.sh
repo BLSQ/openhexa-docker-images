@@ -24,7 +24,7 @@ show_help() {
 
 case "$command" in
 "notebook")
-  start-notebook.sh
+  start-notebook.sh 
   ;;
 "singleuser")
   start-singleuser.sh
