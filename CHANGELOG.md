@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.8...v1.3.9) (2024-08-08)
+
+
+### Bug Fixes
+
+* **Notebook:** point to workspace directory as root directory ([#41](https://github.com/BLSQ/openhexa-docker-images/issues/41)) ([b7c8fd9](https://github.com/BLSQ/openhexa-docker-images/commit/b7c8fd9c73ff46344c7b06b77abbbcbc11ad313c))
+
 ## [1.3.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.7...1.3.8) (2024-06-25)
 
 
