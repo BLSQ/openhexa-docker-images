@@ -34,16 +34,6 @@ WORKDIR $HOME
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
     update-locale
 
-# Install AWS CLI tools
-RUN mkdir -p /usr/local/src/awscli
-WORKDIR /usr/local/src/awscli
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-  unzip awscliv2.zip &&\
-  ./aws/install
-
-WORKDIR $HOME
-RUN rm -rf /usr/local/src/awscli
-
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
 RUN chown jovyan /home/hexa
@@ -57,38 +47,9 @@ RUN conda install -n base conda-libmamba-solver && \
   conda config --set solver libmamba
 
 RUN conda install --yes -c conda-forge -c R -c blsqtech \
-  # R packages on conda-forge
-  'r-arrow=14.*' \
-  'r-getpass=0.*' \
-  'r-readxl=1.*' \
-  'r-isotree=0.5.*' \ 
-  'r-rcolorbrewer=1.*' \
-  'r-rjson=0.2.*' \
-  'r-rpostgres=1.*' \
-  'r-styler=1.*' \
-  'r-tidyverse=2.*' \
-  'r-viridis=0.6.*' \
-  'r-nloptr=2.*' \
-  # Python packages on conda-forge
-  'black=23.12.*' \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
-  'ipywidgets=8.*' \
-  'isort=5.*' \
-  'lxml=5.*' \
-  'nbresuse=0.4.*' \
-  'netCDF4=1.*' \
   'papermill=2.*' \
-  'polars=0.20.*' \
-  'psycopg2=2.*' \
-  'pyarrow=14.*' \
-  'rapidfuzz=3.*' \
-  'rpy2=3.*' \
-  'xarray=2023.12.0' \
-  'zarr=2.*' \
-  'contextily=1.*' \
-  'tabpy=2.*' \
-  'docxtpl=0.11.*' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda
   'openhexa.sdk=0.1.49' \
   'openhexa.toolbox=0.2.*' \

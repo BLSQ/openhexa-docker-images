@@ -21,10 +21,9 @@ RUN conda install --yes -c R \
   conda clean --all -y
 
 
-USER ${NB_UID}
 WORKDIR $HOME
 
-RUN conda install --yes -c conda-forge \
+RUN conda install --yes -c conda-forge  -c R\
   # Python packages
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
@@ -38,7 +37,34 @@ RUN conda install --yes -c conda-forge \
   'connectorx==0.3.*' \
   'xlsx2csv==0.8.*' \
   'xlsxwriter==3.*' \
+  'black=23.12.*' \
+  'ipywidgets=8.*' \
+  'isort=5.*' \
+  'lxml=5.*' \
+  'nbresuse=0.4.*' \
+  'netCDF4=1.*' \
+  'polars=0.20.*' \
+  'psycopg2=2.*' \
+  'pyarrow=14.*' \
+  'rapidfuzz=3.*' \
+  'rpy2=3.*' \
+  'xarray=2023.12.0' \
+  'zarr=2.*' \
+  'contextily=1.*' \
+  'tabpy=2.*' \
+  'docxtpl=0.11.*' \
   # R Packages
+  'r-arrow=14.*' \
+  'r-getpass=0.*' \
+  'r-readxl=1.*' \
+  'r-isotree=0.5.*' \ 
+  'r-rcolorbrewer=1.*' \
+  'r-rjson=0.2.*' \
+  'r-rpostgres=1.*' \
+  'r-styler=1.*' \
+  'r-tidyverse=2.*' \
+  'r-viridis=0.6.*' \
+  'r-nloptr=2.*' \
   'r-rgdal=1.*' \
   'r-rgeos=0.6.*' \
   'r-rgooglemaps=1.*' \
