@@ -11,7 +11,7 @@ RUN apt-get install -y libgdal-dev libudunits2-dev
 RUN mkdir -p /usr/local/src/awscli
 WORKDIR /usr/local/src/awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-  unzip awscliv2.zip &&\
+  unzip awscliv2.zip && \
   ./aws/install
 
 WORKDIR $HOME
