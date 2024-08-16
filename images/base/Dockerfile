@@ -34,6 +34,13 @@ WORKDIR $HOME
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
     update-locale
 
+# Install AWS CLI tools
+RUN mkdir -p /usr/local/src/awscli
+WORKDIR /usr/local/src/awscli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+  unzip awscliv2.zip &&\
+  ./aws/install
+
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
 RUN chown jovyan /home/hexa
