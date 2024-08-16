@@ -7,6 +7,9 @@ RUN apt-get update
 # For rgdal & sf (R)
 RUN apt-get install -y libgdal-dev libudunits2-dev
 
+# Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
+ENV PYTHONUNBUFFERED=1
+
 # Install AWS CLI tools
 RUN mkdir -p /usr/local/src/awscli
 WORKDIR /usr/local/src/awscli
@@ -17,11 +20,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 WORKDIR $HOME
 RUN rm -rf /usr/local/src/awscli
 
-# Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
-ENV PYTHONUNBUFFERED=1
-
 USER ${NB_UID}
-WORKDIR $HOME
 
 # R packages (only available on cran)
 RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" && \
