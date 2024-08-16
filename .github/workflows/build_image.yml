@@ -1,6 +1,7 @@
 name: Build images
 
 on:
+  pull_request:
   push:
     branches: [main]
   release:
@@ -19,6 +20,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -36,23 +39,22 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
+          load: true
           context: images/base
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-base-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
       
       - name: Build and push "legacy" image
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
+          build-contexts: |
+             blsq/openhexa-base-environment=docker-image://blsq/openhexa-base-environment:latest
           context: images/legacy
           tags: |
             blsq/openhexa-legacy-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-legacy-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-legacy-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-legacy-environment:buildcache,mode=max
 
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
@@ -62,5 +64,4 @@ jobs:
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-blsq-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-blsq-environment:buildcache,mode=max
+
