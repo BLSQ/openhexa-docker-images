@@ -20,6 +20,10 @@ if not WORKSPACE_BUCKET_NAME:
     exit(0)
 
 path_to_mount = "/home/jovyan/workspace"
+if os.path.exists(path_to_mount):
+    print(f"Path {path_to_mount} already exists, skipping Fuse mount")
+    exit(0)
+
 subprocess.run(["mkdir", "-p", path_to_mount], check=True)
 
 if STORAGE_ENGINE_TYPE == "gcp":
