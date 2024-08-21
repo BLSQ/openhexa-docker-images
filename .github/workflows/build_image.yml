@@ -40,8 +40,8 @@ jobs:
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-base-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
+          # cache-from: type=registry,ref=blsq/openhexa-base-environment:buildcache
+          # cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
       
       - name: Build and push "legacy" image
         uses: docker/build-push-action@v6
