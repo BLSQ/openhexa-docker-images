@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.8...v1.3.9) (2024-08-22)
+
+
+### Bug Fixes
+
+* **docker:** Build images using the default docker driver ([f4dfbed](https://github.com/BLSQ/openhexa-docker-images/commit/f4dfbedc63fc9e2a2a3d3d570c8b5aefe331ab5f))
+* **docker:** load the base image in docker ([a48f704](https://github.com/BLSQ/openhexa-docker-images/commit/a48f7042f0072aec67fc929a8d20d5079690d4d9))
+* **Notebook:** point to workspace directory as root directory ([#41](https://github.com/BLSQ/openhexa-docker-images/issues/41)) ([b7c8fd9](https://github.com/BLSQ/openhexa-docker-images/commit/b7c8fd9c73ff46344c7b06b77abbbcbc11ad313c))
+* try to disable docker cache to not have awscli in the image ([#47](https://github.com/BLSQ/openhexa-docker-images/issues/47)) ([c023ef2](https://github.com/BLSQ/openhexa-docker-images/commit/c023ef22672ba0a97bcf8da7811c83137b5c8f7e))
+* use the local registry (try at least) ([b80b116](https://github.com/BLSQ/openhexa-docker-images/commit/b80b116d1207438d7e3372086df76bd9b3c0c1a4))
+
 ## [1.3.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.3.7...1.3.8) (2024-06-25)
 
 
