@@ -2,28 +2,17 @@ name: Build images
 
 on:
   push:
+    branches: [main]
   release:
     types: [ published ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          # network=host driver-opt needed to push to local registry
-          driver-opts: network=host
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -41,36 +30,26 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           load: true
-          push: true
+          push: ${{ github.event_name == 'release' }}
           context: images/base
           tags: |
-            localhost:5000/blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
-            localhost:5000/blsq/openhexa-base-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-base-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-base-environment:buildcache,mode=max
+            blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
+            blsq/openhexa-base-environment:latest
       
       - name: Build and push "legacy" image
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
           context: images/legacy
-          build-contexts: |
-            alpine=docker-image://localhost:5000/blsq/openhexa-base-environment:latest  
           tags: |
             blsq/openhexa-legacy-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-legacy-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-legacy-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-legacy-environment:buildcache,mode=max
 
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'release' }}
           context: images/blsq
-          build-contexts: |
-            alpine=docker-image://localhost:5000/blsq/openhexa-base-environment:latest  
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
-          cache-from: type=registry,ref=blsq/openhexa-blsq-environment:buildcache
-          cache-to: type=registry,ref=blsq/openhexa-blsq-environment:buildcache,mode=max
