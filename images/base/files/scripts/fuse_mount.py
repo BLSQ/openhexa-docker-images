@@ -20,11 +20,9 @@ if not WORKSPACE_BUCKET_NAME:
     exit(0)
 
 path_to_mount = "/home/jovyan/workspace"
-if os.path.exists(path_to_mount):
-    print(f"Path {path_to_mount} already exists, skipping Fuse mount")
-    exit(0)
+if not os.path.exists(path_to_mount):
+    subprocess.run(["mkdir", "-p", path_to_mount], check=True)
 
-subprocess.run(["mkdir", "-p", path_to_mount], check=True)
 
 if STORAGE_ENGINE_TYPE == "gcp":
     access_token = os.environ.get("WORKSPACE_STORAGE_ENGINE_GCP_ACCESS_TOKEN", "")
@@ -101,3 +99,7 @@ elif STORAGE_ENGINE_TYPE == "s3":
 
     # print(f"debug fusemount {command}")
     results = subprocess.run(command)
+
+elif STORAGE_ENGINE_TYPE == "local":
+    # Nothing to do as the workspace is already mounted
+    pass
