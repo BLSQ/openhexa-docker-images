@@ -51,8 +51,8 @@ RUN conda install --yes -c conda-forge -c R -c blsqtech \
   'gcsfs=2023.12.2' \
   'papermill=2.*' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda
-  'openhexa.sdk=1.*' \
-  'openhexa.toolbox=0.*' \
+  'openhexa.sdk=0.*' \
+  'openhexa.toolbox=1.*' \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
