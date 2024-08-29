@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           load: true
-          push: ${{ github.event_name == 'release' }}
+          push: true
           context: images/base
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
@@ -39,7 +39,7 @@ jobs:
       - name: Build and push "legacy" image
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name == 'release' }}
+          push: true
           context: images/legacy
           tags: |
             blsq/openhexa-legacy-environment:${{ steps.version.outputs.number || 'main' }}
@@ -48,7 +48,7 @@ jobs:
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name == 'release' }}
+          push: true
           context: images/blsq
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
