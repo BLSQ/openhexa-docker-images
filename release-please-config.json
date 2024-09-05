@@ -5,10 +5,5 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
   "include-v-in-tag": false,
-  "changelog-type": "github",
-  "changelog-sections": [
-    {"type":"feat","section":"Features","hidden":false},
-    {"type":"fix","section":"Bug Fixes","hidden":false},
-    {"type":"chore","section":"Miscellaneous","hidden":false}
-  ]
+  "changelog-type": "github"
 }
