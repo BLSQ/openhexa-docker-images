@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.2](https://github.com/BLSQ/openhexa-docker-images/compare/v1.4.1...v1.4.2) (2024-09-05)
+
+
+### Bug Fixes
+
+* Put back the include-v-in-tag ([055d28f](https://github.com/BLSQ/openhexa-docker-images/commit/055d28f96bff48effee1056aa470a8a09a9d6230))
+* Remove the 'v' in front the tag (temporary solution the time release-please works as expected) ([98ccbb7](https://github.com/BLSQ/openhexa-docker-images/commit/98ccbb77ed717cdacde389d1449096d371573602))
+* set the 'simple' release-type & remove include-v-in-tag that has 'false' as the default ([42fc5d6](https://github.com/BLSQ/openhexa-docker-images/commit/42fc5d6ef898132ec3f587a9c4b863ef07fb971b))
+
 ## [1.4.1](https://github.com/BLSQ/openhexa-docker-images/compare/v1.4.0...v1.4.1) (2024-09-05)
 
 
