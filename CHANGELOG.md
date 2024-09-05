@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/BLSQ/openhexa-docker-images/compare/v1.4.2...1.4.3) (2024-09-05)
+
+
+### Bug Fixes
+
+* Try to fix release-please to generate tags without v ([96f2fcd](https://github.com/BLSQ/openhexa-docker-images/commit/96f2fcd9f52919d6722207ed9e26af41e6878c35))
+
 ## [1.4.2](https://github.com/BLSQ/openhexa-docker-images/compare/v1.4.1...v1.4.2) (2024-09-05)
 
 
