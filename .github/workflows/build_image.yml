@@ -23,7 +23,7 @@ jobs:
         id: version
         if: ${{ github.event_name == 'release' }}
         # GITHUB_REF looks like "refs/tags/v0.3.1" - we need to extract the actual version without the v prefix
-        run: echo "number=${GITHUB_REF##*/}" | sed 's/^v//' >> $GITHUB_OUTPUT
+        run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
       
       # Build all images
       - name: Build and push "base" image
