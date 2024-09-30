@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 
 import papermill as pm
@@ -131,4 +132,5 @@ if __name__ == "__main__":
         print("Pipeline completed.")
     except Exception as e:
         print(f"Pipeline failed: {e}", file=sys.stderr)
+        traceback.print_exc()
         sys.exit(1)
