@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.3...1.4.4) (2024-10-08)
+
+
+### Bug Fixes
+
+* **FS:** Change owner of the /home/hexa/workspace folder to jovyan since it's created as root from K8S ([#54](https://github.com/BLSQ/openhexa-docker-images/issues/54)) ([9bb8936](https://github.com/BLSQ/openhexa-docker-images/commit/9bb89362f898ca7f0c6434f756916919932e697a))
+* **Pipelines:** print exception traceback ([#56](https://github.com/BLSQ/openhexa-docker-images/issues/56)) ([a13ac4d](https://github.com/BLSQ/openhexa-docker-images/commit/a13ac4d88312a53860432075e4bd5e6e483384f0))
+
 ## [1.4.3](https://github.com/BLSQ/openhexa-docker-images/compare/v1.4.2...1.4.3) (2024-09-05)
 
 
