@@ -22,7 +22,7 @@ if not WORKSPACE_BUCKET_NAME:
 
 path_to_mount = "/home/jovyan/workspace"
 if not os.path.exists(path_to_mount):
-    os.makedirs(path_to_mount, exist_ok=True)
+    os.makedirs(path_to_mount, mode=0o777, exist_ok=True)
     # This script is ran as root in the infra. We need to change the ownership to jovyan
     shutil.chown(path_to_mount, user="jovyan", group="users")
 
