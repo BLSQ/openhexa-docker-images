@@ -9,8 +9,7 @@ USER root
 # System libraries
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \ 
-    apt-get update && apt-get install -y  libgdal-dev libudunits2-dev \
-    libcurl4-openssl-dev \
+    apt-get update && apt-get install -y libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
     pandoc \
@@ -29,7 +28,6 @@ RUN conda install --yes -c R \
   'r-gt=0.10.*'  \
   'r-extrafont=0.19.*'  \
   'r-glue=1.7.*'  \
-  'r-sf=1.0.*'  \
   'r-here=1.0.*'  \
   'r-lubridate=1.9.*'  \
   'r-forcats=1.0.*'  \
@@ -40,7 +38,6 @@ RUN conda install --yes -c R \
   'r-tidyr=1.3.*'  \
   'r-tibble=3.2.*'  \
   'r-ggplot2=3.5.*'  \
-  'r-tidyverse=2.0.*'  \
   'r-gtable=0.3.*'  \
   'r-websocket=1.4.*'  \
   'r-processx=3.8.*'  \
