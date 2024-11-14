@@ -24,10 +24,10 @@ show_help() {
 
 case "$command" in
 "notebook")
-  start-notebook.sh 
+  start-notebook.sh $arguments
   ;;
 "singleuser")
-  start-singleuser.sh
+  start-singleuser.sh $arguments
   ;;
 "pipeline")
   if [[ "$REMOTE_DEBUGGER" == "true" ]]; then
