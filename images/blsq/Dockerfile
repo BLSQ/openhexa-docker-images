@@ -24,6 +24,7 @@ WORKDIR $HOME
 
 RUN conda install --yes -c conda-forge  -c R\
   # Python packages
+  'ruff=0.7.*' \
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
   'geoalchemy2=0.14.*' \
@@ -81,3 +82,5 @@ RUN conda install --yes -c conda-forge  -c R\
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
 ENV PYTHONUNBUFFERED=1
 USER ${NB_UID}
+# Set RUFF_CACHE_DIR env variable
+ENV RUFF_CACHE_DIR=/tmp/.ruff_cache
