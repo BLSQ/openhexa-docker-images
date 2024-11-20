@@ -35,15 +35,6 @@ jobs:
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
-      
-      - name: Build and push "legacy" image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          context: images/legacy
-          tags: |
-            blsq/openhexa-legacy-environment:${{ steps.version.outputs.number || 'main' }}
-            blsq/openhexa-legacy-environment:latest
 
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
