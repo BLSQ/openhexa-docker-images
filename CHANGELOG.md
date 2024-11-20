@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.5...1.4.6) (2024-11-20)
+
+
+### Bug Fixes
+
+* set the USER for the blsq image; remove g+w on the wrap_up.py & merge install.packages together ([456febf](https://github.com/BLSQ/openhexa-docker-images/commit/456febf65c7a6397a77c62d5ce1566ca7633ccaf))
+
 ## [1.4.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.4...1.4.5) (2024-11-15)
 
 
