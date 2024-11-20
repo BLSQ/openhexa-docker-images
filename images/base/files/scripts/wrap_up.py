@@ -7,5 +7,4 @@ subprocess.run(["mv", "/home/jovyan/work", "/home/jovyan/tmp"])
 # subprocess.run(["chmod", "a-w", "/home/jovyan"])
 
 # Make /home/jovyan/worskpace + /home/jovyan/tmp writable
-subprocess.run(["chmod", "g+w", "/home/jovyan/workspace"])
 subprocess.run(["chmod", "g+w", "/home/jovyan/tmp"])

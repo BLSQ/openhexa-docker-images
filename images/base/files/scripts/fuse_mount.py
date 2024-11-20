@@ -47,8 +47,10 @@ if STORAGE_ENGINE_TYPE == "gcp":
     args = [
         "gcsfuse",
         "-o",
-        "allow_other",
+        "rw",
         "--implicit-dirs",  # Also create implicit directories structure (i.e. key /a/b/c/d will create /a, /a/b, /a/b/c)
+        "--uid=1000",  # jovyan user id
+        "--gid=100",  # users group id
     ]
 
     # Use the custom token server to get the token
