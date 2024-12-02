@@ -44,3 +44,12 @@ jobs:
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
+      
+      - name: Build and push "blsq-r" image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: images/blsq-r
+          tags: |
+            blsq/openhexa-blsq-r-environment:${{ steps.version.outputs.number || 'main' }}
+            blsq/openhexa-blsq-r-environment:latest
