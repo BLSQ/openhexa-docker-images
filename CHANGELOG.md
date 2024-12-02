@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.6...1.5.0) (2024-12-02)
+
+
+### Features
+
+* **Blsq:** add ruff linter to blsq image ([#60](https://github.com/BLSQ/openhexa-docker-images/issues/60)) ([bccf4ba](https://github.com/BLSQ/openhexa-docker-images/commit/bccf4baa56fafd64393a9ed76f24f096e5e19adb))
+* **Docker:** create a custom R image ([#57](https://github.com/BLSQ/openhexa-docker-images/issues/57)) ([63dae52](https://github.com/BLSQ/openhexa-docker-images/commit/63dae522c214c6d535b84655f8e37a89738aa965))
+
 ## [1.4.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.5...1.4.6) (2024-11-20)
 
 
