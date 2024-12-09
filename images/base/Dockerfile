@@ -46,7 +46,7 @@ ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 RUN conda install -n base conda-libmamba-solver && \
   conda config --set solver libmamba
 
-RUN conda install --yes -c conda-forge -c R -c blsqtech \
+RUN conda install --yes -c conda-forge -c R -c blsqtech -c bioconda \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
   'papermill=2.*' \
