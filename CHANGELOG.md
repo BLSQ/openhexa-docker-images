@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.5.0...1.6.0) (2024-12-09)
+
+
+### Features
+
+* update openhexa.sdk & openhexa.toolbox ([52f993f](https://github.com/BLSQ/openhexa-docker-images/commit/52f993f92537a8141ce58106e4218eb153f46fc9))
+
+
+### Bug Fixes
+
+* Add bioconda as a channel to use ([#64](https://github.com/BLSQ/openhexa-docker-images/issues/64)) ([9d0c4ca](https://github.com/BLSQ/openhexa-docker-images/commit/9d0c4cae87f7a719796c0928b279211cc1639cee))
+
 ## [1.5.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.4.6...1.5.0) (2024-12-02)
 
 
