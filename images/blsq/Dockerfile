@@ -25,6 +25,9 @@ WORKDIR $HOME
 RUN conda install --yes -c conda-forge  -c R\
   # Python packages
   'ruff=0.7.*' \
+  'boto3=1.35.*' \
+  'python-kaleido=0.2.*' \
+  'dateparser=1.2.*' \
   'dask-ml=2022.5.27' \
   'descartes=1.*' \
   'geoalchemy2=0.14.*' \
