@@ -34,7 +34,7 @@ def run_pipeline(config):
 
         if os.path.exists("./pipeline/requirements.txt"):
             print("Installing requirements...")
-            os.system("pip install -r ./pipeline/requirements.txt")
+            os.system("pip install -r ./pipeline/requirements.txt --user")
 
         installed, uninstalled = version_info()
         if len(installed) > 0:
