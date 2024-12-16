@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.6.0...1.6.1) (2024-12-16)
+
+
+### Bug Fixes
+
+* **requirements:** Install packages in user space ([6debe51](https://github.com/BLSQ/openhexa-docker-images/commit/6debe51e4340c08877b82da6d11fe61a4a9552f5))
+
 ## [1.6.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.5.0...1.6.0) (2024-12-09)
 
 
