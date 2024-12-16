@@ -12,15 +12,15 @@ RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
 
+USER ${NB_UID}
+WORKDIR $HOME
+
 # R packages on R channel
 RUN conda install --yes -c R \
   'r-imputets=3.*'  \
   'r-tsbox=0.3.*' \
   'r-mmwrweek=0.1.*' &&\
   conda clean --all -y
-
-
-WORKDIR $HOME
 
 RUN conda install --yes -c conda-forge  -c R\
   # Python packages
@@ -81,6 +81,5 @@ RUN conda install --yes -c conda-forge  -c R\
 
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
 ENV PYTHONUNBUFFERED=1
-USER ${NB_UID}
 # Set RUFF_CACHE_DIR env variable
 ENV RUFF_CACHE_DIR=/tmp/.ruff_cache

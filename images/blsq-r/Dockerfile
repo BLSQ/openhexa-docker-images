@@ -24,6 +24,8 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
 
 RUN R -e "install.packages('ggnewscale', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')" 
 
+USER ${NB_UID}
+
 RUN conda install --yes -c R \
   'r-gt=0.10.*'  \
   'r-extrafont=0.19.*'  \
