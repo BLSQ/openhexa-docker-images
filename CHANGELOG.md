@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.6.1...1.6.2) (2024-12-16)
+
+
+### Bug Fixes
+
+* **Conda:** Install all conda packages with non-root user ([ae34cdf](https://github.com/BLSQ/openhexa-docker-images/commit/ae34cdf1b765f1f766c8c273afea574eeb49b131))
+* **pip:** Do not install deps in user space ([39cf14d](https://github.com/BLSQ/openhexa-docker-images/commit/39cf14d231937d9d1e303d3642a71923dc206588))
+
 ## [1.6.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.6.0...1.6.1) (2024-12-16)
 
 
