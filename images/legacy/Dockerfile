@@ -29,45 +29,44 @@ RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='htt
     R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 
 
-RUN  conda install --yes -c conda-forge \
+RUN conda install --yes -c conda-forge  \
   # Override base packages (we need to downgrade some of them)
   'fsspec=2022.*' \
   'gcsfs=2022.*' \
   # Blsq Python packages
-  'dask-ml=2022.5.27' \
-  'descartes=1.*' \
-  'geoalchemy2=0.14.*' \
-  'geopandas=0.14.*' \
-  'lerc=4.*' \
-  'plotly=5.*' \
-  'slack_sdk=3.*' \
-  'mapclassify=2.*' \
-  'rasterstats=0.19.*' \
+  'dask-ml' \
+  'descartes' \
+  'geoalchemy2' \
+  'geopandas' \
+  'lerc' \
+  'plotly' \
+  'slack_sdk' \
+  'mapclassify' \
+  'rasterstats' \
   # Legacy Python packages
   's3contents' \
-  's3fs=2022.*' \
-  'hybridcontents=0.3.*' \
-  'fake-useragent==1.4.*' \
-  'hdx-python-api==6.*' \
+  's3fs' \
+  'hybridcontents' \
+  'fake-useragent' \
+  'hdx-python-api' \
   # R Packages
-  'r-rgdal=1.*' \
-  'r-rgeos=0.6.*' \
-  'r-rgooglemaps=1.*' \
-  'r-geojsonio=0.11.*' \
-  'r-ggmap=3.*' \
-  'r-ggthemes=4.*' \
-  'r-hmisc=4.*' \
-  'r-maptools=1.*' \
-  'r-plotly=4.*' \
-  'r-raster=3.*' \
-  'r-sf=1.*' \
+  'r-rgeos' \
+  'r-rgooglemaps' \
+  'r-ggmap' \
+  'r-ggthemes' \
+  'r-hmisc' \
+  'r-maptools' \
+  'r-plotly' \
+  'r-raster' \
+  'r-sf' \
   # Legacy R packages
-  'r-rjava=1.*' \
-  'r-aws.s3=0.3.*' \
+  'r-rjava' \
+  'r-aws.s3' \
   # Legacy Jupyter extensions
-  'dash=2.*' \
-  'jupyter-server-proxy=4.*' && \
+  'dash' \
+  'jupyter-server-proxy' && \
   conda clean --all -y
+
 
 # k8s: same as sample files, we need to copy those to a temp location
 COPY files/scripts/* /tmp/hexa_scripts/
