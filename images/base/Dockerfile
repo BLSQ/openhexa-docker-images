@@ -43,10 +43,7 @@ USER ${NB_UID}
 # Set environment variable for Conda cache directory inside the container
 ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 
-# Uninstall default R version
-RUN conda uninstall r-base && conda clean --all -y
-
-RUN conda install --yes  -c conda-forge -c R -c blsqtech -c bioconda \
+RUN conda uninstall r-base && conda install -vvv --yes  -c conda-forge -c R -c blsqtech -c bioconda \
   'r-base=4.4.*' \
   'r-irkernel' \
   'nodejs' \
