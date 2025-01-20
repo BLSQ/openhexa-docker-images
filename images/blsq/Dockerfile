@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
 
+# Set ownership of conda packages to jovyan
+RUN chown -R jovyan /opt/conda
+
 USER ${NB_UID}
 WORKDIR $HOME
 
