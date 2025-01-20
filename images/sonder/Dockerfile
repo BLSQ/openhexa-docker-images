@@ -11,7 +11,7 @@ USER ${NB_UID}
 WORKDIR $HOME
 RUN conda install --yes -c conda-forge \
   'r-rpostgres=1.4.*' \
-  'r-reticulate=1.34.*'\
+  'r-reticulate=1.40.*'\
   'r-rcolorbrewer=1.*'  \
   'r-rattle=5.5.*' \
   'r-colorspace=2.*' \
@@ -23,7 +23,7 @@ RUN conda install --yes -c conda-forge \
   'r-tibble=3.2.*' \
   'r-gridExtra=2.*' \ 
   'r-factoextra=1.0.*' \
-  'r-modelsummary=1.4.*' \
+  'r-modelsummary=2.2.*' \
   'r-poLCA=1.6.0.*' \ 
   'r-dplyr=1.1.*' \ 
   'r-forcats=1.0.*' \ 
@@ -43,24 +43,21 @@ RUN conda install --yes -c conda-forge \
   'r-corrplot=0.*'\
   'r-haven=2.5.*' \
   'r-survey=4.*'\
-  'r-ggplot2=3.1.*'\ 
-  'r-tidyr=0.8.*' \
+  'r-ggplot2=3.5.*'\ 
+  'r-tidyr=1.3.*' \
   'r-rodbc=1.*' \
-  'r-readxl=1.3.*'\
+  'r-readxl=1.4.*'\
   'r-reshape2=1.4.*' \
-  'r-data.table=1.12.*' \ 
-  'r-psych=1.8.*'  \
+  'r-data.table=1.15.*' \ 
+  'r-psych=2.4.*'  \
   'r-magrittr=2.0.*' \
   'r-stringr=1.5.*' \
-  'r-foreign=0.8_71.*' \
+  'r-foreign=0.*' \
   'r-config=0.3.*' \
-  'r-rgdal=1.*' \
-  'r-rgeos=0.6.*' \
-  'r-rgooglemaps=1.*' \
-  'r-geojsonio=0.11.*' \
-  'r-ggmap=3.*' \
-  'r-ggthemes=4.*' \
-  'r-hmisc=4.*' \
+  'r-rgeos=0.*' \
+  'r-rgooglemaps=1.5.*' \
+  'r-ggmap=4.0.*' \
+  'r-ggthemes=5.1.*' \
   'r-maptools=1.*' \
   'r-plotly=4.*' \
   'r-raster=3.*' \

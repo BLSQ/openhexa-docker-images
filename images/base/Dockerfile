@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/datascience-notebook:2024-01-08
+FROM quay.io/jupyter/datascience-notebook:2025-01-06
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -43,13 +43,13 @@ USER ${NB_UID}
 # Set environment variable for Conda cache directory inside the container
 ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 
-RUN conda install -n base conda-libmamba-solver && \
-  conda config --set solver libmamba
-
-RUN conda install --yes -c conda-forge -c R -c blsqtech -c bioconda \
+RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqtech -c bioconda \
+  'r-base=4.4.*' \
+  'r-irkernel=1.3.*' \
+  'nodejs=22.12.*' \
   'fsspec=2023.12.2' \
   'gcsfs=2023.12.2' \
-  'papermill=2.*' \
+  'papermill=2.6.*' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda
   'openhexa.sdk=1.*' \
   'openhexa.toolbox=1.4.*' \
