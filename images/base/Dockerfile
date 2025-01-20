@@ -37,6 +37,8 @@ RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
 RUN chown jovyan /home/hexa
+RUN chown -R jovyan /opt/conda
+
 
 USER ${NB_UID}
 
