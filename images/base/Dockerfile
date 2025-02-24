@@ -61,6 +61,8 @@ RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqte
   'jupyterlab_code_formatter=2.*' && \
   conda clean --all -y
 
+
+RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 # Build Jupyterlab - needed for extensions
 RUN jupyter lab build -y --dev-build=False && \
   jupyter lab clean -y && \
