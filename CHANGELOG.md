@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.6.2...1.7.0) (2025-02-24)
+
+
+### Features
+
+* **Blsq:** update blsq image ([#65](https://github.com/BLSQ/openhexa-docker-images/issues/65)) ([75e0c98](https://github.com/BLSQ/openhexa-docker-images/commit/75e0c983b9248ed6fc183876b5c9878d3a536a7f))
+
+
+### Bug Fixes
+
+* Also set conda ownership to jovyan in the blsq image ([a3da822](https://github.com/BLSQ/openhexa-docker-images/commit/a3da8228c2bedd10eb8d2c184fc8ea3b07302b27))
+* **blsq-r:** Conda reports a problem when installing 3 deps. Commenting them for now ([5ea171f](https://github.com/BLSQ/openhexa-docker-images/commit/5ea171f439f107d2459dbef0cfd0fb5d4f035fe5))
+* chown /opt/conda to jovyan ([8dd88b1](https://github.com/BLSQ/openhexa-docker-images/commit/8dd88b17d1c47f8e78c648e2fc8ad2549a5a1c11))
+* **R:** XML deps were missing in order to install "malariaAtlas" ([#70](https://github.com/BLSQ/openhexa-docker-images/issues/70)) ([0b832b0](https://github.com/BLSQ/openhexa-docker-images/commit/0b832b030e28e6528adfc1f6dc93c79850f6f506))
+
 ## [1.6.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.6.1...1.6.2) (2024-12-16)
 
 
