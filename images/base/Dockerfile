@@ -15,6 +15,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get install -y s3fs \
   # ICU (for R)
   libicu-dev \
+  # XML R library dependencies
+  libcurl4-openssl-dev libxml2-dev \
   # Fuse requirements
   gnupg lsb-release
 

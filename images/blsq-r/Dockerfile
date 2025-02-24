@@ -72,7 +72,8 @@ RUN conda install --yes -c R -c conda-forge \
     r-rlang=1.1 \
     r-rcpp=1.0 \
     r-dbi=1.2 \
-    r-xml2=1.3 \ 
+    r-xml=3 \
+    r-xml2=1.3 \
     r-renv=1.0 \
     r-jsonlite=1.8 \
     r-rstudioapi=0.16 \
