@@ -49,6 +49,9 @@ ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
 
 RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqtech -c bioconda \
   'r-base=4.4.*' \
+  # This package is included in other libraries and one (don't know which one) is requesting the version '*.*'.
+  # This is not compatible with the libmamba resolver of Conda and make next conda install to fail.
+  'blas=2.131' \
   'r-irkernel=1.3.*' \
   'nodejs=22.12.*' \
   'fsspec=2023.12.2' \
