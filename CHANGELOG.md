@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.1...1.7.2) (2025-02-27)
+
+
+### Bug Fixes
+
+* Try to use binaries to install cran packages (instead of building them from source ([36a376c](https://github.com/BLSQ/openhexa-docker-images/commit/36a376c23c2a045dd6cd265903250ba470af7619))
+
 ## [1.7.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.0...1.7.1) (2025-02-25)
 
 
