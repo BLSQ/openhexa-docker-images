@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.2...1.7.3) (2025-03-03)
+
+
+### Release
+
+* 1.7.3 ([79f331a](https://github.com/BLSQ/openhexa-docker-images/commit/79f331ac1fde1dc500f6966f9154f92238d813ff))
+* 1.7.3 ([e526bcd](https://github.com/BLSQ/openhexa-docker-images/commit/e526bcd61680e378450bd678859fbbf428ac658e))
+* 1.7.3 ([11bf446](https://github.com/BLSQ/openhexa-docker-images/commit/11bf446b356fbaa4166e10d22126a822c87e487c))
+
 ## [1.7.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.1...1.7.2) (2025-02-27)
 
 
