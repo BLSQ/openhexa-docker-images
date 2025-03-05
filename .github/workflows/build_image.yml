@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -33,6 +37,17 @@ jobs:
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
+            
+      - name: Export base image
+        run: |
+          docker save blsq/openhexa-base-environment:latest -o base-image.tar
+      
+      - name: Upload base image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-image
+          path: base-image.tar
+          retention-days: 1
 
   build-blsq:
     runs-on: ubuntu-24.04
@@ -40,6 +55,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -50,6 +69,15 @@ jobs:
         id: version
         if: ${{ github.event_name == 'release' }}
         run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+      
+      - name: Download base image
+        uses: actions/download-artifact@v4
+        with:
+          name: base-image
+          
+      - name: Load base image
+        run: |
+          docker load -i base-image.tar
       
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
@@ -66,6 +94,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -76,6 +108,15 @@ jobs:
         id: version
         if: ${{ github.event_name == 'release' }}
         run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+      
+      - name: Download base image
+        uses: actions/download-artifact@v4
+        with:
+          name: base-image
+          
+      - name: Load base image
+        run: |
+          docker load -i base-image.tar
       
       - name: Build and push "blsq-r" image
         uses: docker/build-push-action@v6
