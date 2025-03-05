@@ -8,13 +8,8 @@ on:
 
 jobs:
   build-base:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest-m
     steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          
       - name: Checkout
         uses: actions/checkout@v4
       
@@ -57,7 +52,7 @@ jobs:
           retention-days: 1
 
   build-blsq:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest-m
     needs: build-base
     steps:
       - name: Checkout
@@ -98,7 +93,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=blsq
   
   build-blsq-r:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest-m
     needs: build-base
     steps:
       - name: Checkout
