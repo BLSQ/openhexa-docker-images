@@ -21,12 +21,6 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
     && dpkg -i quarto-linux-amd64.deb \
     && rm quarto-linux-amd64.deb
 
-# Set ownership of conda packages to jovyan
-RUN chown -R jovyan /opt/conda
-
-USER ${NB_UID}
-WORKDIR $HOME
-
 RUN conda install --yes -c R -c conda-forge \
     r-tidyverse \
     r-arrow=18.1.* \
@@ -122,3 +116,6 @@ RUN conda install --yes -c R -c conda-forge \
 
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
+
+USER ${NB_UID}
+WORKDIR $HOME
