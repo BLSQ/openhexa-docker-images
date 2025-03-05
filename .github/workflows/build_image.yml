@@ -37,6 +37,8 @@ jobs:
           tags: |
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
+          cache-from: type=gha,scope=base
+          cache-to: type=gha,mode=max,scope=base
             
       - name: Export base image
         run: |
@@ -87,6 +89,8 @@ jobs:
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
+          cache-from: type=gha,scope=blsq
+          cache-to: type=gha,mode=max,scope=blsq
   
   build-blsq-r:
     runs-on: ubuntu-24.04
@@ -126,3 +130,5 @@ jobs:
           tags: |
             blsq/openhexa-blsq-r-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-r-environment:latest
+          cache-from: type=gha,scope=blsq-r
+          cache-to: type=gha,mode=max,scope=blsq-r
