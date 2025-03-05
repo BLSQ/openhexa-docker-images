@@ -7,9 +7,8 @@ on:
     types: [ published ]
 
 jobs:
-  build:
+  build-base:
     runs-on: ubuntu-24.04
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +24,6 @@ jobs:
         # GITHUB_REF looks like "refs/tags/v0.3.1" - we need to extract the actual version without the v prefix
         run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
       
-      # Build all images
       - name: Build and push "base" image
         uses: docker/build-push-action@v6
         with:
@@ -36,6 +34,23 @@ jobs:
             blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-base-environment:latest
 
+  build-blsq:
+    runs-on: ubuntu-24.04
+    needs: build-base
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Store version number (on release)
+        id: version
+        if: ${{ github.event_name == 'release' }}
+        run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+      
       - name: Build and push "blsq" image
         uses: docker/build-push-action@v6
         with:
@@ -44,6 +59,23 @@ jobs:
           tags: |
             blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
             blsq/openhexa-blsq-environment:latest
+  
+  build-blsq-r:
+    runs-on: ubuntu-24.04
+    needs: build-base
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Store version number (on release)
+        id: version
+        if: ${{ github.event_name == 'release' }}
+        run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
       
       - name: Build and push "blsq-r" image
         uses: docker/build-push-action@v6
