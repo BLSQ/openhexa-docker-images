@@ -39,10 +39,7 @@ RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
 RUN chown jovyan /home/hexa
-RUN chown -R jovyan /opt/conda
 
-
-USER ${NB_UID}
 
 # Set environment variable for Conda cache directory inside the container
 ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
@@ -65,6 +62,8 @@ RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqte
   'jupyter-resource-usage=1.*' \
   'jupyterlab_code_formatter=2.*' && \
   conda clean --all -y
+
+USER ${NB_UID}
 
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
