@@ -55,8 +55,8 @@ RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqte
   'gcsfs=2023.12.2' \
   'papermill=2.6.*' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda
-  'openhexa.sdk=1.*' \
-  'openhexa.toolbox=1.4.*' \
+  'openhexa.sdk=2.*' \
+  'openhexa.toolbox=1.*' \
   # Jupyter extensions
   'jupyterlab-git=0.*' \
   'jupyter-resource-usage=1.*' \
