@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.3...1.8.0) (2025-03-11)
+
+
+### Features
+
+* Update openhexa.sdk & openehxa.toolbox to their latest major versions ([a1a33db](https://github.com/BLSQ/openhexa-docker-images/commit/a1a33db0a1a7b0708cf8e9a0aaa8b3699629e6a6))
+
 ## [1.7.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.2...1.7.3) (2025-03-03)
 
 
