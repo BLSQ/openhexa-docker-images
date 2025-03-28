@@ -1,14 +1,13 @@
-FROM blsq/openhexa-base-environment
+ARG BASE_IMAGE=blsq/openhexa-base-environment
 
-LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
-LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries specific to BLSQ use cases."
-LABEL org.opencontainers.image.licenses=MIT
+FROM ${BASE_IMAGE}
 
 USER root
 
 # System libraries
 RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 
+USER ${NB_UID}
 # Install additional Python and R packages
 RUN conda install --yes  -c conda-forge -c R \
   # Python packages
@@ -43,7 +42,10 @@ RUN conda install --yes  -c conda-forge -c R \
   'contextily=1.*' \
   'tabpy=2.*' \
   'docxtpl=0.11.*' \
+  # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
+  'r-base=4.4.*' \
   # R Packages
+  'r-irkernel=1.3.*' \
   'r-arrow=18.1.*' \
   'r-getpass=0.*' \
   'r-readxl=1.*' \
@@ -62,12 +64,13 @@ RUN conda install --yes  -c conda-forge -c R \
   'r-raster=3.*' \
   'r-sf=1.*' \
   'r-stringi=1.*' \
-  && conda clean --all -y
+  && conda clean --all -y && \
+  fix-permissions "${CONDA_DIR}"
 
   
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
-  
+
 USER ${NB_UID}
 WORKDIR $HOME
 

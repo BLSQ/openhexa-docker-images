@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/datascience-notebook:2025-01-06
+FROM quay.io/jupyter/scipy-notebook:2025-03-23
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -6,19 +6,19 @@ LABEL org.opencontainers.image.licenses=MIT
 
 USER root
 
-
 # System libraries
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt-get update && \ 
   # FUSE Amazon S3 
   apt-get install -y s3fs \
-  # ICU (for R)
-  libicu-dev \
-  # XML R library dependencies
-  libcurl4-openssl-dev libxml2-dev \
   # Fuse requirements
   gnupg lsb-release
+
+# Install Node.js 22.x
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean
 
 # FUSE Google Cloud Storage
 RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
@@ -37,47 +37,33 @@ RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8 && \
     update-locale
 
 # /home/hexa symlink (preferred path for data pipelines)
-RUN ln -s /home/jovyan /home/hexa
-RUN chown jovyan /home/hexa
-
-
-# Set environment variable for Conda cache directory inside the container
-ENV CONDA_PKGS_DIRS=/opt/conda/pkgs
-
-RUN conda uninstall r-base && conda install --yes  -c conda-forge -c R -c blsqtech -c bioconda \
-  'r-base=4.4.*' \
-  # This package is included in other libraries and one (don't know which one) is requesting the version '*.*'.
-  # This is not compatible with the libmamba resolver of Conda and make next conda install to fail.
-  'blas=2.131' \
-  'r-irkernel=1.3.*' \
-  'nodejs=22.12.*' \
-  'fsspec=2023.12.2' \
-  'gcsfs=2023.12.2' \
-  'papermill=2.6.*' \
-  # Install openhexa-sdk & openhexa-toolbox from anaconda
-  'openhexa.sdk=2.*' \
-  'openhexa.toolbox=1.*' \
-  # Jupyter extensions
-  'jupyterlab-git=0.*' \
-  'jupyter-resource-usage=1.*' \
-  'jupyterlab_code_formatter=2.*' && \
-  conda clean --all -y
+RUN ln -s /home/jovyan /home/hexa && \
+  chown jovyan /home/hexa
 
 USER ${NB_UID}
 
+RUN mamba install --yes  -c conda-forge -c blsqtech  \
+  # This package is included in other libraries and one (don't know which one) is requesting the version '*.*'.
+  # This is not compatible with the libmamba resolver of Conda and make next conda install to fail.
+  'blas=2.131' \
+  'fsspec>=2025,<2026' \
+  'gcsfs>=2025,<2026' \
+  'papermill>=2.6,<2.7' \
+  # Install openhexa-sdk & openhexa-toolbox from anaconda
+  'openhexa.sdk>=2,<3' \
+  'openhexa.toolbox>=1,<2' \
+  # Jupyter extensions
+  'jupyter-resource-usage' \
+  'jupyterlab_code_formatter' && \
+  conda clean --all -y && \
+  fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
-# Build Jupyterlab - needed for extensions
-RUN jupyter lab build -y --dev-build=False && \
-  jupyter lab clean -y && \
-  npm cache clean --force && \
-  rm -rf "/home/${NB_USER}/.cache/yarn"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
 
-# Install openhexa-sdk & openhexa-toolbox
-ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
+ENV HEXA_ENVIRONMENT=CLOUD_JUPYTER
 
 
 # s3f fuse
@@ -87,7 +73,6 @@ COPY files/scripts/* /tmp/hexa_scripts/
 # Please note that if a PVC is mounted at /home/jovyan (for OpenHEXA legacy notebooks), this directory will be
 # "lost" - they need to be copied again from /tmp after mounting the PVC
 COPY files/scripts/* /home/jovyan/.hexa_scripts/
-
 # sample files
 COPY files/sample_files/* /home/jovyan
 
