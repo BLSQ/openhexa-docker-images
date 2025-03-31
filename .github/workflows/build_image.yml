@@ -1,13 +1,15 @@
 name: Build images
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   release:
     types: [ published ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest-m
     steps:
       - name: Checkout
@@ -27,11 +29,62 @@ jobs:
         if: ${{ github.event_name == 'release' }}
         # GITHUB_REF looks like "refs/tags/v0.3.1" - we need to extract the actual version without the v prefix
         run: echo "number=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install .
       
-      - name: Build and push "base" image
+      - name: Build and test "base" image
         uses: docker/build-push-action@v6
         with:
           load: true
+          push: false
+          context: images/base
+          tags: blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
+          cache-from: type=gha,scope=base
+          cache-to: type=gha,mode=max,scope=base
+      
+      - name: Test "base" image
+        run: |
+          pytest tests/ -v --docker-image blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
+      
+      - name: Build and test "blsq" image
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          push: false
+          context: images/blsq
+          tags: blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
+          cache-from: type=gha,scope=blsq
+          cache-to: type=gha,mode=max,scope=blsq
+      
+      - name: Test "blsq" image
+        run: |
+          pytest tests/ -v --docker-image blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
+      
+      - name: Build and test "blsq-r" image
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          push: false
+          context: images/blsq-r
+          tags: blsq/openhexa-blsq-r-environment:${{ steps.version.outputs.number || 'main' }}
+          cache-from: type=gha,scope=blsq-r
+          cache-to: type=gha,mode=max,scope=blsq-r
+      
+      - name: Test "blsq-r" image
+        run: |
+          pytest tests/ -v --docker-image blsq/openhexa-blsq-r-environment:${{ steps.version.outputs.number || 'main' }}
+
+      - name: Push images
+        if: success() && github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
           push: true
           context: images/base
           tags: |
@@ -39,8 +92,9 @@ jobs:
             blsq/openhexa-base-environment:latest
           cache-from: type=gha,scope=base
           cache-to: type=gha,mode=max,scope=base
-      
-      - name: Build and push "blsq" image
+
+      - name: Push "blsq" image
+        if: success() && github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           push: true
@@ -50,8 +104,9 @@ jobs:
             blsq/openhexa-blsq-environment:latest
           cache-from: type=gha,scope=blsq
           cache-to: type=gha,mode=max,scope=blsq
-      
-      - name: Build and push "blsq-r" image
+
+      - name: Push "blsq-r" image
+        if: success() && github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           push: true
