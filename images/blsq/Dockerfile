@@ -33,7 +33,7 @@ RUN conda install --yes  -c conda-forge -c R \
   'lxml=5.*' \
   'nbresuse=0.4.*' \
   'netCDF4=1.*' \
-  'polars=0.20.*' \
+  'polars=1.26.*' \
   'psycopg2=2.*' \
   'pyarrow=18.1.*' \
   'rapidfuzz=3.*' \

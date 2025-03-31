@@ -10,6 +10,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 USER ${NB_UID}
 WORKDIR $HOME
 RUN conda install --yes -c conda-forge \
+  'r-base' \
+  'r-irkernel=1.3.*' \
   'r-rpostgres=1.4.*' \
   'r-reticulate=1.40.*'\
   'r-rcolorbrewer=1.*'  \
