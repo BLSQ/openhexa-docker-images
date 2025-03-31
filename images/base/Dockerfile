@@ -55,8 +55,9 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   # Jupyter extensions
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' && \
-  conda clean --all -y && \
-  fix-permissions "${CONDA_DIR}"
+  conda clean --all -f -y && \
+  fix-permissions "${CONDA_DIR}" && \
+  fix-permissions /home/jovyan
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 

@@ -64,14 +64,13 @@ RUN conda install --yes  -c conda-forge -c R \
   'r-raster=3.*' \
   'r-sf=1.*' \
   'r-stringi=1.*' \
-  && conda clean --all -y && \
-  fix-permissions "${CONDA_DIR}"
+  && conda clean --all -f -y && \
+  fix-permissions "${CONDA_DIR}" && \
+  fix-permissions /home/jovyan
 
-  
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
 
-USER ${NB_UID}
 WORKDIR $HOME
 
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
