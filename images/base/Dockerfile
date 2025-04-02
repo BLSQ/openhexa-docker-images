@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/scipy-notebook:2025-03-23
+FROM quay.io/jupyter/minimal-notebook:2025-03-23
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -42,13 +42,21 @@ RUN ln -s /home/jovyan /home/hexa && \
 
 USER ${NB_UID}
 
-RUN mamba install --yes  -c conda-forge -c blsqtech  \
+RUN mamba install --yes -c conda-forge -c blsqtech  \
   # This package is included in other libraries and one (don't know which one) is requesting the version '*.*'.
   # This is not compatible with the libmamba resolver of Conda and make next conda install to fail.
   'blas=2.131' \
+  'ipywidgets' \
+  'jupyterlab-git' \
+  'matplotlib-base' \
+  'openpyxl' \
+  'pandas' \
+  'pytables' \
+  'xlrd' \
+  'widgetsnbextension' \
   'fsspec>=2025,<2026' \
   'gcsfs>=2025,<2026' \
-  'papermill>=2.6,<2.7' \
+  'papermill' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda
   'openhexa.sdk>=2,<3' \
   'openhexa.toolbox>=1,<2' \
@@ -81,6 +89,9 @@ COPY entrypoint.sh /usr/local/bin/
 
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
 ENV PYTHONUNBUFFERED=1
+
+# Import matplotlib the first time to build the font cache
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
 
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
