@@ -1,4 +1,6 @@
-FROM blsq/openhexa-base-environment
+ARG BASE_IMAGE=blsq/openhexa-base-environment
+
+FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries for R oriented projects."
@@ -21,6 +23,7 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
     && dpkg -i quarto-linux-amd64.deb \
     && rm quarto-linux-amd64.deb
 
+USER ${NB_UID}
 RUN conda install --yes -c R -c conda-forge \
     r-tidyverse \
     r-arrow=18.1.* \
@@ -111,7 +114,8 @@ RUN conda install --yes -c R -c conda-forge \
     r-askpass=1.2.1 \
     r-ragg=1.3 \
     r-textshaping=0.4.0 \
-    && conda clean --all -y
+    && conda clean --all -y && \
+    fix-permissions "${CONDA_DIR}"
 
 
 # R packages (only available on cran)
