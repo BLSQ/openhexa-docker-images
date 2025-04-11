@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.0...1.8.1) (2025-04-08)
+
+
+### Bug Fixes
+
+* locks package versions for OpenHexa dependencies, adds apiweek ([1e3f4a6](https://github.com/BLSQ/openhexa-docker-images/commit/1e3f4a6c5a8282cb84780494b929cba05cb005db))
+
 ## [1.8.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.7.3...1.8.0) (2025-03-11)
 
 
