@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.1...1.8.2) (2025-04-14)
+
+
+### Bug Fixes
+
+* **blsq-r:** adds ikernel to blsq-r image ([3fc1f93](https://github.com/BLSQ/openhexa-docker-images/commit/3fc1f931908ffe274090cf9245115d6767758e5c))
+
 ## [1.8.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.0...1.8.1) (2025-04-08)
 
 
