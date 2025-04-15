@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.2...1.8.3) (2025-04-15)
+
+
+### Miscellaneous Chores
+
+* release 1.8.3 ([90ea48f](https://github.com/BLSQ/openhexa-docker-images/commit/90ea48f605895fc08e79adccaa62690243f45a7e))
+
 ## [1.8.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.1...1.8.2) (2025-04-14)
 
 
