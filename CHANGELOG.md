@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.3...1.9.0) (2025-04-29)
+
+
+### Features
+
+* **blsq-r:** add arrow to package list ([ae7fcf3](https://github.com/BLSQ/openhexa-docker-images/commit/ae7fcf39afed702393f2ba763ababd7dff7b7d4c))
+
 ## [1.8.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.2...1.8.3) (2025-04-15)
 
 
