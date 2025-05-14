@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.9.0...1.9.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* R use only conda ([180d1ea](https://github.com/BLSQ/openhexa-docker-images/commit/180d1ea1deb9e71a224fffe4f10201d823c98c59))
+
 ## [1.9.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.3...1.9.0) (2025-04-29)
 
 
