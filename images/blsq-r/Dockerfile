@@ -24,7 +24,7 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
     && rm quarto-linux-amd64.deb
 
 USER ${NB_UID}
-RUN conda install --yes -c R -c conda-forge \
+RUN conda install --yes -c conda-forge \
     r-arrow=18.1.* \
     r-irkernel=1.3.* \
     r-tidyverse \
