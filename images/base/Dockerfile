@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt-get update && \ 
   # FUSE Amazon S3 
-  apt-get install -y s3fs \
+  apt-get install -y s3fs fuse3 libfuse3-dev \
   # Fuse requirements
   gnupg lsb-release
 
@@ -29,6 +29,14 @@ RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   apt-get update && \
   apt-get install -y gcsfuse && \
   apt-get clean
+
+# FUSE Azure Blob Storage
+
+
+RUN curl -L https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-2.5.0-preview.1/blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb -o blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
+    dpkg -i blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
+    rm blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb
+
 
 WORKDIR $HOME
 
@@ -52,7 +60,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
   'openhexa.sdk=2.2.0' \
-  'openhexa.toolbox=2.6.4' \
+  'openhexa.toolbox=2.0.5' \
   # Jupyter extensions
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' && \
