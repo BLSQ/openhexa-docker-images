@@ -65,6 +65,35 @@ if STORAGE_ENGINE_TYPE == "gcp":
         proc.terminate()
         time.sleep(0.5)
         proc.close()
+elif STORAGE_ENGINE_TYPE == "azure":
+    account_name = os.environ.get("WORKSPACE_STORAGE_ENGINE_AZURE_ACCOUNT_NAME", None)
+    token = os.environ.get("WORKSPACE_STORAGE_ENGINE_AZURE_STORAGE_SAS_TOKEN", None)
+    if not token or not account_name:
+        raise ValueError(
+            "No WORKSPACE_STORAGE_ENGINE_AZURE_STORAGE_SAS_TOKEN or WORKSPACE_STORAGE_ENGINE_AZURE_ACCOUNT_NAME environment variable set"
+        )
+
+    os.environ["AZURE_STORAGE_ACCOUNT"] = account_name
+    os.environ["AZURE_STORAGE_ACCOUNT_CONTAINER"] = WORKSPACE_BUCKET_NAME
+    os.environ["AZURE_STORAGE_AUTH_TYPE"] = "SAS"
+    os.environ["AZURE_STORAGE_SAS_TOKEN"] = token
+    command = [
+        "blobfuse2",
+        "mount",
+        path_to_mount,
+        "--tmp-path",
+        "/tmp/blobfuse",
+        "-o",
+        "attr_timeout=240",
+        "-o",
+        "entry_timeout=240",
+        "-o",
+        "negative_timeout=120",
+        "-o",
+        "allow_other",
+    ]
+
+    results = subprocess.run(command)
 
 elif STORAGE_ENGINE_TYPE == "s3":
     # b64("{}") == b'e30='
