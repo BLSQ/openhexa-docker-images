@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.9.0...1.10.0) (2025-06-06)
+
+
+### Features
+
+* **Storage:** Support Azure Blob Storage ([#84](https://github.com/BLSQ/openhexa-docker-images/issues/84)) ([fa3ae03](https://github.com/BLSQ/openhexa-docker-images/commit/fa3ae03bf9fc3aa4c2fcc33563253d1015135882))
+
+
+### Bug Fixes
+
+* R use only conda ([180d1ea](https://github.com/BLSQ/openhexa-docker-images/commit/180d1ea1deb9e71a224fffe4f10201d823c98c59))
+
 ## [1.9.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.8.3...1.9.0) (2025-04-29)
 
 
