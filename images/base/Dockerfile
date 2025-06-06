@@ -59,8 +59,8 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'papermill>=2.6,<2.7' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
-  'openhexa.sdk=2.2.0' \
-  'openhexa.toolbox=2.0.5' \
+  'openhexa.sdk=2.3.1' \
+  'openhexa.toolbox=2.6.8' \
   # Jupyter extensions
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' && \
