@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.10.0...1.11.0) (2025-06-30)
+
+
+### Features
+
+* upgrade toolbox to v2.8.2 ([0550046](https://github.com/BLSQ/openhexa-docker-images/commit/05500461aa7f3bde1d93f9165f0fa2f70c320739))
+
 ## [1.10.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.9.0...1.10.0) (2025-06-06)
 
 
