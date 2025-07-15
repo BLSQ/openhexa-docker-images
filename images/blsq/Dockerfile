@@ -78,3 +78,5 @@ WORKDIR $HOME
 ENV PYTHONUNBUFFERED=1
 # Set RUFF_CACHE_DIR env variable
 ENV RUFF_CACHE_DIR=/tmp/.ruff_cache
+# Set PROJ_LIB env variable needed by the R sf package
+ENV PROJ_LIB=/opt/conda/share/proj
