@@ -125,3 +125,6 @@ RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools
 
 USER ${NB_UID}
 WORKDIR $HOME
+
+# Set PROJ_LIB env variable needed by the R sf package
+ENV PROJ_LIB=/opt/conda/share/proj
