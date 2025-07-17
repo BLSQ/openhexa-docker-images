@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.11.0...1.12.0) (2025-07-17)
+
+
+### Features
+
+* set PROJ_LIB env variable ([#87](https://github.com/BLSQ/openhexa-docker-images/issues/87)) ([47c4b05](https://github.com/BLSQ/openhexa-docker-images/commit/47c4b05703467a72c216f11f2bcb66e8123abd97))
+
 ## [1.11.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.10.0...1.11.0) (2025-06-30)
 
 
