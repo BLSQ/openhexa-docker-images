@@ -9,8 +9,8 @@ USER root
 # System libraries
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt-get update && \ 
-  # FUSE Amazon S3 
+  apt-get update && \
+  # FUSE Amazon S3
   apt-get install -y s3fs fuse3 libfuse3-dev \
   # Fuse requirements
   gnupg lsb-release
@@ -59,7 +59,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'papermill>=2.6,<2.7' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
-  'openhexa.sdk=2.12.0' \
+  'openhexa.sdk=2.12.1' \
   'openhexa.toolbox=2.8.1' \
   # Jupyter extensions
   'jupyter-resource-usage' \
