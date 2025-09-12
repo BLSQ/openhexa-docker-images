@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.13.0...1.14.0) (2025-09-12)
+
+
+### Miscellaneous Chores
+
+* release 1.14.0 ([b2ef3fd](https://github.com/BLSQ/openhexa-docker-images/commit/b2ef3fd6afe3cdf78f5b90ecbbbccf0bce4196a8))
+
 ## [1.13.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.12.0...1.13.0) (2025-09-10)
 
 
