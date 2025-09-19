@@ -57,6 +57,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'fsspec>=2025,<2026' \
   'gcsfs>=2025,<2026' \
   'papermill>=2.6,<2.7' \
+  'psycopg2-binary=2.*' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
   'openhexa.sdk=2.12.2' \

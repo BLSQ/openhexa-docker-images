@@ -36,7 +36,6 @@ RUN conda install --yes  -c conda-forge -c R \
   'nbresuse=0.4.*' \
   'netCDF4=1.*' \
   'polars=1.26.*' \
-  'psycopg2=2.*' \
   'pyarrow=18.1.*' \
   'rapidfuzz=3.*' \
   'xarray=2025.1.1' \
