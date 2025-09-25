@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.15.0...1.16.0) (2025-09-25)
+
+
+### Features
+
+* release trigger ([8c644fc](https://github.com/BLSQ/openhexa-docker-images/commit/8c644fc535ff062d0dc01c93fb99fc763aa525c0))
+
 ## [1.15.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.14.0...1.15.0) (2025-09-12)
 
 
