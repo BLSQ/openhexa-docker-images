@@ -59,7 +59,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'papermill>=2.6,<2.7' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
-  'openhexa.sdk=2.12.2' \
+  'openhexa.sdk=2.13.0' \
   'openhexa.toolbox=2.8.1' \
   # Jupyter extensions
   'jupyter-resource-usage' \
