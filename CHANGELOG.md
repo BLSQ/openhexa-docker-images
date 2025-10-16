@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.16.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.0...1.16.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* Update release-please to take chores into account ([#102](https://github.com/BLSQ/openhexa-docker-images/issues/102)) ([0a44d80](https://github.com/BLSQ/openhexa-docker-images/commit/0a44d8097f8823e152401d150a143f79fd986b74))
+
+
+### Miscellaneous
+
+* Add duckdb 1.4.0 to base image ([#98](https://github.com/BLSQ/openhexa-docker-images/issues/98)) ([73ec959](https://github.com/BLSQ/openhexa-docker-images/commit/73ec959354e53a6335cc504c3c223ac22fc3f347))
+* Move psycopg2 dependency to base image ([#95](https://github.com/BLSQ/openhexa-docker-images/issues/95)) ([55f411b](https://github.com/BLSQ/openhexa-docker-images/commit/55f411b3690333c290692480510b126b1efb2674))
+* Update openhexa.sdk to 2.15.0 ([#101](https://github.com/BLSQ/openhexa-docker-images/issues/101)) ([a4343b0](https://github.com/BLSQ/openhexa-docker-images/commit/a4343b0ca3c741213496e1e4c8dfda738faa145c))
+
 ## [1.16.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.15.0...1.16.0) (2025-09-25)
 
 
