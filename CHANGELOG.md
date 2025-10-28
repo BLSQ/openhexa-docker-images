@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.1...1.16.2) (2025-10-28)
+
+
+### Miscellaneous
+
+* upgrade sdk to 2.15.1 ([#104](https://github.com/BLSQ/openhexa-docker-images/issues/104)) ([d8702e6](https://github.com/BLSQ/openhexa-docker-images/commit/d8702e67ac37029c896620bca6ab7ddd854ecc4b))
+
 ## [1.16.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.0...1.16.1) (2025-10-16)
 
 
