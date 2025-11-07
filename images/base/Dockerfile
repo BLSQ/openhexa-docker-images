@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/scipy-notebook:2025-03-23
+FROM quay.io/jupyter/scipy-notebook:2025-11-03
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
