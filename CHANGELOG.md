@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.16.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.2...1.16.3) (2025-11-17)
+
+
+### Bug Fixes
+
+* Scroll jumping issue in large notebooks ([#108](https://github.com/BLSQ/openhexa-docker-images/issues/108)) ([d2a14ea](https://github.com/BLSQ/openhexa-docker-images/commit/d2a14ea66760599199bc0db1c099223a8ccd45c2))
+
+
+### Miscellaneous
+
+* Update base image scipy-notebook to latest 2025-11-03 version ([#106](https://github.com/BLSQ/openhexa-docker-images/issues/106)) ([0bcb4c9](https://github.com/BLSQ/openhexa-docker-images/commit/0bcb4c95977e76a4f6e38972833b87f8077f310f))
+
 ## [1.16.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.1...1.16.2) (2025-10-28)
 
 
