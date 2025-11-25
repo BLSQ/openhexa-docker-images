@@ -11,16 +11,26 @@ USER ${NB_UID}
 
 RUN ls -la /home/jovyan
 # Install additional Python and R packages
-RUN conda install --yes  -c conda-forge -c R \
+RUN mamba install --yes  -vv -c conda-forge -c R \
   # Python packages
-  'ruff=0.9.*' \
-  'boto3=1.35.*' \
-  'python-kaleido=0.2.*' \
-  'dateparser=1.2.*' \
-  'dask-ml=2022.5.27' \
-  'descartes=1.*' \
-  'geoalchemy2=0.14.*' \
-  'geopandas=1.0.*' \
+  'ruff=0.9.*'
+
+RUN mamba install --yes  -c conda-forge -c R \
+  'boto3=1.35.*'
+RUN mamba install --yes  -c conda-forge -c R \
+  'python-kaleido=0.2.*'
+RUN mamba install --yes  -c conda-forge -c R \
+  'dateparser=1.2.*'
+RUN mamba install --yes  -c conda-forge -c R \
+  'dask-ml=2022.5.27'
+RUN mamba install --yes  -c conda-forge -c R \
+  'descartes=1.*'
+RUN mamba install --yes  -c conda-forge -c R \
+  'geoalchemy2=0.18.1'
+RUN mamba install --yes  -c conda-forge -c R \
+  'geopandas=1.1.1'
+
+RUN mamba install --yes  -vv -c conda-forge -c R \
   'lerc=4.*' \
   'plotly=5.*' \
   'slack_sdk=3.*' \
@@ -42,7 +52,9 @@ RUN conda install --yes  -c conda-forge -c R \
   'zarr=2.*' \
   'contextily=1.*' \
   'tabpy=2.*' \
-  'docxtpl=0.11.*' \
+  'docxtpl=0.11.*'
+
+RUN mamba install --yes  -c conda-forge -c R \
   # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
   'r-base=4.4.*' \
   # R Packages
@@ -64,8 +76,9 @@ RUN conda install --yes  -c conda-forge -c R \
   'r-plotly=4.*' \
   'r-raster=3.*' \
   'r-sf=1.*' \
-  'r-stringi=1.*' \
-  && conda clean --all -f -y && \
+  'r-stringi=1.*'
+
+RUN conda clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
 # R packages (only available on cran)
