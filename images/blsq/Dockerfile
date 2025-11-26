@@ -10,76 +10,67 @@ RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
 USER ${NB_UID}
 
 RUN ls -la /home/jovyan
-# Install additional Python and R packages
-RUN mamba install --yes  -vv -c conda-forge -c R \
-  # Python packages
-  'ruff=0.9.*'
 
-RUN mamba install --yes  -c conda-forge -c R \
-  'boto3=1.35.*'
-RUN mamba install --yes  -c conda-forge -c R \
-  'python-kaleido=0.2.*'
-RUN mamba install --yes  -c conda-forge -c R \
-  'dateparser=1.2.*'
-RUN mamba install --yes  -c conda-forge -c R \
-  'dask-ml=2022.5.27'
-RUN mamba install --yes  -c conda-forge -c R \
-  'descartes=1.*'
-RUN mamba install --yes  -c conda-forge -c R \
-  'geoalchemy2=0.18.1'
-RUN mamba install --yes  -c conda-forge -c R \
-  'geopandas=1.1.1'
-
-RUN mamba install --yes  -vv -c conda-forge -c R \
-  'lerc=4.*' \
-  'plotly=5.*' \
-  'slack_sdk=3.*' \
-  'mapclassify=2.*' \
-  'rasterstats=0.19.*' \
-  'connectorx==0.3.*' \
-  'xlsx2csv==0.8.*' \
-  'xlsxwriter==3.*' \
-  'black=23.12.*' \
-  'ipywidgets=8.*' \
-  'isort=5.*' \
-  'lxml=5.*' \
-  'nbresuse=0.4.*' \
-  'netCDF4=1.*' \
-  'polars=1.26.*' \
-  'pyarrow=18.1.*' \
-  'rapidfuzz=3.*' \
-  'xarray=2025.1.1' \
-  'zarr=2.*' \
-  'contextily=1.*' \
-  'tabpy=2.*' \
-  'docxtpl=0.11.*'
-
-RUN mamba install --yes  -c conda-forge -c R \
-  # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
-  'r-base=4.4.*' \
-  # R Packages
-  'r-irkernel=1.3.*' \
-  'r-arrow=18.1.*' \
-  'r-getpass=0.*' \
-  'r-readxl=1.*' \
-  'r-rcolorbrewer=1.*' \
-  'r-rjson=0.2.*' \
-  'r-rpostgres=1.4.*' \
-  'r-styler=1.*' \
-  'r-viridis=0.6.*' \
-  'r-nloptr=2.*' \
-  'r-rgeos=0.*' \
-  'r-rgooglemaps=1.5.*' \
-  'r-ggmap=4.0.*'\
-  'r-ggthemes=5.1.*' \
-  'r-maptools=1.*' \
-  'r-plotly=4.*' \
-  'r-raster=3.*' \
-  'r-sf=1.*' \
-  'r-stringi=1.*'
-
-RUN conda clean --all -f -y && \
-  fix-permissions "${CONDA_DIR}"
+# Install packages in batches to avoid too high memory consumption
+# RUN mamba install --yes  -c conda-forge \
+#     # Python packages
+#     'black' \
+  #   'boto3' \
+  #   'connectorx' \
+  #   'dask-ml' \
+  #   'dateparser' \
+  #   'docxtpl' \
+  #   'docxtpl' \
+  #   'isort' \
+  #   'lerc' \
+  #   'lxml' \
+  #   'nbresuse' \
+  #   'netCDF4' \
+  #   'plotly' \
+  #   'polars' \
+  #   'pyarrow' \
+  #   'python-kaleido' \
+  #   'rapidfuzz' \
+  #   'ruff' \
+  #   'slack_sdk' \
+  #   'tabpy' \
+  #   'xarray' \
+  #   'xlsx2csv' \
+  #   'xlsxwriter' \
+  #   'zarr' \
+  # && mamba install --yes  -c conda-forge \
+  #   # Spatial/GIS packages
+  #   'contextily' \
+  #   'descartes' \
+  #   'geoalchemy2' \
+  #   'geopandas' \
+  #   'mapclassify' \
+  #   'rasterstats' \
+RUN mamba install --yes -c conda-forge -c R \
+    # R packages: We set up a minimal R environment to be able to use this image as a base for the workspaces
+    'r-base' \
+    # 'r-arrow' \
+    # 'r-getpass' \
+    # 'r-ggmap'\
+    # 'r-ggthemes' \
+    # 'r-irkernel' \
+    # 'r-maptools' \
+    # 'r-nloptr' \
+    # 'r-plotly' \
+    # 'r-raster' \
+    # 'r-rcolorbrewer' \
+    # one of these has an issue?
+    'r-readxl' \
+    'r-rgeos' \
+    'r-rgooglemaps' \
+    'r-rjson' \
+    'r-rpostgres' \
+    'r-sf' \
+    'r-stringi' \
+    'r-styler' \
+    'r-viridis' \
+  && mamba clean --all -f -y \
+  && fix-permissions "${CONDA_DIR}"
 
 # R packages (only available on cran)
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
