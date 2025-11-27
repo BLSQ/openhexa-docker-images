@@ -47,21 +47,23 @@ RUN mamba install --yes  -c conda-forge \
     'rasterstats' \
   && mamba install --yes -c conda-forge -c R \
     # R packages: We set up a minimal R environment to be able to use this image as a base for the workspaces
-    'r-base=4.4.*' \
-    'r-arrow' \
+    'r-base' \
+    # 'r-arrow' \
     'r-getpass' \
-    'r-ggmap'\
+    # 'r-ggmap'\
     'r-ggthemes' \
     'r-irkernel' \
-    'r-maptools' \
+    # 'r-maptools' \
     'r-nloptr' \
-    'r-plotly' \
+    # 'r-plotly' \
+    # outdated
     # 'r-raster' \
     'r-rcolorbrewer' \
     # one of these has an issue?
     'r-readxl' \
+    # outdated
     # 'r-rgeos' \
-    'r-rgooglemaps' \
+    # 'r-rgooglemaps' \
     'r-rjson' \
     'r-rpostgres' \
     'r-sf' \
