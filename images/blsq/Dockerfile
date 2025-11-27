@@ -12,53 +12,52 @@ USER ${NB_UID}
 RUN ls -la /home/jovyan
 
 # Install packages in batches to avoid too high memory consumption
-# RUN mamba install --yes  -c conda-forge \
-#     # Python packages
-#     'black' \
-  #   'boto3' \
-  #   'connectorx' \
-  #   'dask-ml' \
-  #   'dateparser' \
-  #   'docxtpl' \
-  #   'docxtpl' \
-  #   'isort' \
-  #   'lerc' \
-  #   'lxml' \
-  #   'nbresuse' \
-  #   'netCDF4' \
-  #   'plotly' \
-  #   'polars' \
-  #   'pyarrow' \
-  #   'python-kaleido' \
-  #   'rapidfuzz' \
-  #   'ruff' \
-  #   'slack_sdk' \
-  #   'tabpy' \
-  #   'xarray' \
-  #   'xlsx2csv' \
-  #   'xlsxwriter' \
-  #   'zarr' \
-  # && mamba install --yes  -c conda-forge \
-  #   # Spatial/GIS packages
-  #   'contextily' \
-  #   'descartes' \
-  #   'geoalchemy2' \
-  #   'geopandas' \
-  #   'mapclassify' \
-  #   'rasterstats' \
-RUN mamba install --yes -c conda-forge -c R \
+RUN mamba install --yes  -c conda-forge \
+    # Python packages
+    'black' \
+    'boto3' \
+    'connectorx' \
+    'dask-ml' \
+    'dateparser' \
+    'docxtpl' \
+    'isort' \
+    'lerc' \
+    'lxml' \
+    'nbresuse' \
+    'netCDF4' \
+    'plotly' \
+    'polars' \
+    'pyarrow' \
+    'python-kaleido' \
+    'rapidfuzz' \
+    'ruff' \
+    'slack_sdk' \
+    'tabpy' \
+    'xarray' \
+    'xlsx2csv' \
+    'xlsxwriter' \
+    'zarr' \
+  && mamba install --yes  -c conda-forge \
+    # Spatial/GIS packages
+    'contextily' \
+    'descartes' \
+    'geoalchemy2' \
+    'geopandas' \
+    'mapclassify' \
+    'rasterstats' \
+  && mamba install --yes -c conda-forge -c R \
     # R packages: We set up a minimal R environment to be able to use this image as a base for the workspaces
     'r-base' \
-    # 'r-arrow' \
-    # 'r-getpass' \
-    # 'r-ggmap'\
-    # 'r-ggthemes' \
-    # 'r-irkernel' \
-    # 'r-maptools' \
-    # 'r-nloptr' \
-    # 'r-plotly' \
-    # 'r-raster' \
-    # 'r-rcolorbrewer' \
+    'r-arrow' \
+    'r-getpass' \
+    'r-ggmap'\
+    'r-ggthemes' \
+    'r-irkernel' \
+    'r-maptools' \
+    'r-nloptr' \
+    'r-plotly' \
+    'r-raster' \
+    'r-rcolorbrewer' \
     # one of these has an issue?
     'r-readxl' \
     'r-rgeos' \
