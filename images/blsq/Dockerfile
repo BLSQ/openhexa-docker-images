@@ -47,7 +47,7 @@ RUN mamba install --yes  -c conda-forge \
     'rasterstats' \
   && mamba install --yes -c conda-forge -c R \
     # R packages: We set up a minimal R environment to be able to use this image as a base for the workspaces
-    'r-base' \
+    'r-base=4.4.*' \
     'r-arrow' \
     'r-getpass' \
     'r-ggmap'\
