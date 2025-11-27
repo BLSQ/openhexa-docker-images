@@ -48,7 +48,7 @@ RUN mamba install --yes  -c conda-forge \
   && mamba install --yes -c conda-forge -c R \
     # R packages: We set up a minimal R environment to be able to use this image as a base for the workspaces
     'r-base' \
-    # 'r-arrow' \
+    'r-arrow' \
     'r-getpass' \
     # 'r-ggmap'\
     'r-ggthemes' \
@@ -59,7 +59,6 @@ RUN mamba install --yes  -c conda-forge \
     # outdated
     # 'r-raster' \
     'r-rcolorbrewer' \
-    # one of these has an issue?
     'r-readxl' \
     # outdated
     # 'r-rgeos' \
