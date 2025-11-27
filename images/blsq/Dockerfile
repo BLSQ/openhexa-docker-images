@@ -56,11 +56,11 @@ RUN mamba install --yes  -c conda-forge \
     'r-maptools' \
     'r-nloptr' \
     'r-plotly' \
-    'r-raster' \
+    # 'r-raster' \
     'r-rcolorbrewer' \
     # one of these has an issue?
     'r-readxl' \
-    'r-rgeos' \
+    # 'r-rgeos' \
     'r-rgooglemaps' \
     'r-rjson' \
     'r-rpostgres' \
