@@ -44,8 +44,6 @@ jobs:
       - name: Build base image
         run: |
           docker buildx build --platform linux/amd64 \
-            --cache-from type=registry,ref=blsq/openhexa-base-environment:cache \
-            --cache-to type=registry,ref=blsq/openhexa-base-environment:cache,mode=max \
             -t blsq/openhexa-base-environment:ci images/base --load
     
       - name: Test "base" image
@@ -55,8 +53,6 @@ jobs:
       - name: Build blsq image
         run: |
           docker buildx build --platform linux/amd64 \
-            --cache-from type=registry,ref=blsq/openhexa-blsq-environment:cache \
-            --cache-to type=registry,ref=blsq/openhexa-blsq-environment:cache,mode=max \
             -t blsq/openhexa-blsq-environment:ci images/blsq --build-arg BASE_IMAGE=blsq/openhexa-base-environment:ci --load
       
       - name: Test "blsq" image
@@ -66,8 +62,6 @@ jobs:
       - name: Build blsq-r image
         run: |
           docker buildx build --platform linux/amd64 \
-            --cache-from type=registry,ref=blsq/openhexa-blsq-r-environment:cache \
-            --cache-to type=registry,ref=blsq/openhexa-blsq-r-environment:cache,mode=max \
             -t blsq/openhexa-blsq-r-environment:ci images/blsq-r --build-arg BASE_IMAGE=blsq/openhexa-base-environment:ci --load
 
       - name: Push images
