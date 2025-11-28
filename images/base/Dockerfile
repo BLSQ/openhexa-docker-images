@@ -73,7 +73,7 @@ RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
-COPY files/overrides.json /opt/conda/share/jupyter/lab/settings/
+COPY --chown=${NB_UID}:${NB_UID} files/overrides.json /opt/conda/share/jupyter/lab/settings/
 
 ENV HEXA_ENVIRONMENT=CLOUD_JUPYTER
 
