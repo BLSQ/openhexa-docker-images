@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.4...1.16.5) (2025-11-28)
+
+
+### Bug Fixes
+
+* Docker build and push step ([#113](https://github.com/BLSQ/openhexa-docker-images/issues/113)) ([c7ee3b1](https://github.com/BLSQ/openhexa-docker-images/commit/c7ee3b1d80c14e4e3626d98b34368b294d68a8fc))
+
 ## [1.16.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.3...1.16.4) (2025-11-25)
 
 
