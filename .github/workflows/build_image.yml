@@ -23,7 +23,7 @@ jobs:
       # Buildx runs in an isolated container that cannot access images in the local Docker daemon.
       # We use a local registry so that dependent images (blsq, blsq-r) can pull the freshly built base image.
       - name: Start local registry
-        run: docker run -d -p 5000:5000 --name registry registry:2
+        run: docker run -d -p 5000:5000 --name registry registry:3
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -81,7 +81,7 @@ jobs:
           cache-to: type=registry,ref=blsq/openhexa-blsq-r-environment:cache,mode=max
 
       - name: Push images to DockerHub
-        if: success() && github.event_name != 'pull_request'
+        if: github.event_name == 'push' || github.event_name == 'release'
         run: |
           TAG="${{ steps.version.outputs.number || 'main' }}"
 
