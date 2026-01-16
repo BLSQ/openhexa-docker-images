@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.5...1.16.6) (2026-01-16)
+
+
+### Miscellaneous
+
+* **deps:** update actions/checkout action to v6 ([#109](https://github.com/BLSQ/openhexa-docker-images/issues/109)) ([d03d51c](https://github.com/BLSQ/openhexa-docker-images/commit/d03d51c8f7790bbecf40a5ab3db6b106cf458488))
+* **deps:** update dependency colorist to v1.8.10 ([#117](https://github.com/BLSQ/openhexa-docker-images/issues/117)) ([9d306b1](https://github.com/BLSQ/openhexa-docker-images/commit/9d306b1d4079791f21f5b32d139ad14f9aacdedd))
+* **deps:** update dependency colorist to v1.8.8 ([#100](https://github.com/BLSQ/openhexa-docker-images/issues/100)) ([b76a64a](https://github.com/BLSQ/openhexa-docker-images/commit/b76a64a773afd68d4546076ba596f47f85be85fb))
+
 ## [1.16.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.4...1.16.5) (2025-11-28)
 
 
