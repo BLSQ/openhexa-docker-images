@@ -74,6 +74,18 @@ jobs:
           tags: localhost:5000/openhexa-blsq-r-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
 
+      - name: Push test images to DockerHub (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          for image in base blsq blsq-r; do
+            src="localhost:5000/openhexa-${image}-environment"
+            dst="blsq/openhexa-${image}-environment"
+
+            docker pull $src
+            docker tag $src $dst:bram-test
+            docker push $dst:bram-test
+          done
+
       - name: Push images to DockerHub
         if: github.event_name == 'push' || github.event_name == 'release'
         run: |
