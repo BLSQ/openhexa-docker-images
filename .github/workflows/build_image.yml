@@ -50,33 +50,33 @@ jobs:
         with:
           context: images/base
           push: true
-          tags: localhost:5000/openhexa-base-environment:ci
+          tags: localhost:5000/openhexa-base-environment
           cache-from: type=registry,ref=blsq/openhexa-base-environment:cache
           cache-to: type=registry,ref=blsq/openhexa-base-environment:cache,mode=max
 
       - name: Test base image
-        run: pytest tests/ -v --docker-image localhost:5000/openhexa-base-environment:ci
+        run: pytest tests/ -v --docker-image localhost:5000/openhexa-base-environment
 
       - name: Build blsq image
         uses: docker/build-push-action@v6
         with:
           context: images/blsq
           push: true
-          tags: localhost:5000/openhexa-blsq-environment:ci
-          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment:ci
+          tags: localhost:5000/openhexa-blsq-environment
+          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
           cache-from: type=registry,ref=blsq/openhexa-blsq-environment:cache
           cache-to: type=registry,ref=blsq/openhexa-blsq-environment:cache,mode=max
 
       - name: Test blsq image
-        run: pytest tests/ -v --docker-image localhost:5000/openhexa-blsq-environment:ci
+        run: pytest tests/ -v --docker-image localhost:5000/openhexa-blsq-environment
 
       - name: Build blsq-r image
         uses: docker/build-push-action@v6
         with:
           context: images/blsq-r
           push: true
-          tags: localhost:5000/openhexa-blsq-r-environment:ci
-          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment:ci
+          tags: localhost:5000/openhexa-blsq-r-environment
+          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
           cache-from: type=registry,ref=blsq/openhexa-blsq-r-environment:cache
           cache-to: type=registry,ref=blsq/openhexa-blsq-r-environment:cache,mode=max
 
@@ -86,7 +86,7 @@ jobs:
           TAG="${{ steps.version.outputs.number || 'main' }}"
 
           for image in base blsq blsq-r; do
-            src="localhost:5000/openhexa-${image}-environment:ci"
+            src="localhost:5000/openhexa-${image}-environment"
             dst="blsq/openhexa-${image}-environment"
 
             docker pull $src
