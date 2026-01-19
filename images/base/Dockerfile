@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/scipy-notebook:2025-03-23
+FROM quay.io/jupyter/scipy-notebook:2025-11-03
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -62,11 +62,11 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
   'openhexa.sdk=2.15.2' \
-  'openhexa.toolbox=2.8.1' \
+  'openhexa.toolbox=2.9.0' \
   # Jupyter extensions
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' && \
-  conda clean --all -f -y && \
+  mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
