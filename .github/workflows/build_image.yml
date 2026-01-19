@@ -51,9 +51,6 @@ jobs:
           context: images/base
           push: true
           tags: localhost:5000/openhexa-base-environment
-          no-cache: true
-          cache-from: type=registry,ref=blsq/openhexa-base-environment:cache
-          cache-to: type=registry,ref=blsq/openhexa-base-environment:cache,mode=max
 
       - name: Test base image
         run: pytest tests/ -v --docker-image localhost:5000/openhexa-base-environment
@@ -65,9 +62,6 @@ jobs:
           push: true
           tags: localhost:5000/openhexa-blsq-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
-          no-cache: true
-          cache-from: type=registry,ref=blsq/openhexa-blsq-environment:cache
-          cache-to: type=registry,ref=blsq/openhexa-blsq-environment:cache,mode=max
 
       - name: Test blsq image
         run: pytest tests/ -v --docker-image localhost:5000/openhexa-blsq-environment
@@ -79,9 +73,6 @@ jobs:
           push: true
           tags: localhost:5000/openhexa-blsq-r-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
-          no-cache: true
-          cache-from: type=registry,ref=blsq/openhexa-blsq-r-environment:cache
-          cache-to: type=registry,ref=blsq/openhexa-blsq-r-environment:cache,mode=max
 
       - name: Push images to DockerHub
         if: github.event_name == 'push' || github.event_name == 'release'
