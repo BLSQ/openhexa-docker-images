@@ -85,13 +85,19 @@ jobs:
         run: |
           TAG="${{ steps.version.outputs.number || 'main' }}"
 
+          if [ "${{ github.event_name }}" == "release" ]; then
+            SECONDARY_TAG="latest"
+          else
+            SECONDARY_TAG="latest-unstable"
+          fi
+
           for image in base blsq blsq-r; do
             src="localhost:5000/openhexa-${image}-environment"
             dst="blsq/openhexa-${image}-environment"
 
             docker pull $src
             docker tag $src $dst:$TAG
-            docker tag $src $dst:latest
+            docker tag $src $dst:$SECONDARY_TAG
             docker push $dst:$TAG
-            docker push $dst:latest
+            docker push $dst:$SECONDARY_TAG
           done
