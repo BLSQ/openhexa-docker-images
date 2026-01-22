@@ -49,6 +49,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: images/base
+          platforms: linux/amd64
           push: true
           tags: localhost:5000/openhexa-base-environment
 
@@ -59,6 +60,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: images/blsq
+          platforms: linux/amd64
           push: true
           tags: localhost:5000/openhexa-blsq-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
@@ -70,6 +72,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: images/blsq-r
+          platforms: linux/amd64
           push: true
           tags: localhost:5000/openhexa-blsq-r-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
@@ -82,8 +85,8 @@ jobs:
             dst="blsq/openhexa-${image}-environment"
 
             docker pull $src
-            docker tag $src $dst:bram-test
-            docker push $dst:bram-test
+            docker tag $src $dst:bram-test-new
+            docker push $dst:bram-test-new
           done
 
       - name: Push images to DockerHub
