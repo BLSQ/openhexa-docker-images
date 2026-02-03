@@ -14,36 +14,36 @@ RUN ls -la /home/jovyan
 # Split into batches to avoid running out of memory.
 RUN mamba install --yes -c conda-forge \
     # Python packages
-    'ruff' \
-    'boto3' \
-    'python-kaleido' \
-    'dateparser' \
-    'dask-ml' \
-    'descartes' \
-    'geoalchemy2' \
-    'geopandas' \
-    'lerc' \
-    'plotly' \
-    'slack_sdk' \
-    'mapclassify' \
-    'rasterstats' \
-    'connectorx' \
-    'xlsx2csv' \
-    'xlsxwriter' \
-    'black' \
-    'ipywidgets' \
-    'isort' \
-    'lxml' \
-    'nbresuse' \
-    'netCDF4' \
-    'polars' \
-    'pyarrow' \
-    'rapidfuzz' \
-    'xarray' \
-    'zarr' \
-    'contextily' \
-    'tabpy' \
-    'docxtpl' \
+    'ruff=0.9.*' \
+    'boto3=1.35.*' \
+    'python-kaleido=0.2.*' \
+    'dateparser=1.2.*' \
+    'dask-ml=2022.5.27' \
+    'descartes=1.*' \
+    'geoalchemy2=0.14.*' \
+    'geopandas=1.0.*' \
+    'lerc=4.*' \
+    'plotly=5.*' \
+    'slack_sdk=3.*' \
+    'mapclassify=2.*' \
+    'rasterstats=0.19.*' \
+    'connectorx==0.3.*' \
+    'xlsx2csv==0.8.*' \
+    'xlsxwriter==3.*' \
+    'black=23.12.*' \
+    'ipywidgets=8.*' \
+    'isort=5.*' \
+    'lxml=5.*' \
+    'nbresuse=0.4.*' \
+    'netCDF4=1.*' \
+    'polars=1.26.*' \
+    'pyarrow=18.1.*' \
+    'rapidfuzz=3.*' \
+    'xarray=2025.1.1' \
+    'zarr=2.*' \
+    'contextily=1.*' \
+    'tabpy=2.*' \
+    'docxtpl=0.11.*' \
   && mamba install --yes -c conda-forge -c R \
     # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
     'r-base=4.4.*' \
