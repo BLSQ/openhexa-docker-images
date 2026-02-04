@@ -5,7 +5,7 @@ FROM ${BASE_IMAGE}
 USER root
 
 # System libraries
-RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
+RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev mdbtools
 
 USER ${NB_UID}
 
