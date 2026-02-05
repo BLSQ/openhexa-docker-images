@@ -14,23 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
-
-      # Buildx runs in an isolated container that cannot access images in the local Docker daemon.
-      # We use a local registry so that dependent images (blsq, blsq-r) can pull the freshly built base image.
-      - name: Start local registry
-        run: docker run -d -p 5000:5000 --name registry registry:3
-
+        
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      
       - name: Store version number (on release)
         id: version
         if: ${{ github.event_name == 'release' }}
@@ -43,58 +38,70 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        run: pip install .
-
+        run: |
+          pip install .
+      
       - name: Build base image
-        uses: docker/build-push-action@v6
-        with:
-          context: images/base
-          platforms: linux/amd64
-          push: true
-          tags: localhost:5000/openhexa-base-environment
-
-      - name: Test base image
-        run: pytest tests/ -v --docker-image localhost:5000/openhexa-base-environment
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --cache-from type=registry,ref=blsq/openhexa-base-environment:cache \
+            --cache-to type=registry,ref=blsq/openhexa-base-environment:cache,mode=max \
+            -t blsq/openhexa-base-environment:ci images/base --load
+    
+      - name: Test "base" image
+        run: |
+          pytest tests/ -v --docker-image blsq/openhexa-base-environment:ci
 
       - name: Build blsq image
-        uses: docker/build-push-action@v6
-        with:
-          context: images/blsq
-          platforms: linux/amd64
-          push: true
-          tags: localhost:5000/openhexa-blsq-environment
-          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
-
-      - name: Test blsq image
-        run: pytest tests/ -v --docker-image localhost:5000/openhexa-blsq-environment
-
-      - name: Build blsq-r image
-        uses: docker/build-push-action@v6
-        with:
-          context: images/blsq-r
-          platforms: linux/amd64
-          push: true
-          tags: localhost:5000/openhexa-blsq-r-environment
-          build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
-
-      - name: Push images to DockerHub
-        if: github.event_name == 'push' || github.event_name == 'release'
         run: |
-          TAG="${{ steps.version.outputs.number || 'main' }}"
+          docker buildx build --platform linux/amd64 \
+            --cache-from type=registry,ref=blsq/openhexa-blsq-environment:cache \
+            --cache-to type=registry,ref=blsq/openhexa-blsq-environment:cache,mode=max \
+            -t blsq/openhexa-blsq-environment:ci images/blsq --build-arg BASE_IMAGE=blsq/openhexa-base-environment:ci --load
+      
+      - name: Test "blsq" image
+        run: |
+          pytest tests/ -v --docker-image blsq/openhexa-blsq-environment:ci
+      
+      - name: Build blsq-r image
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --cache-from type=registry,ref=blsq/openhexa-blsq-r-environment:cache \
+            --cache-to type=registry,ref=blsq/openhexa-blsq-r-environment:cache,mode=max \
+            -t blsq/openhexa-blsq-r-environment:ci images/blsq-r --build-arg BASE_IMAGE=blsq/openhexa-base-environment:ci --load
 
-          if [ "${{ github.event_name }}" == "release" ]; then
-            SECONDARY_TAG="latest"
-          else
-            SECONDARY_TAG="latest-unstable"
-          fi
+      - name: Push images
+        if: success() && github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: images/base
+          tags: |
+            blsq/openhexa-base-environment:${{ steps.version.outputs.number || 'main' }}
+            blsq/openhexa-base-environment:latest
+          cache-from: type=gha,scope=base
+          cache-to: type=gha,mode=max,scope=base
 
-          for image in base blsq blsq-r; do
-            src="localhost:5000/openhexa-${image}-environment"
-            dst="blsq/openhexa-${image}-environment"
+      - name: Push "blsq" image
+        if: success() && github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: images/blsq
+          tags: |
+            blsq/openhexa-blsq-environment:${{ steps.version.outputs.number || 'main' }}
+            blsq/openhexa-blsq-environment:latest
+          cache-from: type=gha,scope=blsq
+          cache-to: type=gha,mode=max,scope=blsq
 
-            docker pull $src
-            docker tag $src $dst:$TAG
-            docker tag $src $dst:$SECONDARY_TAG
-            docker push $dst:$TAG
-            docker push $dst:$SECONDARY_TAG
-          done
+      - name: Push "blsq-r" image
+        if: success() && github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: images/blsq-r
+          tags: |
+            blsq/openhexa-blsq-r-environment:${{ steps.version.outputs.number || 'main' }}
+            blsq/openhexa-blsq-r-environment:latest
+          cache-from: type=gha,scope=blsq-r
+          cache-to: type=gha,mode=max,scope=blsq-r
