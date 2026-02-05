@@ -27,12 +27,10 @@ RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
   apt-key add - && \
   apt-get update && \
-  apt-get install -y gcsfuse && \
+  apt-get install -y gcsfuse=3.5.2 && \
   apt-get clean
 
 # FUSE Azure Blob Storage
-
-
 RUN curl -L https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-2.5.0-preview.1/blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb -o blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
     dpkg -i blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
     rm blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb
