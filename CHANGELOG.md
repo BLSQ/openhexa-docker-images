@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.16.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.5...1.16.6) (2026-02-06)
+
+
+### Bug Fixes
+
+* Pin gcsfuse version to 3.5.2 ([383979a](https://github.com/BLSQ/openhexa-docker-images/commit/383979ab37a18c16e1c974c1460f8e95b1bd6702))
+
+
+### Miscellaneous
+
+* **deps:** update actions/checkout action to v6 ([#123](https://github.com/BLSQ/openhexa-docker-images/issues/123)) ([66b453b](https://github.com/BLSQ/openhexa-docker-images/commit/66b453b10e95b3817c31c1a3aeae82eeb7f6afd9))
+* **deps:** update dependency colorist to v1.8.11 ([#118](https://github.com/BLSQ/openhexa-docker-images/issues/118)) ([fb7dc93](https://github.com/BLSQ/openhexa-docker-images/commit/fb7dc93820623e05562c87539d033a8d538353b5))
+
 ## [1.16.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.4...1.16.5) (2025-11-28)
 
 
