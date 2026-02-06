@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pytest>=7.4.0",
     "docker",
-    "colorist==1.8.6"
+    "colorist==1.8.11"
 ]
 
 [tool.pytest.ini_options]
