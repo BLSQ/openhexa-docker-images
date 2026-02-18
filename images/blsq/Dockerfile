@@ -5,7 +5,7 @@ FROM ${BASE_IMAGE}
 USER root
 
 # System libraries
-RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev
+RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev odbc-mdbtools
 
 USER ${NB_UID}
 
@@ -44,6 +44,7 @@ RUN mamba install --yes -c conda-forge \
     'contextily=1.*' \
     'tabpy=2.*' \
     'docxtpl=0.11.*' \
+    'pyodbc' \
   && mamba install --yes -c conda-forge -c R \
     # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
     'r-base=4.4.*' \
@@ -81,3 +82,5 @@ ENV PYTHONUNBUFFERED=1
 ENV RUFF_CACHE_DIR=/tmp/.ruff_cache
 # Set PROJ_LIB env variable needed by the R sf package
 ENV PROJ_LIB=/opt/conda/share/proj
+# Symlink MDBTools ODBC driver into conda lib path
+RUN ln -s /usr/lib/x86_64-linux-gnu/odbc/libmdbodbc.so /opt/conda/lib/libmdbodbc.so
