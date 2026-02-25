@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.0...1.17.1) (2026-02-24)
+
+
+### Miscellaneous
+
+* Improve docker image building and tagging ([#126](https://github.com/BLSQ/openhexa-docker-images/issues/126)) ([015574f](https://github.com/BLSQ/openhexa-docker-images/commit/015574f9adc6a8b430656a95e30a1f9161d4bde6))
+* Update base scipy-notebook and Conda and R packages (HEXA-1440) ([#128](https://github.com/BLSQ/openhexa-docker-images/issues/128)) ([785b6ab](https://github.com/BLSQ/openhexa-docker-images/commit/785b6abff71284b9b112400af9408486466ebc73))
+
 ## [1.17.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.16.5...1.17.0) (2026-02-18)
 
 
