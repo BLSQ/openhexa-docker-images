@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.17.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.1...1.17.2) (2026-03-10)
+
+
+### Miscellaneous
+
+* Add Claude Code and Gemini CLI to the blsq image ([#132](https://github.com/BLSQ/openhexa-docker-images/issues/132)) ([bcf1c79](https://github.com/BLSQ/openhexa-docker-images/commit/bcf1c796b9251a7b49f3a61acb7a31a3cf4e83c9))
+* **deps:** update docker/build-push-action action to v7 ([#131](https://github.com/BLSQ/openhexa-docker-images/issues/131)) ([048f7e8](https://github.com/BLSQ/openhexa-docker-images/commit/048f7e852d0e0003b40553688842b143df388522))
+* **deps:** update docker/login-action action to v4 ([#129](https://github.com/BLSQ/openhexa-docker-images/issues/129)) ([caf0c29](https://github.com/BLSQ/openhexa-docker-images/commit/caf0c295141c8535e2401b34114cf0dee5a4baf1))
+* **deps:** update docker/setup-buildx-action action to v4 ([#130](https://github.com/BLSQ/openhexa-docker-images/issues/130)) ([946dfbf](https://github.com/BLSQ/openhexa-docker-images/commit/946dfbf275a94c1a18551b11feec22eb43db3b4c))
+
 ## [1.17.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.0...1.17.1) (2026-02-24)
 
 
