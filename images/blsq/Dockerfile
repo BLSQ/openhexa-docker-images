@@ -7,6 +7,9 @@ USER root
 # System libraries
 RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev odbc-mdbtools
 
+# AI tooling: Claude Code and Gemini CLI
+RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli
+
 USER ${NB_UID}
 
 RUN ls -la /home/jovyan
