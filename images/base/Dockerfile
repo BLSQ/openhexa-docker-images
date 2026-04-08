@@ -59,7 +59,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'duckdb>=1.3,<1.5' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
-  'openhexa.sdk=2.15.2' \
+  'openhexa.sdk=2.19.5' \
   'openhexa.toolbox=2.10.0' \
   # Jupyter extensions
   'jupyter-resource-usage' \
