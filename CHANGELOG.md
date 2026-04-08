@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.17.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.2...1.17.3) (2026-04-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency colorist to v1.8.13 ([#134](https://github.com/BLSQ/openhexa-docker-images/issues/134)) ([bf10399](https://github.com/BLSQ/openhexa-docker-images/commit/bf103999a7028b0ee0f09f3ab80109f77fb06ede))
+
+
+### Miscellaneous
+
+* **deps:** update dependency python to 3.14 ([#99](https://github.com/BLSQ/openhexa-docker-images/issues/99)) ([15d8fc7](https://github.com/BLSQ/openhexa-docker-images/commit/15d8fc78e1bdb0bbbaf4376b028c6ecca2054e74))
+* upgrade sdk to 2.19.5 ([#136](https://github.com/BLSQ/openhexa-docker-images/issues/136)) ([767749b](https://github.com/BLSQ/openhexa-docker-images/commit/767749be165a0226f357da438b27ba998c030335))
+
 ## [1.17.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.1...1.17.2) (2026-03-10)
 
 
