@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.3...1.17.4) (2026-04-24)
+
+
+### Miscellaneous
+
+* **deps:** update googleapis/release-please-action action to v5 ([#137](https://github.com/BLSQ/openhexa-docker-images/issues/137)) ([a3aaeba](https://github.com/BLSQ/openhexa-docker-images/commit/a3aaeba2848fe237ab96a26e478e92bf9dbdb7b5))
+* upgrade OH SDK to 2.20.0 ([#139](https://github.com/BLSQ/openhexa-docker-images/issues/139)) ([dbf24b3](https://github.com/BLSQ/openhexa-docker-images/commit/dbf24b3e0707e6a7efaa2ac8962c4825d396f3b4))
+
 ## [1.17.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.2...1.17.3) (2026-04-08)
 
 
