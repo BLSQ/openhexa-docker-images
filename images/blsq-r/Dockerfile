@@ -24,7 +24,7 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
     && rm quarto-linux-amd64.deb
 
 USER ${NB_UID}
-RUN conda install --yes -c conda-forge \
+RUN mamba install --yes -c conda-forge \
     r-arrow=18.1.* \
     r-irkernel=1.3.* \
     r-tidyverse \
@@ -116,7 +116,7 @@ RUN conda install --yes -c conda-forge \
     r-askpass=1.2.1 \
     r-ragg=1.3 \
     r-textshaping=0.4.0 \
-    && conda clean --all -y && \
+    && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
 
