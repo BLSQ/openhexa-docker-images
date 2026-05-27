@@ -24,98 +24,54 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
     && rm quarto-linux-amd64.deb
 
 USER ${NB_UID}
+
+# R 4.5+ on conda-forge is built against icu 78, which matches this image's base
+# Python stack (pyarrow, libmamba/conda).
 RUN mamba install --yes -c conda-forge \
-    r-arrow=18.1.* \
-    r-irkernel=1.3.* \
+    r-base=4.5.* \
+    r-irkernel \
+    # r-irkernel also pulls in: r-crayon r-digest
+    r-arrow \
     r-tidyverse \
-    r-arrow=18.1.* \
-    r-getpass=0.* \
-    r-readxl=1.* \
-    r-rcolorbrewer=1.* \
-    r-rjson=0.2.* \
-    r-rpostgres=1.4.* \
-    r-styler=1.* \
-    r-viridis=0.6.* \
-    r-nloptr=2.* \
-    r-rgeos=0.* \
-    r-rgooglemaps=1.5.* \
-    r-ggmap=4.0.* \
-    r-ggthemes=5.1.* \
-    r-maptools=1.* \
-    r-plotly=4.* \
-    r-raster=3.* \
-    r-sf=1.* \
-    r-stringi=1.* \
-    r-glue=1.7 \
-    r-here=1.0 \
-    r-lubridate=1.9 \
-    r-forcats=1.0 \
-    r-stringr=1.5 \
-    r-dplyr=1.1 \
-    r-purrr=1.0 \
-    r-readr=2.1 \
-    r-tidyr=1.3 \
-    r-tibble=3.2 \
-    r-ggplot2=3.5 \
-    r-gtable=0.3 \
-    r-websocket=1.4 \
-    r-processx=3.8 \
-    r-tzdb=0.4 \
-    r-ps=1.7 \
-    r-vctrs=0.6 \
-    r-generics=0.1 \
-    r-proxy=0.4 \
-    r-fansi=1.0 \
-    r-pkgconfig=2.0 \
-    r-kernsmooth=2.23 \
-    r-lifecycle=1.0 \
-    r-farver=2.1 \
-    r-munsell=0.5 \
-    r-httpuv=1.6 \
-    r-sass=0.4 \
-    r-htmltools=0.5 \
-    r-rttf2pt1=1.3 \
-    r-later=1.3 \
-    r-pillar=1.9 \
-    r-crayon=1.5 \
-    r-classint=0.4 \
-    r-mime=0.12 \
-    r-tidyselect=1.2 \
-    r-digest=0.6 \
-    r-stringi=1.8 \
-    r-labeling=0.4 \
-    r-rprojroot=2.0 \
-    r-fastmap=1.2 \
-    r-colorspace=2.1 \
-    r-cli=3.6 \
-    r-magrittr=2.0 \
-    r-utf8=1.2 \
-    r-rlang=1.1 \
-    r-rcpp=1.0 \
-    r-dbi=1.2 \
-    r-xml=3 \
-    r-xml2=1.3 \
-    r-renv=1.0 \
-    r-jsonlite=1.8 \
-    r-rstudioapi=0.16 \
-    r-e1071=1.7 \
-    r-withr=3.0 \
-    r-promises=1.3 \
-    r-scales=1.3 \
-    r-bit64=4.0 \
-    r-timechange=0.3 \
-    r-bit=4.0 \
-    r-qpdf=1.3 \
-    r-hms=1.1 \
-    r-pagedown=0.20 \
-    r-vroom=1.6 \
-    r-r6=2.5 \
-    r-fs=1.6 \
-    r-systemfonts=1.1 \
-    r-units=0.8 \
-    r-askpass=1.2.1 \
-    r-ragg=1.3 \
-    r-textshaping=0.4.0 \
+    # r-tidyverse also pulls in: r-dplyr r-stringr r-glue r-lubridate r-forcats
+    #   r-purrr r-readr r-tidyr r-tibble r-ggplot2 r-readxl r-magrittr r-jsonlite
+    #   r-rlang r-cli r-pillar r-hms r-rstudioapi r-xml2 r-ragg r-stringi r-vctrs
+    #   r-generics r-tidyselect r-lifecycle r-pkgconfig r-fansi r-utf8 r-r6
+    #   r-withr r-scales r-farver r-labeling r-munsell r-colorspace r-gtable
+    #   r-tzdb r-vroom r-bit64 r-bit r-timechange r-fs r-systemfonts r-textshaping
+    #   r-askpass
+    r-getpass \
+    r-rcolorbrewer \
+    r-rjson \
+    r-rpostgres \
+    # r-rpostgres also pulls in: r-dbi
+    r-styler \
+    r-viridis \
+    r-nloptr \
+    r-rgooglemaps \
+    r-ggmap \
+    r-ggthemes \
+    r-plotly \
+    # r-plotly also pulls in: r-htmltools r-promises r-later r-fastmap r-mime
+    r-raster \
+    # r-raster also pulls in: r-rcpp
+    r-sf \
+    # r-sf also pulls in: r-classint r-units
+    r-here \
+    # r-here also pulls in: r-rprojroot
+    r-websocket \
+    r-processx \
+    r-ps \
+    r-kernsmooth \
+    r-httpuv \
+    r-sass \
+    r-rttf2pt1 \
+    r-xml \
+    r-renv \
+    r-e1071 \
+    # r-e1071 also pulls in: r-proxy
+    r-qpdf \
+    r-pagedown \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
