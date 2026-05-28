@@ -10,7 +10,7 @@ USER root
 
 # System libraries
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \ 
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
@@ -73,12 +73,15 @@ RUN mamba install --yes -c conda-forge \
     r-qpdf \
     r-pagedown \
     r-httr \
+    r-reticulate \
+    r-fpp3 \
+    r-survey \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
 
 # R packages (only available on cran)
-RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
+RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap', 'DHS.rates'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
 
 USER ${NB_UID}
 WORKDIR $HOME
