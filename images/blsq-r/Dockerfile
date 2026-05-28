@@ -36,13 +36,21 @@ USER ${NB_UID}
 RUN mamba install --yes -c conda-forge \
     r-base=4.5.* \
     r-irkernel \
+    # r-irkernel also pulls in: r-crayon r-digest
     r-arrow \
     r-tidyverse \
+    # r-tidyverse also pulls in: r-dplyr r-stringr r-glue r-lubridate r-forcats
+    #   r-purrr r-readr r-tidyr r-tibble r-ggplot2 r-readxl r-magrittr r-jsonlite
+    #   r-rlang r-cli r-pillar r-hms r-rstudioapi r-xml2 r-ragg r-stringi r-vctrs
+    #   r-generics r-tidyselect r-lifecycle r-pkgconfig r-fansi r-utf8 r-r6
+    #   r-withr r-scales r-farver r-labeling r-munsell r-colorspace r-gtable
+    #   r-tzdb r-vroom r-bit64 r-bit r-timechange r-fs r-systemfonts r-textshaping
+    #   r-askpass
     r-getpass \
-    r-readxl \
     r-rcolorbrewer \
     r-rjson \
     r-rpostgres \
+    # r-rpostgres also pulls in: r-dbi
     r-styler \
     r-viridis \
     r-nloptr \
@@ -50,78 +58,26 @@ RUN mamba install --yes -c conda-forge \
     r-ggmap \
     r-ggthemes \
     r-plotly \
+    # r-plotly also pulls in: r-htmltools r-promises r-later r-fastmap r-mime
     r-raster \
+    # r-raster also pulls in: r-rcpp
     r-sf \
-    r-stringi \
-    r-glue \
+    # r-sf also pulls in: r-classint r-units
     r-here \
-    r-lubridate \
-    r-forcats \
-    r-stringr \
-    r-dplyr \
-    r-purrr \
-    r-readr \
-    r-tidyr \
-    r-tibble \
-    r-ggplot2 \
-    r-gtable \
+    # r-here also pulls in: r-rprojroot
     r-websocket \
     r-processx \
-    r-tzdb \
     r-ps \
-    r-vctrs \
-    r-generics \
-    r-proxy \
-    r-fansi \
-    r-pkgconfig \
     r-kernsmooth \
-    r-lifecycle \
-    r-farver \
-    r-munsell \
     r-httpuv \
     r-sass \
-    r-htmltools \
     r-rttf2pt1 \
-    r-later \
-    r-pillar \
-    r-crayon \
-    r-classint \
-    r-mime \
-    r-tidyselect \
-    r-digest \
-    r-labeling \
-    r-rprojroot \
-    r-fastmap \
-    r-colorspace \
-    r-cli \
-    r-magrittr \
-    r-utf8 \
-    r-rlang \
-    r-rcpp \
-    r-dbi \
     r-xml \
-    r-xml2 \
     r-renv \
-    r-jsonlite \
-    r-rstudioapi \
     r-e1071 \
-    r-withr \
-    r-promises \
-    r-scales \
-    r-bit64 \
-    r-timechange \
-    r-bit \
+    # r-e1071 also pulls in: r-proxy
     r-qpdf \
-    r-hms \
     r-pagedown \
-    r-vroom \
-    r-r6 \
-    r-fs \
-    r-systemfonts \
-    r-units \
-    r-askpass \
-    r-ragg \
-    r-textshaping \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
