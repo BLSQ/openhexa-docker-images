@@ -72,13 +72,13 @@ test-blsq: ## Run the test suite against the blsq image
 	$(PYTEST) --docker-image $(BLSQ_IMAGE)
 
 .PHONY: test-blsq-r
-test-blsq-r: ## Run the test suite against the blsq-r image (not run in CI)
+test-blsq-r: ## Run the test suite against the blsq-r image
 	$(PYTEST) --docker-image $(BLSQ_R_IMAGE)
 
 .PHONY: test
-test: test-base test-blsq ## Run tests for base and blsq (matches CI)
+test: test-base test-blsq test-blsq-r ## Run tests for base, blsq and blsq-r (matches CI)
 
 # --- Full pipeline --------------------------------------------------------
 
 .PHONY: ci
-ci: build-base test-base build-blsq test-blsq build-blsq-r ## Run the full CI build/test pipeline locally
+ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Run the full CI build/test pipeline locally
