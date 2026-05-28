@@ -26,13 +26,7 @@ RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
 USER ${NB_UID}
 
 # R 4.5+ on conda-forge is built against icu 78, which matches this image's base
-# Python stack (pyarrow, libmamba/conda). Earlier R generations (4.4) link icu
-# 75 and would force an icu/pyarrow downgrade that removes conda/mamba, so we pin
-# r-base to the 4.5 series and install the R stack directly into the base env.
-# r-rgeos and r-maptools are intentionally omitted: both were retired from CRAN
-# in 2023 and have no R 4.5 build on conda-forge (their functionality lives on in
-# sf/raster). Remaining versions are left unpinned so the resolver can pick a
-# self-consistent, icu-78 set.
+# Python stack (pyarrow, libmamba/conda).
 RUN mamba install --yes -c conda-forge \
     r-base=4.5.* \
     r-irkernel \
