@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.4...1.17.5) (2026-05-29)
+
+
+### Bug Fixes
+
+* Out of memory when building blsq-r image ([#142](https://github.com/BLSQ/openhexa-docker-images/issues/142)) ([189777b](https://github.com/BLSQ/openhexa-docker-images/commit/189777b04f215c77f8f8c1176970aa88cf81e5f3))
+
+
+### Miscellaneous
+
+* Update OH SDK to 2.21.0 and toolbox to 2.11.0 ([#140](https://github.com/BLSQ/openhexa-docker-images/issues/140)) ([488d6ad](https://github.com/BLSQ/openhexa-docker-images/commit/488d6adcb2f29d8cc0feb9997178aa8d71529118))
+
 ## [1.17.4](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.3...1.17.4) (2026-04-24)
 
 
