@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.5...1.17.6) (2026-06-01)
+
+
+### Bug Fixes
+
+* revert 1.17.5 changes (blsq-r OOM rework + OH SDK 2.21.0/toolbox 2.11.0) due to regressions ([f467b77](https://github.com/BLSQ/openhexa-docker-images/commit/f467b77649d9b0caf562f108fe09e5943e7e12ac))
+
 ## [1.17.5](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.4...1.17.5) (2026-05-29)
 
 
