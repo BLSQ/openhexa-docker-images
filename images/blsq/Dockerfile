@@ -17,6 +17,8 @@ RUN ls -la /home/jovyan
 # Split into batches to avoid running out of memory.
 RUN mamba install --yes -c conda-forge \
     # Python packages
+    # Pin sqlite: geo stack otherwise drags in the old monolithic 3.32.3, breaking import sqlite3.
+    'sqlite>=3.49' \
     'ruff' \
     'boto3' \
     'python-kaleido' \
@@ -49,6 +51,8 @@ RUN mamba install --yes -c conda-forge \
     'docxtpl' \
     'pyodbc' \
   && mamba install --yes -c conda-forge -c R \
+    # Pin sqlite here too: the R batch re-downgrades it to 3.32.3 within this same layer.
+    'sqlite>=3.49' \
     # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
     'r-base=4.4.*' \
     # R Packages
