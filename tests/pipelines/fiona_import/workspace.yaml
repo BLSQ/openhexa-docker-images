@@ -1,0 +1,8 @@
+database:
+  host: localhost
+  username: some_username
+  password: some_password
+  dbname: the_db_name
+  port: 5432
+files:
+  path: ./workspace

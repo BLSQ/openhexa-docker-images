@@ -24,3 +24,10 @@ def test_pandas_to_sql_success(docker_image):
 
     assert "undefined symbol: sqlite3_deserialize" not in logs
     assert "to_sql succeeded" in logs
+
+
+def test_fiona_import_success(docker_image):
+    logs = run_local_pipeline(docker_image, pipelines_dir / "fiona_import")
+
+    assert "undefined symbol: sqlite3_total_changes64" not in logs
+    assert "fiona imported successfully" in logs
