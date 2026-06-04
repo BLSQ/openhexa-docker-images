@@ -72,6 +72,7 @@ RUN mamba install --yes -c conda-forge \
     # r-e1071 also pulls in: r-proxy
     r-qpdf \
     r-pagedown \
+    r-httr \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
