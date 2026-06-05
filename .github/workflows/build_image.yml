@@ -77,6 +77,9 @@ jobs:
           tags: localhost:5000/openhexa-blsq-r-environment
           build-args: BASE_IMAGE=localhost:5000/openhexa-base-environment
 
+      - name: Test blsq-r image
+        run: pytest tests/ -v --docker-image localhost:5000/openhexa-blsq-r-environment
+
       - name: Push images to DockerHub
         if: github.event_name == 'push' || github.event_name == 'release'
         run: |
