@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.6...1.17.7) (2026-06-05)
+
+
+### Bug Fixes
+
+* Out of memory when building blsq-r image (2nd try) (HEXA-1684) ([#146](https://github.com/BLSQ/openhexa-docker-images/issues/146)) ([d0623a1](https://github.com/BLSQ/openhexa-docker-images/commit/d0623a1b4b5965ac9e7ee8ead67dfdbb21096eff))
+
 ## [1.17.6](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.5...1.17.6) (2026-06-01)
 
 
