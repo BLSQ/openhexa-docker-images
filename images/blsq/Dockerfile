@@ -54,27 +54,26 @@ RUN mamba install --yes -c conda-forge \
     # Pin sqlite here too: the R batch re-downgrades it to 3.32.3 within this same layer.
     'sqlite>=3.49' \
     # R : We setup a minimal R environment to be able to use this image as a base for the workspaces
-    'r-base=4.4.*' \
+    'r-base=4.5.*' \
     # R Packages
-    'r-irkernel=1.3.*' \
-    'r-arrow=18.1.*' \
-    'r-getpass=0.*' \
-    'r-readxl=1.*' \
-    'r-rcolorbrewer=1.*' \
-    'r-rjson=0.2.*' \
-    'r-rpostgres=1.4.*' \
-    'r-styler=1.*' \
-    'r-viridis=0.6.*' \
-    'r-nloptr=2.*' \
-    'r-rgeos=0.*' \
-    'r-rgooglemaps=1.5.*' \
-    'r-ggmap=4.0.*'\
-    'r-ggthemes=5.1.*' \
-    'r-maptools=1.*' \
-    'r-plotly=4.*' \
-    'r-raster=3.*' \
-    'r-sf=1.*' \
-    'r-stringi=1.*' \
+    'r-irkernel' \
+    'r-arrow' \
+    'r-getpass' \
+    'r-readxl' \
+    'r-rcolorbrewer' \
+    'r-rjson' \
+    'r-rpostgres' \
+    'r-styler' \
+    'r-viridis' \
+    'r-nloptr' \
+    # r-rgeos and r-maptools dropped: retired from CRAN
+    'r-rgooglemaps' \
+    'r-ggmap' \
+    'r-ggthemes' \
+    'r-plotly' \
+    'r-raster' \
+    'r-sf' \
+    'r-stringi' \
   && mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
