@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.7...1.17.8) (2026-06-08)
+
+
+### Miscellaneous
+
+* Upgrade blsq image to R 4.5 ([#148](https://github.com/BLSQ/openhexa-docker-images/issues/148)) ([3930fb1](https://github.com/BLSQ/openhexa-docker-images/commit/3930fb16eab520c132fd436da8b1564e367fa112))
+
 ## [1.17.7](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.6...1.17.7) (2026-06-05)
 
 
