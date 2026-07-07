@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.8...1.17.9) (2026-07-07)
+
+
+### Miscellaneous
+
+* **deps:** update actions/checkout action to v7 ([#150](https://github.com/BLSQ/openhexa-docker-images/issues/150)) ([eaf2d5f](https://github.com/BLSQ/openhexa-docker-images/commit/eaf2d5f6f488edbdb27ba7e8631e00a6f92748d4))
+* Update OH sdk and toolbox to 2.22.2 and 2.11.1 ([cf25885](https://github.com/BLSQ/openhexa-docker-images/commit/cf25885867a64ea93b32ede7a1738c99b5ebebe8))
+
 ## [1.17.8](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.7...1.17.8) (2026-06-08)
 
 
