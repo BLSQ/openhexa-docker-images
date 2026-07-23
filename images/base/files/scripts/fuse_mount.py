@@ -95,18 +95,22 @@ elif STORAGE_ENGINE_TYPE == "azure":
 
 elif STORAGE_ENGINE_TYPE == "s3":
     # tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
-    os.environ["AWSACCESSKEYID"] = os.environ.get(
-        "WORKSPACE_STORAGE_ENGINE_S3_ACCESS_KEY_ID", ""
-    )
-    os.environ["AWSSECRETACCESSKEY"] = os.environ.get(
-        "WORKSPACE_STORAGE_ENGINE_S3_SECRET_ACCESS_KEY", ""
-    )
-    os.environ["AWSSESSIONTOKEN"] = os.environ.get(
-        "WORKSPACE_STORAGE_ENGINE_S3_SESSION_TOKEN", ""
-    )
+    # Only export credentials that are actually set: the session token is only
+    # provided when the app uses STS assume-role, and s3fs exits with "session
+    # token is invalid" if AWSSESSIONTOKEN exists but is empty.
+    for source, target in [
+        ("WORKSPACE_STORAGE_ENGINE_S3_ACCESS_KEY_ID", "AWSACCESSKEYID"),
+        ("WORKSPACE_STORAGE_ENGINE_S3_SECRET_ACCESS_KEY", "AWSSECRETACCESSKEY"),
+        ("WORKSPACE_STORAGE_ENGINE_S3_SESSION_TOKEN", "AWSSESSIONTOKEN"),
+    ]:
+        value = os.environ.get(source)
+        if value:
+            os.environ[target] = value
 
     aws_endpoint = os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_ENDPOINT_URL", "")
-    s3_is_minio = True if aws_endpoint else False
+    # A custom endpoint means MinIO (or another S3 clone), unless it points to
+    # real AWS, which some deployments set explicitly.
+    s3_is_minio = bool(aws_endpoint) and ".amazonaws.com" not in aws_endpoint
 
     command = [
         "s3fs",
