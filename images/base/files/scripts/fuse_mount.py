@@ -1,6 +1,4 @@
-import base64
 import http.server
-import json
 import multiprocessing
 import os
 import shutil
@@ -96,19 +94,18 @@ elif STORAGE_ENGINE_TYPE == "azure":
     results = subprocess.run(command)
 
 elif STORAGE_ENGINE_TYPE == "s3":
-    # b64("{}") == b'e30='
-    fuse_config = json.loads(
-        base64.b64decode(
-            os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_FUSE_CONFIG", b"e30=")
-        )
+    # tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
+    os.environ["AWSACCESSKEYID"] = os.environ.get(
+        "WORKSPACE_STORAGE_ENGINE_S3_ACCESS_KEY_ID", ""
+    )
+    os.environ["AWSSECRETACCESSKEY"] = os.environ.get(
+        "WORKSPACE_STORAGE_ENGINE_S3_SECRET_ACCESS_KEY", ""
+    )
+    os.environ["AWSSESSIONTOKEN"] = os.environ.get(
+        "WORKSPACE_STORAGE_ENGINE_S3_SESSION_TOKEN", ""
     )
 
-    # tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
-    os.environ["AWSACCESSKEYID"] = fuse_config.get("AWS_ACCESS_KEY_ID", "")
-    os.environ["AWSSECRETACCESSKEY"] = fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
-    os.environ["AWSSESSIONTOKEN"] = fuse_config.get("AWS_SESSION_TOKEN", "")
-
-    aws_endpoint = fuse_config.get("AWS_ENDPOINT", "")
+    aws_endpoint = os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_ENDPOINT_URL", "")
     s3_is_minio = True if aws_endpoint else False
 
     command = [
@@ -117,8 +114,6 @@ elif STORAGE_ENGINE_TYPE == "s3":
         path_to_mount,
         "-o",
         "allow_other",
-        "-o",
-        "url=" + aws_endpoint,
         # Debug
         # "-o",
         # "dbglevel=info",
@@ -127,12 +122,18 @@ elif STORAGE_ENGINE_TYPE == "s3":
         # "curldbg",
     ]
 
+    if aws_endpoint:
+        # Only pass a custom endpoint when one is set (e.g. MinIO); real AWS S3
+        # must not receive an empty url.
+        command.extend(["-o", "url=" + aws_endpoint])
+
     if s3_is_minio:
         # MinIO doesn't support the subdomain request style, use the older path request style.
         command.extend(["-o", "use_path_request_style"])
 
     # print(f"debug fusemount {command}")
     results = subprocess.run(command)
+    results.check_returncode()
 
 elif STORAGE_ENGINE_TYPE == "local":
     # Nothing to do as the workspace is already mounted
