@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.17.10](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.9...1.17.10) (2026-07-24)
+
+
+### Bug Fixes
+
+* Correctly mount S3 buckets in JupyterHub (with FUSE) ([#153](https://github.com/BLSQ/openhexa-docker-images/issues/153)) ([5ac6126](https://github.com/BLSQ/openhexa-docker-images/commit/5ac6126dfcb7a1d1c0e19c8662f6f3f1084d7692))
+* **deps:** update dependency colorist to v1.8.14 ([#145](https://github.com/BLSQ/openhexa-docker-images/issues/145)) ([f55aca9](https://github.com/BLSQ/openhexa-docker-images/commit/f55aca90f4ca8d88af5cb0d0eff7b9bf009ce60d))
+* FUSE mount AWS/MinIO detection ([d7de345](https://github.com/BLSQ/openhexa-docker-images/commit/d7de3451f9ad0fe95ae44d36a1b4e2c0bd4cdbd1))
+* S3 bucket mount, set the region ([fbca3c4](https://github.com/BLSQ/openhexa-docker-images/commit/fbca3c4fce633ca3ea86c32cc3a30fb51925a628))
+
+
+### Miscellaneous
+
+* **deps:** update actions/setup-python action to v7 ([#152](https://github.com/BLSQ/openhexa-docker-images/issues/152)) ([56dc607](https://github.com/BLSQ/openhexa-docker-images/commit/56dc607fc82f65ac03fbedfa42a41efa24c6cdf0))
+
 ## [1.17.9](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.8...1.17.9) (2026-07-07)
 
 
