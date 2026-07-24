@@ -108,6 +108,7 @@ elif STORAGE_ENGINE_TYPE == "s3":
             os.environ[target] = value
 
     aws_endpoint = os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_ENDPOINT_URL", "")
+    aws_region = os.environ.get("WORKSPACE_STORAGE_ENGINE_S3_REGION_NAME", "")
     # A custom endpoint means MinIO (or another S3 clone), unless it points to
     # real AWS, which some deployments set explicitly.
     s3_is_minio = bool(aws_endpoint) and ".amazonaws.com" not in aws_endpoint
@@ -118,6 +119,15 @@ elif STORAGE_ENGINE_TYPE == "s3":
         path_to_mount,
         "-o",
         "allow_other",
+        # Present all objects as owned by jovyan (uid 1000 / gid 100, like the
+        # gcsfuse mount): objects created outside s3fs have no POSIX metadata
+        # and would otherwise appear root-owned and read-only for jovyan.
+        "-o",
+        "uid=1000",
+        "-o",
+        "gid=100",
+        "-o",
+        "umask=0022",
         # Debug
         # "-o",
         # "dbglevel=info",
@@ -130,6 +140,12 @@ elif STORAGE_ENGINE_TYPE == "s3":
         # Only pass a custom endpoint when one is set (e.g. MinIO); real AWS S3
         # must not receive an empty url.
         command.extend(["-o", "url=" + aws_endpoint])
+
+    if aws_region:
+        # s3fs's "endpoint" option is the region used for SigV4 signing; it
+        # defaults to us-east-1, and SigV4-only regions (e.g. eu-central-1)
+        # reject the SigV2 fallback s3fs resorts to on a region mismatch.
+        command.extend(["-o", "endpoint=" + aws_region])
 
     if s3_is_minio:
         # MinIO doesn't support the subdomain request style, use the older path request style.
