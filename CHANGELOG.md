@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.11](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.10...1.17.11) (2026-08-21)
+
+
+### Miscellaneous
+
+* Update OH SDK to 2.22.6 and toolbox to 2.11.3 ([#155](https://github.com/BLSQ/openhexa-docker-images/issues/155)) ([766d359](https://github.com/BLSQ/openhexa-docker-images/commit/766d3596d7934f2177e0d8920498484e6745f857))
+
 ## [1.17.10](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.9...1.17.10) (2026-07-24)
 
 
