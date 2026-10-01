@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.12](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.11...1.17.12) (2026-10-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency colorist to v1.8.15 ([#157](https://github.com/BLSQ/openhexa-docker-images/issues/157)) ([b756476](https://github.com/BLSQ/openhexa-docker-images/commit/b756476aeeb8e0a63741df948976c78b188d5e40))
+
 ## [1.17.11](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.10...1.17.11) (2026-08-21)
 
 
