@@ -12,6 +12,10 @@
 #   make build-base  # build a single image
 #   make test-base   # test a single image
 #   make deps        # install the Python test dependencies
+#
+# `make` or `make help` lists every target.
+
+.DEFAULT_GOAL := help
 
 BASE_IMAGE   ?= openhexa-base-environment
 BLSQ_IMAGE   ?= openhexa-blsq-environment
@@ -27,42 +31,44 @@ export DOCKER_HOST
 DOCKER_BUILD := docker build --platform $(PLATFORM)
 PYTEST       := python -m pytest tests/ -v
 
-## Build
+.PHONY: help h build-base build-blsq build-blsq-r b build \
+	test-base test-blsq test-blsq-r t test deps ci
 
-build-base:
-	@echo "Building the base image"
+h help: ## Show this help
+	@awk 'BEGIN { FS = ":.*## " } \
+		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } \
+		/^[a-zA-Z0-9_ -]+:.*## / { target = $$1; gsub(/ /, ", ", target); printf "  \033[36m%-32s\033[0m %s\n", target, $$2 }' $(MAKEFILE_LIST)
+	@echo
+
+##@ Build
+
+build-base: ## Build the base image
 	$(DOCKER_BUILD) -t $(BASE_IMAGE) images/base
 
-build-blsq: build-base
-	@echo "Building the blsq image"
+build-blsq: build-base ## Build the blsq image (on top of base)
 	$(DOCKER_BUILD) --build-arg BASE_IMAGE=$(BASE_IMAGE) -t $(BLSQ_IMAGE) images/blsq
 
-build-blsq-r: build-base
-	@echo "Building the blsq-r image"
+build-blsq-r: build-base ## Build the blsq-r image (on top of base, adds R)
 	$(DOCKER_BUILD) --build-arg BASE_IMAGE=$(BASE_IMAGE) -t $(BLSQ_R_IMAGE) images/blsq-r
 
-b build: build-base build-blsq build-blsq-r
+b build: build-base build-blsq build-blsq-r ## Build all three images
 
-## Test
+##@ Test
 
-test-base:
-	@echo "Testing the base image"
+test-base: ## Test the base image
 	$(PYTEST) --docker-image $(BASE_IMAGE)
 
-test-blsq:
-	@echo "Testing the blsq image"
+test-blsq: ## Test the blsq image
 	$(PYTEST) --docker-image $(BLSQ_IMAGE)
 
-test-blsq-r:
-	@echo "Testing the blsq-r image"
+test-blsq-r: ## Test the blsq-r image
 	$(PYTEST) --docker-image $(BLSQ_R_IMAGE)
 
-t test: test-base test-blsq test-blsq-r
+t test: test-base test-blsq test-blsq-r ## Test all three images
 
-## Misc
+##@ Misc
 
-deps:
-	@echo "Installing test dependencies"
+deps: ## Install the Python test dependencies
 	pip install .
 
-ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r
+ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r
