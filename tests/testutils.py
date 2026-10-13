@@ -39,3 +39,29 @@ def run_local_pipeline(
         return logs
     finally:
         client.close()
+
+
+def run_in_image(
+    docker_image: str,
+    script: str,
+    environment: dict[str, str] | None = None,
+) -> str:
+    """Run a bash script inside the image, bypassing the OpenHEXA entrypoint,
+    and return its combined output."""
+    client = docker.from_env()
+    try:
+        logs = client.containers.run(
+            docker_image,
+            command=["bash", "-c", script],
+            entrypoint=[],
+            environment=environment or {},
+            stdout=True,
+            stderr=True,
+        )
+        logs = logs.decode("utf-8")
+        print("\n")
+        effect_underline("Container logs")
+        effect_dim(logs)
+        return logs
+    finally:
+        client.close()

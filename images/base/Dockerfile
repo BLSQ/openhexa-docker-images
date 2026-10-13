@@ -20,6 +20,14 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean
 
+# Quarto CLI (publishing system for .qmd and notebooks). The official .deb is
+# self-contained; the conda-forge package needs conda activation scripts that
+# these images never run.
+ARG QUARTO_VERSION=1.10.19
+RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+    dpkg -i /tmp/quarto.deb && \
+    rm /tmp/quarto.deb
+
 # FUSE Google Cloud Storage
 RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
@@ -63,15 +71,39 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'openhexa.toolbox=2.11.3' \
   # Jupyter extensions
   'jupyter-resource-usage' \
-  'jupyterlab_code_formatter' && \
+  'jupyterlab_code_formatter' \
+  # jupytext opens and pairs Quarto .qmd files as notebooks (uses the Quarto CLI above).
+  'jupytext>=1.19,<1.20' && \
   mamba clean --all -f -y && \
+  fix-permissions "${CONDA_DIR}"
+
+# Jupyter AI: chat panel with AI personas (ACP agents such as Claude Code, and the
+# litellm-backed Jupyternaut persona), plus jupyterlab-quarto to render Quarto
+# markdown in notebook cells.
+# Installed with pip rather than mamba: the conda recipe of openhexa.sdk pins
+# ariadne-codegen<0.15, whose declared websockets<12 requirement conflicts with
+# jupyter-server-mcp (websockets>=15). The SDK only imports websockets behind a
+# try/except for GraphQL subscriptions it does not use, so a newer websockets is
+# harmless at runtime; pip tolerates the stale pin where the conda solver does not.
+RUN pip install --no-cache-dir \
+  'jupyter-ai>=3.2,<3.3' \
+  'jupyter-ai-jupyternaut>=0.1,<0.2' \
+  'jupyter-ai-litellm>=0.1,<0.2' \
+  'jupyterlab-quarto>=0.3,<0.4' \
+  # Keep click where openhexa.sdk pins it; pip would otherwise upgrade it.
+  'click~=8.1.3' && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
+COPY jupyter_jupyter_ai_jupyternaut_config.py /etc/jupyter/
 COPY --chown=${NB_UID}:${NB_UID} files/overrides.json /opt/conda/share/jupyter/lab/settings/
+
+# AI assistant wiring: turns the HEXA_AI_* variables injected by OpenHEXA into
+# the configuration expected by Claude Code, Gemini CLI, litellm and Jupyternaut.
+COPY --chmod=755 files/ai/hexa-ai-env.sh files/ai/hexa-ai-metadata-server.py /usr/local/bin/
 
 ENV HEXA_ENVIRONMENT=CLOUD_JUPYTER
 
