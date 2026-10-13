@@ -18,16 +18,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Quarto
-RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
-    && dpkg -i quarto-linux-amd64.deb \
-    && rm quarto-linux-amd64.deb
+# Quarto is installed in the base image.
 
 USER ${NB_UID}
 
 # R 4.5+ on conda-forge is built against icu 78, which matches this image's base
 # Python stack (pyarrow, libmamba/conda).
 RUN mamba install --yes -c conda-forge \
+    # Pin sqlite: the R stack otherwise drags in the old monolithic 3.32.3, which
+    # breaks Python's `import sqlite3` (and with it Jupyter and the SDK).
+    'sqlite>=3.49' \
     r-base=4.5.* \
     r-irkernel \
     # r-irkernel also pulls in: r-crayon r-digest
