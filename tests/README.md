@@ -30,6 +30,8 @@ make test-base-viz                               # watch the ui tests in a Chrom
 - `test_packages.py`: the Python modules and R packages each image promises
   load. The image flavor (base, blsq, blsq-r) is guessed from the image name;
   pass `--image-flavor` otherwise.
+- `test_notebook_tools.py`: Jupyter AI and the AI credentials wiring, checked
+  inside the image.
 - `test_quarto.py`: the Quarto CLI, jupytext and the JupyterLab settings that
   open `.qmd` files as notebooks, checked inside the image.
 - `test_server.py`: the standalone JupyterLab server of the `jupyterlab`
