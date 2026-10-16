@@ -1,18 +1,59 @@
 """Checks on the tooling available to notebook users: Jupyter AI, Quarto and the
-AI credentials wiring. Everything runs inside the image under test."""
+wiring of Jupyternaut to the OpenHEXA assistant gateway. Everything runs inside
+the image under test."""
 
 import json
 
 from .testutils import run_in_image
 
-FAKE_TOKEN = "ya29.fake-vertex-access-token"
-MANAGED_ENV = {
-    "HEXA_AI_PROVIDER": "managed",
+GATEWAY_ENV = {
+    "HEXA_AI_PROVIDER": "openhexa",
     "HEXA_AI_MODEL": "claude-opus-4-6",
-    "HEXA_AI_VERTEX_PROJECT_ID": "test-project",
-    "HEXA_AI_VERTEX_REGION": "europe-west1",
-    "HEXA_AI_VERTEX_ACCESS_TOKEN": FAKE_TOKEN,
+    "HEXA_SERVER_URL": "http://127.0.0.1:4318/",
+    "HEXA_TOKEN": "workspace-token:signature",
 }
+
+# Starts a Jupyter server on 127.0.0.1:8899 and waits for it.
+START_SERVER = r"""
+jupyter server --ServerApp.port=8899 --ServerApp.token=t --ServerApp.ip=127.0.0.1 --ServerApp.root_dir=/tmp > /tmp/server.log 2>&1 &
+for i in $(seq 1 120); do curl -sf -o /dev/null http://127.0.0.1:8899/api/status?token=t && break; sleep 0.5; done
+"""
+
+# A stand-in for the gateway: answers one streamed chat completion and prints
+# what it received.
+FAKE_GATEWAY = r"""
+cat > /tmp/fake_gateway.py <<'EOF'
+import json
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+    def do_POST(self):
+        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
+        print("GATEWAY " + json.dumps({
+            "path": self.path,
+            "authorization": self.headers.get("Authorization"),
+            "model": body.get("model"),
+            "stream": body.get("stream"),
+            "messages": body.get("messages"),
+        }), flush=True)
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.end_headers()
+        chunk = {"id": "chatcmpl-1", "object": "chat.completion.chunk", "created": 1, "model": "claude-opus-4-6",
+                 "choices": [{"index": 0, "delta": {"role": "assistant", "content": "Hello from the gateway"}, "finish_reason": None}]}
+        self.wfile.write(("data: " + json.dumps(chunk) + "\n\n").encode())
+        chunk["choices"][0] = {"index": 0, "delta": {}, "finish_reason": "stop"}
+        self.wfile.write(("data: " + json.dumps(chunk) + "\n\n").encode())
+        self.wfile.write(b"data: [DONE]\n\n")
+
+ThreadingHTTPServer(("127.0.0.1", 4318), Handler).serve_forever()
+EOF
+python /tmp/fake_gateway.py &
+sleep 1
+"""
 
 
 def test_quarto_and_jupytext_installed(docker_image):
@@ -72,75 +113,60 @@ def test_jupyter_ai_extensions_registered(docker_image):
     )
 
 
-def test_ai_env_without_provider_is_a_noop(docker_image):
-    out = run_in_image(
-        docker_image,
-        "source /usr/local/bin/hexa-ai-env.sh && env | grep -cE '^(GCE_METADATA_HOST|VERTEXAI_PROJECT|ANTHROPIC_API_KEY)=' || true",
-    )
-    assert out.strip().splitlines()[-1] == "0"
-
-
-def test_ai_env_anthropic_provider(docker_image):
-    out = run_in_image(
-        docker_image,
-        "source /usr/local/bin/hexa-ai-env.sh && echo key=$ANTHROPIC_API_KEY metadata=${GCE_METADATA_HOST:-unset}",
-        environment={
-            "HEXA_AI_PROVIDER": "anthropic",
-            "HEXA_AI_MODEL": "claude-sonnet-4-6",
-            "HEXA_AI_ANTHROPIC_API_KEY": "sk-ant-test",
-        },
-    )
-    assert "key=sk-ant-test metadata=unset" in out
-
-
-def test_ai_env_managed_provider_serves_token_as_adc(docker_image):
-    """With the managed provider, the Google client libraries must obtain the
-    OpenHEXA-issued token through Application Default Credentials."""
-    script = r"""
-set -e
-source /usr/local/bin/hexa-ai-env.sh
-echo "VERTEXAI_PROJECT=$VERTEXAI_PROJECT VERTEXAI_LOCATION=$VERTEXAI_LOCATION GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT"
-# Give the metadata server a moment to bind.
-for i in $(seq 1 20); do curl -sf -o /dev/null "http://$GCE_METADATA_HOST/" && break; sleep 0.25; done
-curl -s -H 'Metadata-Flavor: Google' "http://$GCE_METADATA_HOST/computeMetadata/v1/instance/service-accounts/default/token"
-echo
-python - <<'PY'
-import google.auth
-from google.auth.transport.requests import Request
-credentials, project = google.auth.default()
-credentials.refresh(Request())
-print(f"ADC token={credentials.token} project={project}")
-PY
-"""
-    out = run_in_image(docker_image, script, environment=MANAGED_ENV)
-    assert (
-        "VERTEXAI_PROJECT=test-project VERTEXAI_LOCATION=europe-west1 "
-        "GOOGLE_CLOUD_PROJECT=test-project"
-    ) in out
-    token_line = next(
-        line for line in out.splitlines() if line.startswith('{"access_token"')
-    )
-    assert json.loads(token_line)["access_token"] == FAKE_TOKEN
-    assert f"ADC token={FAKE_TOKEN} project=test-project" in out
-
-
-def test_jupyternaut_default_model_follows_managed_provider(docker_image):
-    """The Jupyternaut server extension must pick up the model from the
-    HEXA_AI_* variables through its config file."""
-    script = r"""
-set -e
-source /usr/local/bin/hexa-ai-env.sh
-jupyter server --ServerApp.port=8899 --ServerApp.token=t --ServerApp.ip=127.0.0.1 --ServerApp.root_dir=/tmp > /tmp/server.log 2>&1 &
-for i in $(seq 1 120); do curl -sf -o /dev/null http://127.0.0.1:8899/api/status?token=t && break; sleep 0.5; done
+def test_jupyternaut_default_model_is_the_gateway(docker_image):
+    """The Jupyternaut server extension must make the OpenHEXA gateway its
+    default model, from the HEXA_AI_* variables, and the parameters it saves
+    must drive litellm to the gateway with the workspace token."""
+    script = START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/server.log; exit 1; }
 """
-    out = run_in_image(docker_image, script, environment=MANAGED_ENV)
+    out = run_in_image(docker_image, script, environment=GATEWAY_ENV)
     config = json.loads(out.strip().splitlines()[-1])
-    assert config["model_provider_id"] == "vertex_ai/claude-opus-4-6"
-    assert config["fields"]["vertex_ai/claude-opus-4-6"] == {
-        "vertex_project": "test-project",
-        "vertex_location": "europe-west1",
+    assert config["model_provider_id"] == "openai/claude-opus-4-6"
+    assert config["fields"]["openai/claude-opus-4-6"] == {
+        "api_base": "http://127.0.0.1:4318/assistant/gateway/v1",
+        "api_key": "workspace-token:signature",
     }
+
+    # Without the variables, nothing is configured.
+    out = run_in_image(docker_image, script)
+    config = json.loads(out.strip().splitlines()[-1])
+    assert config["model_provider_id"] is None
+
+
+def test_jupyternaut_model_reaches_the_gateway(docker_image):
+    """litellm, called the way Jupyternaut calls it with the configured
+    parameters, streams a completion from the gateway."""
+    script = FAKE_GATEWAY + START_SERVER + r"""
+curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t > /tmp/config.json
+python - <<'EOF'
+import asyncio, json
+import litellm
+
+config = json.load(open("/tmp/config.json"))
+model_id = config["model_provider_id"]
+params = config["fields"][model_id]
+
+async def main():
+    stream = await litellm.acompletion(
+        model=model_id, messages=[{"role": "user", "content": "hi"}], stream=True, **params
+    )
+    text = "".join([chunk.choices[0].delta.content or "" async for chunk in stream])
+    print("ANSWER " + text)
+
+asyncio.run(main())
+EOF
+"""
+    out = run_in_image(docker_image, script, environment=GATEWAY_ENV)
+    assert "ANSWER Hello from the gateway" in out
+    received = json.loads(
+        next(line for line in out.splitlines() if line.startswith("GATEWAY "))[8:]
+    )
+    assert received["path"] == "/assistant/gateway/v1/chat/completions"
+    assert received["authorization"] == "Bearer workspace-token:signature"
+    assert received["model"] == "claude-opus-4-6"
+    assert received["stream"] is True
+    assert received["messages"] == [{"role": "user", "content": "hi"}]
 
 
 def test_jupyternaut_is_the_only_persona(docker_image):
