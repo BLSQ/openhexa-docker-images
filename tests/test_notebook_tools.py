@@ -3,8 +3,6 @@ AI credentials wiring. Everything runs inside the image under test."""
 
 import json
 
-import pytest
-
 from .testutils import run_in_image
 
 FAKE_TOKEN = "ya29.fake-vertex-access-token"
@@ -77,7 +75,7 @@ def test_jupyter_ai_extensions_registered(docker_image):
 def test_ai_env_without_provider_is_a_noop(docker_image):
     out = run_in_image(
         docker_image,
-        "source /usr/local/bin/hexa-ai-env.sh && env | grep -cE '^(CLAUDE_CODE_USE_VERTEX|GCE_METADATA_HOST|ANTHROPIC_API_KEY|ANTHROPIC_MODEL)=' || true",
+        "source /usr/local/bin/hexa-ai-env.sh && env | grep -cE '^(GCE_METADATA_HOST|VERTEXAI_PROJECT|ANTHROPIC_API_KEY)=' || true",
     )
     assert out.strip().splitlines()[-1] == "0"
 
@@ -85,14 +83,14 @@ def test_ai_env_without_provider_is_a_noop(docker_image):
 def test_ai_env_anthropic_provider(docker_image):
     out = run_in_image(
         docker_image,
-        "source /usr/local/bin/hexa-ai-env.sh && echo key=$ANTHROPIC_API_KEY model=$ANTHROPIC_MODEL vertex=${CLAUDE_CODE_USE_VERTEX:-unset}",
+        "source /usr/local/bin/hexa-ai-env.sh && echo key=$ANTHROPIC_API_KEY metadata=${GCE_METADATA_HOST:-unset}",
         environment={
             "HEXA_AI_PROVIDER": "anthropic",
             "HEXA_AI_MODEL": "claude-sonnet-4-6",
             "HEXA_AI_ANTHROPIC_API_KEY": "sk-ant-test",
         },
     )
-    assert "key=sk-ant-test model=claude-sonnet-4-6 vertex=unset" in out
+    assert "key=sk-ant-test metadata=unset" in out
 
 
 def test_ai_env_managed_provider_serves_token_as_adc(docker_image):
@@ -101,8 +99,7 @@ def test_ai_env_managed_provider_serves_token_as_adc(docker_image):
     script = r"""
 set -e
 source /usr/local/bin/hexa-ai-env.sh
-echo "CLAUDE_CODE_USE_VERTEX=$CLAUDE_CODE_USE_VERTEX CLOUD_ML_REGION=$CLOUD_ML_REGION ANTHROPIC_VERTEX_PROJECT_ID=$ANTHROPIC_VERTEX_PROJECT_ID ANTHROPIC_MODEL=$ANTHROPIC_MODEL"
-echo "GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION VERTEXAI_PROJECT=$VERTEXAI_PROJECT"
+echo "VERTEXAI_PROJECT=$VERTEXAI_PROJECT VERTEXAI_LOCATION=$VERTEXAI_LOCATION GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT"
 # Give the metadata server a moment to bind.
 for i in $(seq 1 20); do curl -sf -o /dev/null "http://$GCE_METADATA_HOST/" && break; sleep 0.25; done
 curl -s -H 'Metadata-Flavor: Google' "http://$GCE_METADATA_HOST/computeMetadata/v1/instance/service-accounts/default/token"
@@ -117,11 +114,8 @@ PY
 """
     out = run_in_image(docker_image, script, environment=MANAGED_ENV)
     assert (
-        "CLAUDE_CODE_USE_VERTEX=1 CLOUD_ML_REGION=europe-west1 "
-        "ANTHROPIC_VERTEX_PROJECT_ID=test-project ANTHROPIC_MODEL=claude-opus-4-6"
-    ) in out
-    assert (
-        "GOOGLE_GENAI_USE_VERTEXAI=true GOOGLE_CLOUD_LOCATION=europe-west1 VERTEXAI_PROJECT=test-project"
+        "VERTEXAI_PROJECT=test-project VERTEXAI_LOCATION=europe-west1 "
+        "GOOGLE_CLOUD_PROJECT=test-project"
     ) in out
     token_line = next(
         line for line in out.splitlines() if line.startswith('{"access_token"')
@@ -149,17 +143,24 @@ curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/serv
     }
 
 
-def test_claude_acp_adapter_when_claude_code_installed(docker_image):
-    """Images that ship Claude Code must also ship the ACP adapter that
-    exposes it as the @Claude persona of Jupyter AI."""
-    out = run_in_image(
-        docker_image,
-        "command -v claude || echo no-claude; "
-        "command -v claude-agent-acp || echo no-adapter; "
-        # The adapter must run the Claude Code installed in the image.
-        '[ -x "$CLAUDE_CODE_EXECUTABLE" ] || echo "bad-executable=$CLAUDE_CODE_EXECUTABLE"',
-    )
-    if "no-claude" in out:
-        pytest.skip("Claude Code is not part of this image")
-    assert "no-adapter" not in out
-    assert "bad-executable" not in out
+def test_jupyternaut_is_the_only_persona(docker_image):
+    """Jupyter AI also ships personas for coding agents (Claude Code, Codex...)
+    that register themselves as soon as their binary is on the PATH. We only
+    offer Jupyternaut, so none of those must be loadable."""
+    script = r"""
+python - <<'PY'
+from importlib.metadata import entry_points
+from jupyter_ai_persona_manager import PersonaRequirementsUnmet
+
+loaded = []
+for ep in entry_points(group="jupyter_ai.personas"):
+    try:
+        ep.load()
+    except PersonaRequirementsUnmet:
+        continue
+    loaded.append(ep.name)
+print("personas:", ",".join(sorted(loaded)))
+PY
+"""
+    out = run_in_image(docker_image, script)
+    assert out.strip().splitlines()[-1] == "personas: jupyternaut"

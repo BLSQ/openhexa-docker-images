@@ -77,9 +77,8 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
-# Jupyter AI: chat panel with AI personas (ACP agents such as Claude Code, and the
-# litellm-backed Jupyternaut persona), plus jupyterlab-quarto to render Quarto
-# markdown in notebook cells.
+# Jupyter AI: chat panel with the litellm-backed Jupyternaut assistant, plus
+# jupyterlab-quarto to render Quarto markdown in notebook cells.
 # Installed with pip rather than mamba: the conda recipe of openhexa.sdk pins
 # ariadne-codegen<0.15, whose declared websockets<12 requirement conflicts with
 # jupyter-server-mcp (websockets>=15). The SDK only imports websockets behind a
@@ -102,7 +101,7 @@ COPY jupyter_jupyter_ai_jupyternaut_config.py /etc/jupyter/
 COPY --chown=${NB_UID}:${NB_UID} files/overrides.json /opt/conda/share/jupyter/lab/settings/
 
 # AI assistant wiring: turns the HEXA_AI_* variables injected by OpenHEXA into
-# the configuration expected by Claude Code, Gemini CLI, litellm and Jupyternaut.
+# the credentials expected by litellm, hence Jupyternaut.
 COPY --chmod=755 files/ai/hexa-ai-env.sh files/ai/hexa-ai-metadata-server.py /usr/local/bin/
 
 ENV HEXA_ENVIRONMENT=CLOUD_JUPYTER

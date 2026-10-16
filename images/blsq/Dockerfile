@@ -7,16 +7,11 @@ USER root
 # System libraries
 RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev odbc-mdbtools
 
-# AI tooling: Claude Code and Gemini CLI, plus the ACP adapter that lets
-# Jupyter AI drive Claude Code from its chat panel (the "@Claude" persona).
 # HOME is /home/jovyan even for root here: give npm a throwaway home so it does
 # not leave root-owned ~/.npm and ~/.cache behind, which the notebook user could
 # not write to (Quarto, among others, needs ~/.cache).
-RUN HOME=/tmp/npm-home npm install -g @anthropic-ai/claude-code @google/gemini-cli @agentclientprotocol/claude-agent-acp && \
+RUN HOME=/tmp/npm-home npm install -g @anthropic-ai/claude-code @google/gemini-cli && \
     rm -rf /tmp/npm-home
-# Make the ACP adapter run the Claude Code installed above rather than the copy
-# bundled with its SDK, so both entry points share one version and config.
-ENV CLAUDE_CODE_EXECUTABLE=/usr/bin/claude
 
 USER ${NB_UID}
 

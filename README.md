@@ -24,19 +24,16 @@ docker build -t openhexa-blsq-r-environment --build-arg BASE_IMAGE=openhexa-base
 ## AI assistant in notebooks
 
 The base image ships [Jupyter AI](https://github.com/jupyterlab/jupyter-ai): a
-chat panel in JupyterLab where AI personas can read and edit notebooks, run cells
-and use the terminal. Two personas are available:
+chat panel in JupyterLab where the **Jupyternaut** assistant can read and edit
+notebooks and run cells. It talks to the model through litellm.
 
-- **Jupyternaut**, which talks to a model directly (through litellm). It is in
-  every image.
-- **Claude**, which drives Claude Code through the Agent Client Protocol. It is
-  available in the images that ship Claude Code (`blsq`).
-
-Claude Code and Gemini CLI can also be used from a terminal in those images.
+Jupyter AI can also expose coding agents (Claude Code, Codex...) as chat
+personas when their adapter binary is installed; the images deliberately leave
+those out so Jupyternaut is the only persona.
 
 ### Credentials
 
-The tooling is configured at start-up by `hexa-ai-env.sh`, from variables the
+The assistant is configured at start-up by `hexa-ai-env.sh`, from variables the
 OpenHEXA app injects into the notebook server when the organization has the AI
 assistant enabled:
 
@@ -50,16 +47,18 @@ assistant enabled:
 | `HEXA_AI_VERTEX_ACCESS_TOKEN_EXPIRES_AT` | managed, optional: when the token expires, in epoch seconds |
 | `HEXA_AI_ANTHROPIC_API_KEY`              | anthropic: the organization's API key                       |
 
-Without `HEXA_AI_PROVIDER` nothing is configured and the AI personas ask the user
-to log in themselves.
+`HEXA_AI_MODEL` becomes the default entry of Jupyternaut's model picker (through
+`jupyter_jupyter_ai_jupyternaut_config.py`). Without `HEXA_AI_PROVIDER` nothing is
+configured and Jupyternaut asks the user to pick a model and provide credentials
+themselves.
 
 With the managed provider, the Google client libraries cannot take a raw access
 token as credentials, so `hexa-ai-metadata-server.py` serves it on
 `127.0.0.1:4322` the way the Compute Engine metadata server would, and the
-`GCE_METADATA_HOST` variable points every Google client library (Python and Node,
-hence litellm, Claude Code and Gemini CLI) at it. The token lives for an hour and
-cannot be renewed from inside the container, like the storage token the server
-already receives; the notebook server has to be restarted to get a new one.
+`GCE_METADATA_HOST` variable points the Google client library (hence litellm) at
+it. The token lives for an hour and cannot be renewed from inside the container,
+like the storage token the server already receives; the notebook server has to be
+restarted to get a new one.
 
 ## Quarto
 
