@@ -4,10 +4,9 @@
 OpenHEXA authenticates to Vertex AI with its own service account and hands the
 notebook server a short-lived OAuth2 access token (HEXA_AI_VERTEX_ACCESS_TOKEN).
 Google client libraries cannot take a raw access token as Application Default
-Credentials, but all of them (google-auth for Python, google-auth-library for
-Node, hence litellm, the Google GenAI SDK, Claude Code and Gemini CLI) fall back
-to the Compute Engine metadata server, whose address can be overridden with the
-GCE_METADATA_HOST / GCE_METADATA_IP environment variables.
+Credentials, but they (google-auth for Python, hence litellm and Jupyternaut)
+fall back to the Compute Engine metadata server, whose address can be overridden
+with the GCE_METADATA_HOST / GCE_METADATA_IP environment variables.
 
 This script is that metadata server: it listens on 127.0.0.1 and answers the
 handful of endpoints the libraries use (ping, project id, service account token).
