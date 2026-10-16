@@ -24,11 +24,9 @@ show_help() {
 
 case "$command" in
 "notebook")
-  source /usr/local/bin/hexa-ai-env.sh
   start-notebook.sh $arguments
   ;;
 "singleuser")
-  source /usr/local/bin/hexa-ai-env.sh
   start-singleuser.sh $arguments
   ;;
 "pipeline")

@@ -1,31 +1,38 @@
-"""Default model of Jupyter AI's Jupyternaut persona, from the HEXA_AI_* variables.
+"""Default model of Jupyter AI's Jupyternaut persona: the OpenHEXA assistant gateway.
 
-Jupyternaut talks to models through litellm. OpenHEXA tells the notebook server
-which provider and model the organization uses (see hexa-ai-env.sh); this makes
-that model the "default" entry of the chat model picker, so users don't have to
-configure anything. They can still add other models in the Jupyternaut settings.
+Jupyternaut talks to models through litellm. OpenHEXA runs the organization's
+model behind an OpenAI-compatible endpoint, the assistant gateway, so the
+notebook server holds no model credentials: litellm's "openai" provider is
+pointed at $HEXA_SERVER_URL/assistant/gateway/v1 and authenticates with the
+workspace token the server already has. OpenHEXA charges the usage to the
+organization and traces the calls.
+
+OpenHEXA injects, when the organization's assistant is on:
+
+  HEXA_AI_PROVIDER   "openhexa", meaning the gateway
+  HEXA_AI_MODEL      name of the model the gateway runs, e.g. claude-opus-4-6,
+                     for the model picker (the gateway decides what runs)
+
+This makes that model the "default" entry of the chat model picker, so users
+don't have to configure anything. They can still add other models, with their
+own keys, in the Jupyternaut settings. Nothing is configured without these
+variables, so images keep working with OpenHEXA versions that do not send them.
 """
 
 import os
 
 c = get_config()  # noqa: F821
 
+GATEWAY_PATH = "/assistant/gateway/v1"
+
 provider = os.environ.get("HEXA_AI_PROVIDER", "")
 model = os.environ.get("HEXA_AI_MODEL", "")
+server_url = os.environ.get("HEXA_SERVER_URL", "").rstrip("/")
+token = os.environ.get("HEXA_TOKEN", "")
 
-if provider == "managed" and model and os.environ.get("HEXA_AI_VERTEX_PROJECT_ID"):
-    # Claude on Vertex AI. Credentials come from the local metadata server
-    # started by hexa-ai-env.sh; project and region are given explicitly rather
-    # than through the VERTEXAI_* variables so the model works even when a user
-    # overrides those in a .env file.
-    model_id = f"vertex_ai/{model}"
+if provider == "openhexa" and model and server_url and token:
+    model_id = f"openai/{model}"
     c.JupyternautExtension.initial_language_model = model_id
     c.JupyternautExtension.model_parameters = {
-        model_id: {
-            "vertex_project": os.environ["HEXA_AI_VERTEX_PROJECT_ID"],
-            "vertex_location": os.environ.get("HEXA_AI_VERTEX_REGION", "europe-west1"),
-        }
+        model_id: {"api_base": f"{server_url}{GATEWAY_PATH}", "api_key": token}
     }
-elif provider == "anthropic" and model and os.environ.get("HEXA_AI_ANTHROPIC_API_KEY"):
-    # The organization's own key, exported as ANTHROPIC_API_KEY by hexa-ai-env.sh.
-    c.JupyternautExtension.initial_language_model = f"anthropic/{model}"
