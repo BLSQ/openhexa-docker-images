@@ -73,7 +73,11 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' \
   # jupytext opens and pairs Quarto .qmd files as notebooks (uses the Quarto CLI above).
-  'jupytext>=1.19,<1.20' && \
+  # Pinned: the frontend bundle of 1.19.5+ is built against JupyterLab 4.6 and
+  # fails to load on the 4.5 shipped by the base image ("Failed to create
+  # module: package: jupyterlab-jupytext" in the browser console). Bump this
+  # together with the JupyterLab version.
+  'jupytext=1.19.4' && \
   mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
