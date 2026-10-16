@@ -103,3 +103,25 @@ token as credentials, so `hexa-ai-metadata-server.py` serves it on
 it. The token lives for an hour and cannot be renewed from inside the container,
 like the storage token the server already receives; the notebook server has to be
 restarted to get a new one.
+
+### Usage accounting and telemetry
+
+OpenHEXA is the OpenTelemetry collector of its notebook servers. When the
+assistant is configured and the server knows OpenHEXA (`HEXA_SERVER_URL` and
+`HEXA_TOKEN`, which notebook servers already receive), the `hexa_ai_telemetry`
+server extension (`files/ai/hexa_ai_telemetry`) registers an OTLP exporter with
+litellm, so every model call Jupyternaut makes is sent as a trace, with its token
+usage and cost, to `$HEXA_SERVER_URL/notebooks/telemetry/v1/traces`. The request
+is authenticated with the workspace token. OpenHEXA counts the tokens towards the
+organization's monthly AI budget and forwards the traces to Logfire under its own
+token: no Logfire credential enters the container.
+
+| Variable                        | Meaning                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `HEXA_AI_TELEMETRY`             | `false` switches the telemetry off                                      |
+| `HEXA_AI_TELEMETRY_ENDPOINT`    | another OTLP/HTTP collector; defaults to OpenHEXA itself                |
+| `HEXA_AI_TELEMETRY_LOG_CONTENT` | `true` includes prompts and responses in the traces; off by default     |
+
+The spans are tagged with the workspace and user (`hexa.workspace`, `hexa.user`
+resource attributes, from `HEXA_WORKSPACE` and `JUPYTERHUB_USER`).
+

@@ -102,8 +102,21 @@ RUN pip install --no-cache-dir \
   'jupyter-ai>=3.2,<3.3' \
   'jupyter-ai-jupyternaut>=0.1,<0.2' \
   'jupyter-ai-litellm>=0.1,<0.2' \
+  # OpenTelemetry SDK and OTLP exporter: litellm (Jupyternaut) exports its
+  # traces with them, see files/ai/hexa_ai_telemetry. Same major as the
+  # opentelemetry-api litellm installs.
+  'opentelemetry-sdk>=1.45,<2' \
+  'opentelemetry-exporter-otlp-proto-http>=1.45,<2' \
   # Keep click where openhexa.sdk pins it; pip would otherwise upgrade it.
   'click~=8.1.3' && \
+  fix-permissions "${CONDA_DIR}"
+
+# Server extension sending Jupyternaut's telemetry (traces, token usage) to
+# OpenHEXA, which accounts for it and forwards it to Logfire. The package also
+# installs the file that enables it (etc/jupyter/jupyter_server_config.d/).
+COPY --chown=${NB_UID}:${NB_GID} files/ai/hexa_ai_telemetry /tmp/hexa_ai_telemetry
+RUN pip install --no-cache-dir --no-deps /tmp/hexa_ai_telemetry && \
+  rm -rf /tmp/hexa_ai_telemetry && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
