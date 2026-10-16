@@ -21,12 +21,21 @@
 #   anthropic only:
 #   HEXA_AI_ANTHROPIC_API_KEY            the organization's Anthropic API key
 #
-# The model itself is picked up by Jupyternaut through its config file
-# (/etc/jupyter/jupyter_jupyter_ai_jupyternaut_config.py); this script only takes
-# care of the credentials.
+#   telemetry (optional, see below):
+#   HEXA_AI_TELEMETRY                    "false" turns the telemetry off
+#   HEXA_AI_TELEMETRY_ENDPOINT           OTLP collector; defaults to OpenHEXA
+#                                        itself, $HEXA_SERVER_URL/notebooks/telemetry
+#   HEXA_AI_TELEMETRY_LOG_CONTENT        "true" includes prompts and responses
+#                                        in the traces (off by default)
+#
+# The Jupyternaut model is picked up through its config file
+# (/etc/jupyter/jupyter_jupyter_ai_jupyternaut_config.py); this script takes
+# care of the credentials and of the telemetry.
 #
 # Nothing happens when HEXA_AI_PROVIDER is unset, so images keep working with
 # OpenHEXA versions that do not send these variables.
+
+hexa_ai_configured=false
 
 case "${HEXA_AI_PROVIDER:-}" in
 "managed")
@@ -51,6 +60,7 @@ case "${HEXA_AI_PROVIDER:-}" in
     # litellm (Jupyternaut, %%ai magics).
     export VERTEXAI_PROJECT="${HEXA_AI_VERTEX_PROJECT_ID}"
     export VERTEXAI_LOCATION="${region}"
+    hexa_ai_configured=true
   fi
   ;;
 "anthropic")
@@ -59,6 +69,44 @@ case "${HEXA_AI_PROVIDER:-}" in
   else
     # litellm reads ANTHROPIC_API_KEY.
     export ANTHROPIC_API_KEY="${HEXA_AI_ANTHROPIC_API_KEY}"
+    hexa_ai_configured=true
   fi
   ;;
 esac
+
+# Telemetry. OpenHEXA is the OpenTelemetry collector of its notebook servers:
+# the hexa_ai_telemetry server extension exports Jupyternaut's model calls
+# (litellm traces, with the token usage) over OTLP/HTTP to
+# $HEXA_SERVER_URL/notebooks/telemetry, authenticated with the workspace token
+# the server already holds. OpenHEXA counts the tokens towards the
+# organization's AI usage and forwards the traces to Logfire. No other secret
+# enters the container for this.
+#
+# Only when OpenHEXA configured the assistant above: usage made on the
+# organization's credentials is what its AI budget accounts for.
+if [[ "$hexa_ai_configured" == true && "${HEXA_AI_TELEMETRY:-true}" != "false" ]]; then
+  if [[ -z "${HEXA_AI_TELEMETRY_ENDPOINT:-}" && -n "${HEXA_SERVER_URL:-}" ]]; then
+    HEXA_AI_TELEMETRY_ENDPOINT="${HEXA_SERVER_URL%/}/notebooks/telemetry"
+  fi
+  if [[ -n "${HEXA_AI_TELEMETRY_ENDPOINT:-}" && -n "${HEXA_TOKEN:-}" ]]; then
+    export HEXA_AI_TELEMETRY_ENDPOINT
+
+    # Resource attributes name the workspace and user on every span (the
+    # OpenTelemetry SDK reads this variable). Values may not contain spaces,
+    # commas or non-ASCII characters, so anything odd is left out rather than
+    # breaking the export; OpenHEXA stamps the identities it knows anyway.
+    hexa_otel_attributes=""
+    hexa_otel_attribute() {
+      if [[ -n "$2" && "$2" =~ ^[A-Za-z0-9._~@+/:-]+$ ]]; then
+        hexa_otel_attributes="${hexa_otel_attributes:+${hexa_otel_attributes},}$1=$2"
+      fi
+    }
+    hexa_otel_attribute "hexa.workspace" "${HEXA_WORKSPACE:-}"
+    hexa_otel_attribute "hexa.user" "${JUPYTERHUB_USER:-}"
+    if [[ -n "$hexa_otel_attributes" ]]; then
+      export OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES:+${OTEL_RESOURCE_ATTRIBUTES},}${hexa_otel_attributes}"
+    fi
+    unset -f hexa_otel_attribute
+  fi
+fi
+unset hexa_ai_configured hexa_otel_attributes
