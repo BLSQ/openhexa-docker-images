@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hexa-ai-telemetry"
+version = "0.1.0"
+description = "Jupyter server extension exporting the telemetry of Jupyternaut to OpenHEXA"
+requires-python = ">=3.11"
+dependencies = [
+    "litellm",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp-proto-http",
+]
+
+[tool.setuptools.packages.find]
+include = ["hexa_ai_telemetry*"]
+
+# Enables the server extension: installed under {sys.prefix}/etc/jupyter, one of
+# the directories Jupyter reads its configuration from.
+[tool.setuptools.data-files]
+"etc/jupyter/jupyter_server_config.d" = ["jupyter-config/hexa_ai_telemetry.json"]

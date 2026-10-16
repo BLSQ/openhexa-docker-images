@@ -1,0 +1,7 @@
+{
+  "ServerApp": {
+    "jpserver_extensions": {
+      "hexa_ai_telemetry": true
+    }
+  }
+}
