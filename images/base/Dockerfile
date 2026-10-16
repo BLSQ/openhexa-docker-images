@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/scipy-notebook:2026-01-19
+FROM quay.io/jupyter/scipy-notebook:2026-10-12
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -73,11 +73,10 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'jupyter-resource-usage' \
   'jupyterlab_code_formatter' \
   # jupytext opens and pairs Quarto .qmd files as notebooks (uses the Quarto CLI above).
-  # Pinned: the frontend bundle of 1.19.5+ is built against JupyterLab 4.6 and
-  # fails to load on the 4.5 shipped by the base image ("Failed to create
-  # module: package: jupyterlab-jupytext" in the browser console). Bump this
-  # together with the JupyterLab version.
-  'jupytext=1.19.4' && \
+  # Its frontend bundle is built against a specific JupyterLab minor (1.19.5+
+  # needs 4.6); if .qmd files stop opening as notebooks after a base image
+  # bump, check the browser console for "Failed to create module".
+  'jupytext>=1.19,<1.20' && \
   mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
