@@ -9,8 +9,7 @@ RUN apt-get update && apt-get install -y libgdal-dev libudunits2-dev odbc-mdbtoo
 
 # AI tooling: Claude Code and Gemini CLI.
 # HOME is /home/jovyan even for root here: give npm a throwaway home so it does
-# not leave root-owned ~/.npm and ~/.cache behind, which the notebook user could
-# not write to (Quarto, among others, needs ~/.cache).
+# not leave a root-owned ~/.npm behind, which the notebook user could not use.
 RUN HOME=/tmp/npm-home npm install -g @anthropic-ai/claude-code @google/gemini-cli && \
     rm -rf /tmp/npm-home
 

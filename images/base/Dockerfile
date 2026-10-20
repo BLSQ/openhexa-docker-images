@@ -23,25 +23,29 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Quarto CLI (publishing system for .qmd and notebooks). The official .deb is
 # self-contained; the conda-forge package needs conda activation scripts that
 # these images never run.
+# renovate: datasource=github-releases depName=quarto-dev/quarto-cli extractVersion=^v(?<version>.*)$
 ARG QUARTO_VERSION=1.10.19
 RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
     dpkg -i /tmp/quarto.deb && \
     rm /tmp/quarto.deb
 
 # FUSE Google Cloud Storage
+# renovate: datasource=github-releases depName=GoogleCloudPlatform/gcsfuse extractVersion=^v(?<version>.*)$
+ARG GCSFUSE_VERSION=3.5.2
 RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
   gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
   tee /etc/apt/sources.list.d/gcsfuse.list && \
   apt-get update && \
-  apt-get install -y gcsfuse=3.5.2 && \
+  apt-get install -y "gcsfuse=${GCSFUSE_VERSION}" && \
   apt-get clean
 
 # FUSE Azure Blob Storage
 # The package must match the Ubuntu release of the base image (libfuse3 soname).
-ARG BLOBFUSE2_VERSION=2.5.6-preview.1
-RUN deb="blobfuse2-${BLOBFUSE2_VERSION/-preview/.preview}-Ubuntu-$(lsb_release -r -s).x86_64.deb" && \
+# renovate: datasource=github-releases depName=Azure/azure-storage-fuse extractVersion=^blobfuse2-(?<version>\d+\.\d+\.\d+)$
+ARG BLOBFUSE2_VERSION=2.5.5
+RUN deb="blobfuse2-${BLOBFUSE2_VERSION}-Ubuntu-$(lsb_release -r -s).x86_64.deb" && \
     curl -fsSL "https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-${BLOBFUSE2_VERSION}/${deb}" -o "/tmp/${deb}" && \
     dpkg -i "/tmp/${deb}" && \
     rm "/tmp/${deb}"
