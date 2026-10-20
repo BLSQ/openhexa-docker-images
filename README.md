@@ -52,6 +52,9 @@ To run a single test file directly:
 make test-base PYTEST="python -m pytest tests/test_quarto_ui.py --headed --slowmo 500"
 ```
 
+`make` lists the build, test and run targets; `make run-base` serves an image
+as JupyterLab on http://localhost:8890/lab?token=hexa.
+
 ## Image tags
 
 | Tag                | When updated                       |
