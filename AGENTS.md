@@ -59,7 +59,9 @@ python -m pytest tests/ -v --docker-image openhexa-base-environment
 
 Useful options: `-k <expr>` to select tests, `-m "not ui"` to skip the browser
 tests, `--image-flavor base|blsq|blsq-r` when the image name does not say which
-image it is (the package tests use it).
+image it is (the package and server tests use it). On Linux, Chromium needs
+system libraries that `make deps` does not install; when it fails to launch,
+run `python -m playwright install-deps chromium` (CI does `--with-deps`).
 
 ## Verifying a change
 
@@ -68,18 +70,26 @@ sees in JupyterLab, check it in a browser, not only from the server side:
 `jupyter labextension list` reports an extension as OK even when its frontend
 bundle fails to load in the browser.
 
-- **Browser tests** (`tests/test_ui.py`, marker `ui`) drive JupyterLab in
-  headless Chromium with Playwright. The `jupyterlab` fixture serves the image
-  under test on a free port with a random token; `jupyterlab.put_file()` creates
-  files through the Jupyter contents API, so no volume mount is needed. The
-  `lab_page` fixture opens JupyterLab and records the browser console in
-  `page.console_messages`; `test_jupyterlab_extensions_load` fails on
-  extension load errors.
+- **Server tests** (`tests/test_server.py`) talk to the standalone JupyterLab
+  the `jupyterlab` fixture serves (session-scoped, free localhost port, random
+  token, `/home/jovyan/workspace` as root like the hub). `jupyterlab.api()`
+  calls the REST API and `jupyterlab.put_file()` creates files through the
+  contents API, so no volume mount is needed.
+- **Browser tests** (`tests/test_ui.py`, `tests/test_quarto_ui.py`, marker
+  `ui`) drive that server in headless Chromium with Playwright. The `lab_page`
+  fixture opens JupyterLab with a clean layout and records the browser console
+  in `page.console_messages` and the 4xx/5xx responses in `page.http_errors`;
+  `test_jupyterlab_extensions_load` fails on either. When a ui test fails, the
+  fixture writes a full-page screenshot and the recorded messages to the test's
+  `tmp_path` and prints their paths: look at them before guessing. Watch a test
+  with `--headed --slowmo 500`, or step through it with `PWDEBUG=1`.
 - **Trying an image by hand:** `make run-base` (or `run-blsq`, `run-blsq-r`)
   serves an image as standalone JupyterLab on `http://localhost:8890/lab?token=hexa`
-  (`RUN_PORT`, `RUN_TOKEN` to change); `make stop` removes it. For a one-off
-  check, write a short Playwright script against that URL rather than relying
-  on a browser extension.
+  and returns once it answers (`RUN_PORT`, `RUN_TOKEN` to change); `make stop`
+  removes it. The container is named after the image, so pass the same
+  `BASE_IMAGE=...` as to `make build` and a free `RUN_PORT` in a worktree. For a
+  one-off check, write a short Playwright script against that URL rather than
+  relying on a browser extension.
 - **Volume mounts:** with Docker Desktop, only shared host paths can be mounted;
   temporary directories such as `/tmp/...` are usually not shared. Copy files in
   with the contents API or `docker cp` instead.
@@ -105,8 +115,6 @@ on the local Docker daemon, by image name:
 ## Known noise
 
 - `ERROR 1: PROJ: proj_create_from_database` during the geospatial tests.
-- In the browser console: the git extension's `Fail to find Git top level` and
-  the 500 response behind it, when the server root is no repository.
 - Version warnings ("Unsatisfied version ... of shared singleton module") from
   extensions built against other JupyterLab or chat versions; they are only a
   problem when followed by "Failed to create module".

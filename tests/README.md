@@ -11,6 +11,9 @@ source venv/bin/activate
 make deps   # pip install . and python -m playwright install chromium
 ```
 
+On Linux, Chromium also needs system libraries: `python -m playwright
+install-deps chromium` (CI runs `playwright install --with-deps chromium`).
+
 ## Running tests
 
 ```bash
@@ -26,6 +29,11 @@ python -m pytest tests/test_ui.py --docker-image openhexa-blsq-environment
 - `test_packages.py`: the Python modules and R packages each image promises
   load. The image flavor (base, blsq, blsq-r) is guessed from the image name;
   pass `--image-flavor` otherwise.
-- `test_ui.py` (marker `ui`): JupyterLab in headless Chromium, via the
-  `jupyterlab` and `lab_page` fixtures of `conftest.py`.
+- `test_quarto.py`: the Quarto CLI, jupytext and the JupyterLab settings that
+  open `.qmd` files as notebooks, checked inside the image.
+- `test_server.py`: the standalone JupyterLab server of the `jupyterlab`
+  fixture: its root directory, Content-Security-Policy header and kernels.
+- `test_ui.py`, `test_quarto_ui.py` (marker `ui`): JupyterLab in headless
+  Chromium, via the `jupyterlab` and `lab_page` fixtures of `conftest.py`. A
+  failing test leaves a screenshot and the browser console in its `tmp_path`.
 - `testutils.py`: helpers to run pipelines and scripts inside an image.

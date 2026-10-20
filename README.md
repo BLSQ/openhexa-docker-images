@@ -53,7 +53,8 @@ make test-base PYTEST="python -m pytest tests/test_quarto_ui.py --headed --slowm
 ```
 
 `make` lists the build, test and run targets; `make run-base` serves an image
-as JupyterLab on http://localhost:8890/lab?token=hexa.
+as JupyterLab on http://localhost:8890/lab?token=hexa (`RUN_PORT` and
+`RUN_TOKEN` to change) and `make stop` removes it.
 
 ## Image tags
 
