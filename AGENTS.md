@@ -17,9 +17,11 @@ There are three images, layered:
   any other command that writes to git history. Committing is a human
   responsibility. Make and stage changes if asked, but leave the actual commit
   to a person.
-- **Work in your own worktree.** Each branch an agent works on gets a git
-  worktree under `../openhexa-docker-images-worktrees/<branch>`, created from
-  `origin/main` with `git worktree add --no-track -b <branch> <dir> origin/main`.
+- **Work in your own worktree.** The repository lives in a parent folder with
+  one checkout per branch: the main checkout is `openhexa-docker-images/main`
+  and each branch an agent works on gets a sibling git worktree at
+  `openhexa-docker-images/<branch>`, created from `main` with
+  `git worktree add --no-track -b <branch> ../<branch> origin/main`.
   Do not edit a checkout a person is also committing in: a commit landing
   mid-task means the tree you built and tested is no longer the one on the
   branch. Use separate image names per worktree (`make ci BASE_IMAGE=...
