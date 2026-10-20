@@ -83,11 +83,15 @@ bundle fails to load in the browser.
   contents API, so no volume mount is needed, and
   `jupyterlab.wait_for_kernel(path)` blocks until a notebook's kernel is idle
   with the frontend connected: before that, a run request is dropped.
-- **Browser tests** (`tests/test_ui.py`, `tests/test_quarto_ui.py`, marker
-  `ui`) drive that server in headless Chromium with Playwright. The `lab_page`
-  fixture opens JupyterLab with a clean layout and records the browser console
-  in `page.console_messages` and the 4xx/5xx responses in `page.http_errors`;
-  `test_jupyterlab_extensions_load` fails on either. When a ui test fails, the
+- **Browser tests** (`tests/test_ui.py`, `tests/test_quarto_ui.py`,
+  `tests/test_jupyter_ai_ui.py`, marker `ui`) drive that server in headless
+  Chromium with Playwright. The `lab_page` fixture opens JupyterLab with a
+  clean layout and records the browser console in `page.console_messages` and
+  the 4xx/5xx responses in `page.http_errors`;
+  `test_jupyterlab_extensions_load` fails on either. `open_lab(server)` does the
+  same for another server, such as `jupyterlab_with_gateway`, which runs with
+  the `HEXA_AI_*` variables and a fake assistant gateway in its container so the
+  Jupyternaut chat can be exercised end to end. When a ui test fails, the
   fixture writes a full-page screenshot and the recorded messages to the test's
   `tmp_path` and prints their paths: look at them before guessing. Watch a test
   with `--headed --slowmo 500` (`make test-base-viz` runs the ui tests of an
@@ -96,7 +100,10 @@ bundle fails to load in the browser.
 - **Trying an image by hand:** `make run-base` (or `run-blsq`, `run-blsq-r`)
   serves an image as standalone JupyterLab on `http://localhost:8890/lab?token=hexa`
   and returns once it answers (`RUN_PORT`, `RUN_TOKEN` to change); `make stop`
-  removes it. The container is named after the image, so pass the same
+  removes it. `RUN_ARGS="-e HEXA_...=..."` adds `docker run` flags, and
+  `RUN_FAKE_GATEWAY=1` serves the Jupyternaut chat against the fake assistant
+  gateway of `tests/fake_gateway.py`, inside the container (a service on the
+  host is not reachable from the container without extra setup). The container is named after the image, so pass the same
   `BASE_IMAGE=...` as to `make build` and a free `RUN_PORT` in a worktree. For a
   one-off check, write a short Playwright script against that URL rather than
   relying on a browser extension.
