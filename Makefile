@@ -24,10 +24,13 @@ BLSQ_IMAGE   ?= openhexa-blsq-environment
 BLSQ_R_IMAGE ?= openhexa-blsq-r-environment
 PLATFORM     ?= linux/amd64
 
-# Settings of the run-* targets.
+# Settings of the run-* targets. The container name is derived from the image
+# name, so worktrees that build their own images (see AGENTS.md) do not stop
+# each other's server; give each its own RUN_PORT to run them side by side.
 RUN_PORT     ?= 8890
 RUN_TOKEN    ?= hexa
-RUN_PREFIX   := openhexa-run
+RUN_PREFIX   ?= openhexa-run
+run_name      = $(RUN_PREFIX)-$(subst :,-,$(subst /,-,$(1)))
 
 # docker-py ignores Docker CLI contexts, so pin both build and tests to the active endpoint.
 ifeq ($(strip $(DOCKER_HOST)),)
@@ -76,26 +79,34 @@ t test: test-base test-blsq test-blsq-r ## Test all three images
 ##@ Run
 
 # Serves an image as a standalone JupyterLab, the way the tests do: no hub, no
-# OpenHEXA app. CONTENT_SECURITY_POLICY is required by jupyter_notebook_config.py.
+# OpenHEXA app. CONTENT_SECURITY_POLICY is required by jupyter_notebook_config.py,
+# and the server root (/home/jovyan/workspace, mounted by the hub) must exist.
+# Published on localhost only: the token is fixed and the server gives a shell.
 define run_image
-	docker rm -f $(RUN_PREFIX)-$(1) >/dev/null 2>&1 || true
-	docker run -d --name $(RUN_PREFIX)-$(1) -p $(RUN_PORT):8888 \
+	docker rm -f $(call run_name,$(1)) >/dev/null 2>&1 || true
+	docker run -d --name $(call run_name,$(1)) -p 127.0.0.1:$(RUN_PORT):8888 \
 		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" \
-		$(2) notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password=''
-	@echo "JupyterLab: http://localhost:$(RUN_PORT)/lab?token=$(RUN_TOKEN)  (make stop to remove)"
+		--entrypoint bash $(1) -c 'mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
+	@for i in $$(seq 1 120); do \
+		curl -sf -o /dev/null "http://127.0.0.1:$(RUN_PORT)/api/status?token=$(RUN_TOKEN)" && exit 0; \
+		[ "$$(docker inspect -f '{{.State.Running}}' $(call run_name,$(1)))" = true ] \
+			|| { docker logs $(call run_name,$(1)); echo "$(call run_name,$(1)) exited"; exit 1; }; \
+		sleep 1; \
+	done; docker logs $(call run_name,$(1)); echo "JupyterLab did not start in 120 s"; exit 1
+	@echo "JupyterLab: http://localhost:$(RUN_PORT)/lab?token=$(RUN_TOKEN)  (container $(call run_name,$(1)); make stop to remove)"
 endef
 
 run-base: ## Serve the base image as JupyterLab on RUN_PORT (default 8890)
-	$(call run_image,base,$(BASE_IMAGE))
+	$(call run_image,$(BASE_IMAGE))
 
 run-blsq: ## Serve the blsq image as JupyterLab on RUN_PORT
-	$(call run_image,blsq,$(BLSQ_IMAGE))
+	$(call run_image,$(BLSQ_IMAGE))
 
 run-blsq-r: ## Serve the blsq-r image as JupyterLab on RUN_PORT
-	$(call run_image,blsq-r,$(BLSQ_R_IMAGE))
+	$(call run_image,$(BLSQ_R_IMAGE))
 
 stop: ## Remove the containers started by the run-* targets
-	docker rm -f $(RUN_PREFIX)-base $(RUN_PREFIX)-blsq $(RUN_PREFIX)-blsq-r 2>/dev/null || true
+	docker rm -f $(call run_name,$(BASE_IMAGE)) $(call run_name,$(BLSQ_IMAGE)) $(call run_name,$(BLSQ_R_IMAGE)) 2>/dev/null || true
 
 ##@ Misc
 
