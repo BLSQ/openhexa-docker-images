@@ -94,7 +94,5 @@ WORKDIR $HOME
 ENV PYTHONUNBUFFERED=1
 # Set RUFF_CACHE_DIR env variable
 ENV RUFF_CACHE_DIR=/tmp/.ruff_cache
-# Set PROJ_LIB env variable needed by the R sf package
-ENV PROJ_LIB=/opt/conda/share/proj
 # Symlink MDBTools ODBC driver into conda lib path
 RUN ln -s /usr/lib/x86_64-linux-gnu/odbc/libmdbodbc.so /opt/conda/lib/libmdbodbc.so
