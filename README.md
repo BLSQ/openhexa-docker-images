@@ -54,7 +54,10 @@ make test-base PYTEST="python -m pytest tests/test_quarto_ui.py --headed --slowm
 
 `make` lists the build, test and run targets; `make run-base` serves an image
 as JupyterLab on http://localhost:8890/lab?token=hexa (`RUN_PORT` and
-`RUN_TOKEN` to change) and `make stop` removes it.
+`RUN_TOKEN` to change) and `make stop` removes it. `RUN_ARGS` passes extra
+`docker run` flags, such as the `HEXA_*` variables the OpenHEXA app would
+inject, and `RUN_FAKE_GATEWAY=1` makes the Jupyternaut chat answer from a fake
+assistant gateway inside the container (see below).
 
 ## Image tags
 
@@ -95,4 +98,9 @@ the AI assistant enabled:
 `HEXA_AI_PROVIDER` nothing is configured and Jupyternaut asks the user to pick a
 model and provide credentials themselves; users can also add models with their
 own keys in the Jupyternaut settings, whose usage is theirs.
+
+To try the chat without the OpenHEXA app, `make run-base RUN_FAKE_GATEWAY=1`
+serves the image with these variables set and `tests/fake_gateway.py` standing
+in for the gateway inside the container: Jupyternaut answers "Hello from the
+gateway" and `docker logs` of the container shows the requests it received.
 

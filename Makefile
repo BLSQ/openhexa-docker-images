@@ -14,6 +14,7 @@
 #   make test-base-viz  # watch the ui tests of an image in a Chromium window
 #   make deps        # install the Python test dependencies and Chromium
 #   make run-base    # serve an image as JupyterLab on http://localhost:$(RUN_PORT)
+#   make run-base RUN_FAKE_GATEWAY=1  # ... with Jupyternaut answering from a fake gateway
 #   make stop        # remove the containers started by the run-* targets
 #
 # `make` or `make help` lists every target.
@@ -36,6 +37,20 @@ RUN_PORT     ?= 8890
 RUN_TOKEN    ?= hexa
 RUN_PREFIX   ?= openhexa-run
 run_name      = $(RUN_PREFIX)-$(subst :,-,$(subst /,-,$(1)))
+# Extra `docker run` flags, e.g. RUN_ARGS="-e HEXA_AI_MODEL=..." to inject the
+# variables the OpenHEXA app would.
+RUN_ARGS     ?=
+# RUN_FAKE_GATEWAY=1 configures Jupyternaut for the OpenHEXA assistant gateway
+# and runs tests/fake_gateway.py in its place inside the container, so the chat
+# panel answers without the OpenHEXA app or model credentials. The variables
+# are those of tests/fake_gateway.py; `docker logs` shows what it received.
+RUN_FAKE_GATEWAY ?=
+ifneq ($(strip $(RUN_FAKE_GATEWAY)),)
+RUN_ARGS  += -e HEXA_AI_PROVIDER=openhexa -e HEXA_AI_MODEL=claude-opus-4-6 \
+	-e HEXA_SERVER_URL=http://127.0.0.1:4318/ -e HEXA_TOKEN=workspace-token:signature \
+	-e FAKE_GATEWAY="$$(cat tests/fake_gateway.py)"
+RUN_SETUP  = python -c "$$FAKE_GATEWAY" &
+endif
 
 # docker-py ignores Docker CLI contexts, so pin both build and tests to the active endpoint.
 ifeq ($(strip $(DOCKER_HOST)),)
@@ -98,14 +113,14 @@ test-blsq-r-viz: ## Watch the ui tests of the blsq-r image in a Chromium window
 ##@ Run
 
 # Serves an image as a standalone JupyterLab, the way the tests do: no hub, no
-# OpenHEXA app. CONTENT_SECURITY_POLICY is required by jupyter_notebook_config.py,
+# OpenHEXA app (RUN_ARGS, RUN_FAKE_GATEWAY above). CONTENT_SECURITY_POLICY is required by jupyter_notebook_config.py,
 # and the server root (/home/jovyan/workspace, mounted by the hub) must exist.
 # Published on localhost only: the token is fixed and the server gives a shell.
 define run_image
 	docker rm -f $(call run_name,$(1)) >/dev/null 2>&1 || true
 	docker run -d --name $(call run_name,$(1)) -p 127.0.0.1:$(RUN_PORT):8888 \
-		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" \
-		--entrypoint bash $(1) -c 'mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
+		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" $(RUN_ARGS) \
+		--entrypoint bash $(1) -c '$(RUN_SETUP) mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
 	@for i in $$(seq 1 120); do \
 		curl -sf -o /dev/null "http://127.0.0.1:$(RUN_PORT)/api/status?token=$(RUN_TOKEN)" && exit 0; \
 		[ "$$(docker inspect -f '{{.State.Running}}' $(call run_name,$(1)))" = true ] \
