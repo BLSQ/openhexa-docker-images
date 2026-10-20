@@ -12,27 +12,24 @@ import pytest
 
 pytestmark = pytest.mark.ui
 
-# Console messages JupyterLab prints when an extension's frontend fails to load
-# or activate.
+# Console messages JupyterLab prints when an extension's frontend fails to
+# load or activate.
 EXTENSION_FAILURES = re.compile(
-    r"Failed to create module|Failed to load|Plugin .* failed to activate|"
-    r"Error: No provider for"
+    r"Failed to create module|Plugin .* failed to activate|Error: No provider for"
 )
-# Known noise, unrelated to extension loading: the git extension probing a
-# directory that is no repository, and the 500 response it gets for that.
-NOISE = re.compile(r"Fail to find Git top level|Failed to load resource")
+# JupyterLab's own bundles and the federated extensions' remoteEntry bundles.
+# A 404 there is an extension whose frontend is missing; other HTTP errors are
+# noise (the git extension's 500 when the server root is no repository).
+LAB_ASSET = re.compile(r"/(static|lab/extensions)/")
 
 
 def test_jupyterlab_extensions_load(lab_page):
-    failures = [
-        m
-        for m in lab_page.console_messages
-        if EXTENSION_FAILURES.search(m) and not NOISE.search(m)
-    ]
+    failures = [m for m in lab_page.console_messages if EXTENSION_FAILURES.search(m)]
+    failures += [e for e in lab_page.http_errors if LAB_ASSET.search(e)]
     assert not failures, "Extensions failed to load:\n" + "\n".join(failures)
 
 
-def test_notebook_runs_a_cell(jupyterlab, lab_page, tmp_path):
+def test_notebook_runs_a_cell(jupyterlab, lab_page):
     notebook = {
         "cells": [
             {
@@ -60,18 +57,11 @@ def test_notebook_runs_a_cell(jupyterlab, lab_page, tmp_path):
     panel = lab_page.locator(".jp-NotebookPanel:visible")
     panel.locator(".jp-Notebook").wait_for(timeout=60_000)
     # Wait for the kernel before running, or the run request is dropped.
-    lab_page.locator(".jp-Notebook-ExecutionIndicator[data-status='idle']").wait_for(
+    panel.locator(".jp-Notebook-ExecutionIndicator[data-status='idle']").wait_for(
         timeout=120_000
     )
     panel.locator(".jp-Cell").first.click()
     # The toolbar button, rather than Shift+Enter: keyboard focus after the
     # click differs between JupyterLab versions.
     panel.locator("[data-command='notebook:run-cell-and-select-next']").click()
-    output = panel.locator(".jp-OutputArea-output", has_text="ui 42")
-    try:
-        output.wait_for(timeout=120_000)
-    except Exception:
-        screenshot = tmp_path / "notebook_runs_a_cell.png"
-        lab_page.screenshot(path=str(screenshot))
-        print(f"Screenshot of the failure: {screenshot}")
-        raise
+    panel.locator(".jp-OutputArea-output", has_text="ui 42").wait_for(timeout=120_000)
