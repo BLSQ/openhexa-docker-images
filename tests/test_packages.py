@@ -78,3 +78,11 @@ cat(if (all(ok)) 'ALL OK' else paste('MISSING', paste(pkgs[!ok], collapse = ', '
 """
     out = run_in_image(docker_image, script)
     assert out.strip().splitlines()[-1].strip() == "ALL OK", out
+
+
+def test_geospatial_import_logs_no_proj_error(docker_image):
+    """GDAL logs `ERROR 1: PROJ: proj_create_from_database: Open of ... failed`
+    on `import fiona` when PROJ_DATA is unset; CRS lookups still work, but the
+    line ends up in every pipeline log. The base image sets PROJ_DATA."""
+    out = run_in_image(docker_image, "python -c 'import fiona' 2>&1; echo done")
+    assert "PROJ" not in out, out

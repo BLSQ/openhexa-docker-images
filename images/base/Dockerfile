@@ -116,6 +116,10 @@ COPY entrypoint.sh /usr/local/bin/
 
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
 ENV PYTHONUNBUFFERED=1
+# Tell PROJ where its database is: without it, GDAL logs "ERROR 1: PROJ:
+# proj_create_from_database: Open of /opt/conda/share/proj failed" on every
+# `import fiona` (CRS lookups still work, but every pipeline log shows it).
+ENV PROJ_DATA=/opt/conda/share/proj
 
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

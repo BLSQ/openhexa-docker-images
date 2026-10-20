@@ -118,7 +118,6 @@ on the local Docker daemon, by image name:
 
 ## Known noise
 
-- `ERROR 1: PROJ: proj_create_from_database` during the geospatial tests.
 - Version warnings ("Unsatisfied version ... of shared singleton module") from
   extensions built against other JupyterLab or chat versions; they are only a
   problem when followed by "Failed to create module".
