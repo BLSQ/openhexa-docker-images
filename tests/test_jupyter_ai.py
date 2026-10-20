@@ -2,15 +2,10 @@
 gateway. Everything runs inside the image under test."""
 
 import json
+from pathlib import Path
 
+from . import fake_gateway
 from .testutils import run_in_image
-
-GATEWAY_ENV = {
-    "HEXA_AI_PROVIDER": "openhexa",
-    "HEXA_AI_MODEL": "claude-opus-4-6",
-    "HEXA_SERVER_URL": "http://127.0.0.1:4318/",
-    "HEXA_TOKEN": "workspace-token:signature",
-}
 
 # Starts a Jupyter server on 127.0.0.1:8899 and waits for it.
 START_SERVER = r"""
@@ -18,41 +13,15 @@ jupyter server --ServerApp.port=8899 --ServerApp.token=t --ServerApp.ip=127.0.0.
 for i in $(seq 1 120); do curl -sf -o /dev/null http://127.0.0.1:8899/api/status?token=t && break; sleep 0.5; done
 """
 
-# A stand-in for the gateway: answers one streamed chat completion and prints
-# what it received.
-FAKE_GATEWAY = r"""
-cat > /tmp/fake_gateway.py <<'EOF'
-import json
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-
-class Handler(BaseHTTPRequestHandler):
-    def log_message(self, *args):
-        pass
-
-    def do_POST(self):
-        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
-        print("GATEWAY " + json.dumps({
-            "path": self.path,
-            "authorization": self.headers.get("Authorization"),
-            "model": body.get("model"),
-            "stream": body.get("stream"),
-            "messages": body.get("messages"),
-        }), flush=True)
-        self.send_response(200)
-        self.send_header("Content-Type", "text/event-stream")
-        self.end_headers()
-        chunk = {"id": "chatcmpl-1", "object": "chat.completion.chunk", "created": 1, "model": "claude-opus-4-6",
-                 "choices": [{"index": 0, "delta": {"role": "assistant", "content": "Hello from the gateway"}, "finish_reason": None}]}
-        self.wfile.write(("data: " + json.dumps(chunk) + "\n\n").encode())
-        chunk["choices"][0] = {"index": 0, "delta": {}, "finish_reason": "stop"}
-        self.wfile.write(("data: " + json.dumps(chunk) + "\n\n").encode())
-        self.wfile.write(b"data: [DONE]\n\n")
-
-ThreadingHTTPServer(("127.0.0.1", 4318), Handler).serve_forever()
-EOF
-python /tmp/fake_gateway.py &
+# Runs tests/fake_gateway.py in the container, from the FAKE_GATEWAY variable.
+START_FAKE_GATEWAY = r"""
+python -c "$FAKE_GATEWAY" &
 sleep 1
 """
+FAKE_GATEWAY_ENV = {
+    **fake_gateway.GATEWAY_ENV,
+    "FAKE_GATEWAY": Path(fake_gateway.__file__).read_text(),
+}
 
 
 def test_jupyter_ai_extensions_registered(docker_image):
@@ -76,12 +45,13 @@ def test_jupyternaut_default_model_is_the_gateway(docker_image):
     script = START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/server.log; exit 1; }
 """
-    out = run_in_image(docker_image, script, environment=GATEWAY_ENV)
+    out = run_in_image(docker_image, script, environment=fake_gateway.GATEWAY_ENV)
     config = json.loads(out.strip().splitlines()[-1])
-    assert config["model_provider_id"] == "openai/claude-opus-4-6"
-    assert config["fields"]["openai/claude-opus-4-6"] == {
-        "api_base": "http://127.0.0.1:4318/assistant/gateway/v1",
-        "api_key": "workspace-token:signature",
+    model_id = f"openai/{fake_gateway.MODEL}"
+    assert config["model_provider_id"] == model_id
+    assert config["fields"][model_id] == {
+        "api_base": f"http://127.0.0.1:{fake_gateway.PORT}/assistant/gateway/v1",
+        "api_key": fake_gateway.TOKEN,
     }
 
     # Without the variables, nothing is configured.
@@ -91,9 +61,11 @@ curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/serv
 
 
 def test_jupyternaut_model_reaches_the_gateway(docker_image):
-    """litellm, called the way Jupyternaut calls it with the configured
-    parameters, streams a completion from the gateway."""
-    script = FAKE_GATEWAY + START_SERVER + r"""
+    """litellm, called with the parameters Jupyternaut saves, streams a
+    completion from the gateway: the transport works. Jupyternaut's own path to
+    the model (its agent and tools) is covered in the browser by
+    test_jupyter_ai_ui.py."""
+    script = START_FAKE_GATEWAY + START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t > /tmp/config.json
 python - <<'EOF'
 import asyncio, json
@@ -113,14 +85,12 @@ async def main():
 asyncio.run(main())
 EOF
 """
-    out = run_in_image(docker_image, script, environment=GATEWAY_ENV)
-    assert "ANSWER Hello from the gateway" in out
-    received = json.loads(
-        next(line for line in out.splitlines() if line.startswith("GATEWAY "))[8:]
-    )
+    out = run_in_image(docker_image, script, environment=FAKE_GATEWAY_ENV)
+    assert f"ANSWER {fake_gateway.REPLY}" in out
+    received = fake_gateway.requests_received(out)[0]
     assert received["path"] == "/assistant/gateway/v1/chat/completions"
-    assert received["authorization"] == "Bearer workspace-token:signature"
-    assert received["model"] == "claude-opus-4-6"
+    assert received["authorization"] == f"Bearer {fake_gateway.TOKEN}"
+    assert received["model"] == fake_gateway.MODEL
     assert received["stream"] is True
     assert received["messages"] == [{"role": "user", "content": "hi"}]
 

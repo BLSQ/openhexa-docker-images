@@ -5,9 +5,12 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import docker
 import pytest
+
+from . import fake_gateway
 
 # c.ServerApp.root_dir in images/base/jupyter_notebook_config.py. The hub mounts
 # the workspace files there; the standalone server of the tests and of the
@@ -155,21 +158,25 @@ class JupyterLab:
         return self.container.logs().decode("utf-8", errors="replace")
 
 
-@pytest.fixture(scope="session")
-def jupyterlab(docker_image):
-    """Serve the image under test as JupyterLab on a free localhost port, the
-    way `make run-*` does. One server per session: tests use distinct file
-    names and each ui test gets its own browser context."""
-    client = docker.from_env()
+def start_jupyterlab(
+    client, docker_image: str, environment: dict[str, str] | None = None, setup: str = ""
+) -> JupyterLab:
+    """Serve the image as JupyterLab on a free localhost port, the way
+    `make run-*` does, and wait until it answers. `environment` is added to
+    the container's, `setup` is a bash snippet run before the server starts,
+    e.g. to start a sidecar process in the container."""
     token = secrets.token_hex(16)
     container = client.containers.run(
         docker_image,
         entrypoint=["bash", "-c"],
         command=[
-            f"mkdir -p {WORKSPACE_DIR} && exec {ENTRYPOINT} notebook "
+            f"{setup} mkdir -p {WORKSPACE_DIR} && exec {ENTRYPOINT} notebook "
             f"--ServerApp.token={token} --ServerApp.password="
         ],
-        environment={"CONTENT_SECURITY_POLICY": "frame-ancestors 'self'"},
+        environment={
+            "CONTENT_SECURITY_POLICY": "frame-ancestors 'self'",
+            **(environment or {}),
+        },
         ports={"8888/tcp": ("127.0.0.1", None)},
         detach=True,
     )
@@ -185,16 +192,53 @@ def jupyterlab(docker_image):
                 )
                 try:
                     lab.api("GET", "/api/status")
-                    break
+                    return lab
                 except (urllib.error.URLError, ConnectionError, TimeoutError):
                     pass
             if container.status == "exited" or time.monotonic() > deadline:
                 logs = container.logs().decode("utf-8", errors="replace")
                 pytest.fail(f"JupyterLab did not start ({container.status}):\n{logs}")
             time.sleep(0.5)
+    except BaseException:
+        container.remove(force=True)
+        raise
+
+
+@pytest.fixture(scope="session")
+def jupyterlab(docker_image):
+    """The image under test served as a standalone JupyterLab (no hub, no
+    OpenHEXA app, none of the HEXA_* variables). One server per session: tests
+    use distinct file names and each ui test gets its own browser context."""
+    client = docker.from_env()
+    lab = start_jupyterlab(client, docker_image)
+    try:
         yield lab
     finally:
-        container.remove(force=True)
+        lab.container.remove(force=True)
+        client.close()
+
+
+@pytest.fixture(scope="session")
+def jupyterlab_with_gateway(docker_image):
+    """A second server, started with the variables the OpenHEXA app injects
+    when the organization's AI assistant is on, so Jupyternaut's default model
+    is the assistant gateway. The gateway is `tests/fake_gateway.py`, running
+    inside the container: `fake_gateway.requests_received(lab.logs())` tells
+    what it was sent."""
+    client = docker.from_env()
+    lab = start_jupyterlab(
+        client,
+        docker_image,
+        environment={
+            **fake_gateway.GATEWAY_ENV,
+            "FAKE_GATEWAY": Path(fake_gateway.__file__).read_text(),
+        },
+        setup='python -c "$FAKE_GATEWAY" &',
+    )
+    try:
+        yield lab
+    finally:
+        lab.container.remove(force=True)
         client.close()
 
 
@@ -215,8 +259,11 @@ def browser(request):
 
 
 @pytest.fixture
-def lab_page(browser, jupyterlab, request, tmp_path):
-    """A browser page with JupyterLab open and its file browser ready.
+def open_lab(browser, request, tmp_path):
+    """A function opening JupyterLab of a server in a fresh browser context,
+    returning the page once its file browser is ready. `lab_page` is this on
+    the `jupyterlab` server; call it directly for another server, such as
+    `jupyterlab_with_gateway`.
 
     The page records what the browser saw: `page.console_messages` holds the
     console messages and uncaught errors as "[type] text" strings,
@@ -228,53 +275,70 @@ def lab_page(browser, jupyterlab, request, tmp_path):
     written to the test's tmp_path and their paths printed, so there is no
     need to add that to each test.
     """
-    context = browser.new_context(viewport={"width": 1400, "height": 900})
-    page = context.new_page()
-    messages: list[str] = []
-    responses: dict[str, int] = {}
-    http_errors: list[str] = []
+    pages = []
 
-    def on_response(response):
-        responses[response.url] = response.status
-        if response.status >= 400:
-            http_errors.append(f"[http {response.status}] {response.url}")
-
-    page.on("console", lambda m: messages.append(f"[{m.type}] {m.text}"))
-    page.on("pageerror", lambda e: messages.append(f"[pageerror] {e}"))
-    page.on("response", on_response)
-    page.on(
-        "requestfailed",
-        lambda r: http_errors.append(f"[requestfailed] {r.url} {r.failure}"),
-    )
-    page.console_messages = messages
-    page.responses = responses
-    page.http_errors = http_errors
-
-    def dump_diagnostics():
-        screenshot = tmp_path / "failure.png"
+    def dump_diagnostics(page):
+        prefix = f"{len(pages)}-" if len(pages) > 1 else ""
+        screenshot = tmp_path / f"{prefix}failure.png"
         page.screenshot(path=str(screenshot), full_page=True)
-        log = tmp_path / "browser.log"
-        log.write_text("\n".join([*messages, *http_errors]) + "\n")
-        errors = [m for m in messages if m.startswith(("[error]", "[pageerror]"))]
+        log = tmp_path / f"{prefix}browser.log"
+        log.write_text("\n".join([*page.console_messages, *page.http_errors]) + "\n")
+        errors = [
+            m for m in page.console_messages if m.startswith(("[error]", "[pageerror]"))
+        ]
         print(
             f"\nScreenshot of the failure: {screenshot}"
             f"\nBrowser console and HTTP errors: {log}"
             + ("\nBrowser errors:\n" + "\n".join(errors[:20]) if errors else "")
         )
 
-    try:
-        # `reset` drops the saved layout, so the tabs an earlier test opened on
-        # this shared server do not come back.
-        page.goto(jupyterlab.lab_url + "&reset")
-        page.locator(".jp-DirListing-content").wait_for(timeout=120_000)
-        # Extensions keep activating for a moment after the shell is visible.
-        page.wait_for_load_state("networkidle")
-    except Exception:
-        dump_diagnostics()
-        context.close()
-        raise
-    yield page
+    def open_lab(lab: JupyterLab):
+        context = browser.new_context(viewport={"width": 1400, "height": 900})
+        page = context.new_page()
+        messages: list[str] = []
+        responses: dict[str, int] = {}
+        http_errors: list[str] = []
+
+        def on_response(response):
+            responses[response.url] = response.status
+            if response.status >= 400:
+                http_errors.append(f"[http {response.status}] {response.url}")
+
+        page.on("console", lambda m: messages.append(f"[{m.type}] {m.text}"))
+        page.on("pageerror", lambda e: messages.append(f"[pageerror] {e}"))
+        page.on("response", on_response)
+        page.on(
+            "requestfailed",
+            lambda r: http_errors.append(f"[requestfailed] {r.url} {r.failure}"),
+        )
+        page.console_messages = messages
+        page.responses = responses
+        page.http_errors = http_errors
+        pages.append(page)
+
+        try:
+            # `reset` drops the saved layout, so the tabs an earlier test opened
+            # on this shared server do not come back.
+            page.goto(lab.lab_url + "&reset")
+            page.locator(".jp-DirListing-content").wait_for(timeout=120_000)
+            # Extensions keep activating for a moment after the shell is visible.
+            page.wait_for_load_state("networkidle")
+        except Exception:
+            dump_diagnostics(page)
+            raise
+        return page
+
+    yield open_lab
     report = getattr(request.node, "rep_call", None)
-    if report is not None and report.failed:
-        dump_diagnostics()
-    context.close()
+    for page in pages:
+        if not page.is_closed():
+            if report is not None and report.failed:
+                dump_diagnostics(page)
+            page.context.close()
+
+
+@pytest.fixture
+def lab_page(open_lab, jupyterlab):
+    """A browser page with JupyterLab of the `jupyterlab` server open and its
+    file browser ready; see `open_lab`."""
+    return open_lab(jupyterlab)

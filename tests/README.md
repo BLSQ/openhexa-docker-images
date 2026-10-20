@@ -32,11 +32,18 @@ make test-base-viz                               # watch the ui tests in a Chrom
   pass `--image-flavor` otherwise.
 - `test_jupyter_ai.py`: Jupyter AI and the wiring of Jupyternaut to the OpenHEXA
   assistant gateway, checked inside the image.
+- `test_jupyter_ai_ui.py` (marker `ui`): the chat panel in Chromium, with
+  Jupyternaut answering through `fake_gateway.py`, a stand-in for the gateway
+  that runs inside the container of the `jupyterlab_with_gateway` fixture and
+  logs what it received. This is the one test that goes through Jupyternaut's
+  own agent, where a litellm release broke tool calling once.
 - `test_quarto.py`: the Quarto CLI, jupytext and the JupyterLab settings that
   open `.qmd` files as notebooks, checked inside the image.
 - `test_server.py`: the standalone JupyterLab server of the `jupyterlab`
   fixture: its root directory, Content-Security-Policy header and kernels.
 - `test_ui.py`, `test_quarto_ui.py` (marker `ui`): JupyterLab in headless
-  Chromium, via the `jupyterlab` and `lab_page` fixtures of `conftest.py`. A
-  failing test leaves a screenshot and the browser console in its `tmp_path`.
+  Chromium, via the `jupyterlab` and `lab_page` fixtures of `conftest.py`
+  (`open_lab` opens a page on another server, such as
+  `jupyterlab_with_gateway`). A failing test leaves a screenshot and the
+  browser console in its `tmp_path`.
 - `testutils.py`: helpers to run pipelines and scripts inside an image.
