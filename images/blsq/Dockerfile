@@ -77,11 +77,16 @@ RUN mamba install --yes -c conda-forge \
     'r-raster' \
     'r-sf' \
     'r-stringi' \
+    # rJava for OpenStreetMap (CRAN, below): building it from source fails
+    # against conda's R, which points at the Java of its own build machine.
+    'r-rjava' \
   && mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
-# R packages (only available on cran)
-RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
+# R packages (only available on cran). install.packages() only warns when a
+# package fails, so check they all load and fail the build otherwise.
+RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" \
+    && R -e "pkgs <- c('GISTools', 'OpenStreetMap'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"
 
 WORKDIR $HOME
 

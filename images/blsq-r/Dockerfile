@@ -23,6 +23,9 @@ USER ${NB_UID}
 # R 4.5+ on conda-forge is built against icu 78, which matches this image's base
 # Python stack (pyarrow, libmamba/conda).
 RUN mamba install --yes -c conda-forge \
+    # Pin sqlite: the R stack otherwise drags in the old monolithic 3.32.3, which
+    # breaks Python's `import sqlite3` and GDAL (hence the R sf package).
+    'sqlite>=3.49' \
     r-base=4.5.* \
     r-irkernel \
     # r-irkernel also pulls in: r-crayon r-digest
@@ -71,12 +74,17 @@ RUN mamba install --yes -c conda-forge \
     r-reticulate \
     r-fpp3 \
     r-survey \
+    # rJava for OpenStreetMap (CRAN, below): building it from source fails
+    # against conda's R, which points at the Java of its own build machine.
+    r-rjava \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
 
-# R packages (only available on cran)
-RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap', 'DHS.rates'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
+# R packages (only available on cran). install.packages() only warns when a
+# package fails, so check they all load and fail the build otherwise.
+RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap', 'DHS.rates'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" \
+    && R -e "pkgs <- c('GISTools', 'OpenStreetMap', 'DHS.rates'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"
 
 USER ${NB_UID}
 WORKDIR $HOME
