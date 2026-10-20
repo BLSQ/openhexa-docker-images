@@ -50,6 +50,8 @@ make ci      # full pipeline: build + test base, blsq, blsq-r
 ```
 
 Single-image targets are also available, e.g. `make build-base`, `make test-blsq`.
+Run one test suite at a time: two `make test-*` in parallel share the Docker
+VM and slow each other down tenfold, until the Docker API itself times out.
 
 Tests live in `tests/` and run via pytest against a built image:
 
@@ -73,8 +75,10 @@ bundle fails to load in the browser.
 - **Server tests** (`tests/test_server.py`) talk to the standalone JupyterLab
   the `jupyterlab` fixture serves (session-scoped, free localhost port, random
   token, `/home/jovyan/workspace` as root like the hub). `jupyterlab.api()`
-  calls the REST API and `jupyterlab.put_file()` creates files through the
-  contents API, so no volume mount is needed.
+  calls the REST API, `jupyterlab.put_file()` creates files through the
+  contents API, so no volume mount is needed, and
+  `jupyterlab.wait_for_kernel(path)` blocks until a notebook's kernel is idle
+  with the frontend connected: before that, a run request is dropped.
 - **Browser tests** (`tests/test_ui.py`, `tests/test_quarto_ui.py`, marker
   `ui`) drive that server in headless Chromium with Playwright. The `lab_page`
   fixture opens JupyterLab with a clean layout and records the browser console
