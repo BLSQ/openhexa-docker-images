@@ -18,10 +18,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Quarto
-RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
-    && dpkg -i quarto-linux-amd64.deb \
-    && rm quarto-linux-amd64.deb
+# Quarto is installed in the base image.
 
 USER ${NB_UID}
 

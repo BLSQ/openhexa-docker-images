@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/scipy-notebook:2026-01-19
+FROM quay.io/jupyter/scipy-notebook:2026-10-12
 
 LABEL org.opencontainers.image.source=https://github.com/blsq/openhexa-docker-images
 LABEL org.opencontainers.image.description="OpenHEXA Jupyter Notebook image with additional tools and libraries"
@@ -20,20 +20,31 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean
 
+# Quarto CLI (publishing system for .qmd and notebooks). The official .deb is
+# self-contained; the conda-forge package needs conda activation scripts that
+# these images never run.
+ARG QUARTO_VERSION=1.10.19
+RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+    dpkg -i /tmp/quarto.deb && \
+    rm /tmp/quarto.deb
+
 # FUSE Google Cloud Storage
 RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
-  echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+  gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
+  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
   tee /etc/apt/sources.list.d/gcsfuse.list && \
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-  apt-key add - && \
   apt-get update && \
   apt-get install -y gcsfuse=3.5.2 && \
   apt-get clean
 
 # FUSE Azure Blob Storage
-RUN curl -L https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-2.5.0-preview.1/blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb -o blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
-    dpkg -i blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb && \
-    rm blobfuse2-2.5.0.preview.1-Ubuntu-22.04.x86_64.deb
+# The package must match the Ubuntu release of the base image (libfuse3 soname).
+ARG BLOBFUSE2_VERSION=2.5.6-preview.1
+RUN deb="blobfuse2-${BLOBFUSE2_VERSION/-preview/.preview}-Ubuntu-$(lsb_release -r -s).x86_64.deb" && \
+    curl -fsSL "https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-${BLOBFUSE2_VERSION}/${deb}" -o "/tmp/${deb}" && \
+    dpkg -i "/tmp/${deb}" && \
+    rm "/tmp/${deb}"
 
 
 WORKDIR $HOME
@@ -63,8 +74,18 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'openhexa.toolbox=2.11.3' \
   # Jupyter extensions
   'jupyter-resource-usage' \
-  'jupyterlab_code_formatter' && \
+  'jupyterlab_code_formatter' \
+  # jupytext opens and pairs Quarto .qmd files as notebooks (uses the Quarto CLI above).
+  # Its frontend bundle is built against a specific JupyterLab minor (1.19.5+
+  # needs 4.6); if .qmd files stop opening as notebooks after a base image
+  # bump, check the browser console for "Failed to create module".
+  'jupytext>=1.19,<1.20' && \
   mamba clean --all -f -y && \
+  fix-permissions "${CONDA_DIR}"
+
+# jupyterlab-quarto renders Quarto markdown (callouts, cross-references...) in
+# notebook cells. Only published on PyPI; it has no Python dependencies.
+RUN pip install --no-cache-dir 'jupyterlab-quarto>=0.3,<0.4' && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
