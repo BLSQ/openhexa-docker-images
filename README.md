@@ -26,7 +26,7 @@ the `jupyterlab-quarto` extension:
 
 - `.qmd` files open as notebooks in JupyterLab (double-click, or *Open With →
   Notebook*); `jupytext` keeps the `.qmd` file as the source of truth. The
-  launcher and *File → New* also offer a *Quarto Notebook*.
+  launcher offers a new *Quarto Markdown* notebook in its *Jupytext* section.
 - `jupyterlab-quarto` renders Quarto markdown (callouts, cross-references,
   figure options...) in notebook cells.
 - `quarto render` works from a terminal or a pipeline.
@@ -34,3 +34,9 @@ the `jupyterlab-quarto` extension:
 The jupytext frontend is built against a specific JupyterLab minor version. If
 `.qmd` files open in the text editor after a base image bump, look for
 `Failed to create module: package: jupyterlab-jupytext` in the browser console.
+`tests/test_quarto_ui.py` checks exactly this: it serves the image as JupyterLab
+and double-clicks a `.qmd` file in Chromium. To watch it:
+
+```bash
+python -m pytest tests/test_quarto_ui.py --docker-image openhexa-base-environment --headed --slowmo 500
+```
