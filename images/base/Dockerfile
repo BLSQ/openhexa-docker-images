@@ -102,6 +102,10 @@ RUN pip install --no-cache-dir \
   'jupyter-ai>=3.2,<3.3' \
   'jupyter-ai-jupyternaut>=0.1,<0.2' \
   'jupyter-ai-litellm>=0.1,<0.2' \
+  # litellm 1.106 imports its proxy's MCP catalog whenever tools are passed,
+  # which needs mcp 2.x; langchain-mcp-adapters (Jupyternaut's tools) pins
+  # mcp<2. Jupyternaut then fails on every message, so hold litellm back.
+  'litellm<1.106' \
   # Keep click where openhexa.sdk pins it; pip would otherwise upgrade it.
   'click~=8.1.3' && \
   fix-permissions "${CONDA_DIR}"
