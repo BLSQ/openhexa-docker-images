@@ -28,6 +28,7 @@ def run_local_pipeline(
             environment={"HEXA_ENVIRONMENT": "LOCAL_PIPELINE", **environment},
             stdout=True,
             stderr=True,
+            remove=True,
         )
         logs = logs.decode("utf-8")
 
@@ -47,7 +48,8 @@ def run_in_image(
     environment: dict[str, str] | None = None,
 ) -> str:
     """Run a bash script inside the image, bypassing the OpenHEXA entrypoint,
-    and return its combined output."""
+    and return its combined stdout and stderr. A non-zero exit raises
+    docker.errors.ContainerError, whose message holds the stderr."""
     client = docker.from_env()
     try:
         logs = client.containers.run(
@@ -57,6 +59,7 @@ def run_in_image(
             environment=environment or {},
             stdout=True,
             stderr=True,
+            remove=True,
         )
         logs = logs.decode("utf-8")
         print("\n")

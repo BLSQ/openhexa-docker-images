@@ -2,15 +2,20 @@
 files open as notebooks. Everything runs inside the image under test."""
 
 import json
+import re
 
 from .testutils import run_in_image
 
 
 def test_quarto_and_jupytext_installed(docker_image):
-    out = run_in_image(docker_image, "quarto --version && jupytext --version")
-    quarto_version, jupytext_version = out.strip().splitlines()[-2:]
-    assert quarto_version.startswith("1.")
-    assert jupytext_version.startswith("1.")
+    # Label each version on its own line: the output also carries stderr.
+    out = run_in_image(
+        docker_image,
+        'echo "quarto=$(quarto --version)"; echo "jupytext=$(jupytext --version)"',
+    )
+    versions = dict(re.findall(r"^(quarto|jupytext)=(\S+)$", out, re.MULTILINE))
+    assert versions.get("quarto", "").startswith("1."), out
+    assert versions.get("jupytext", "").startswith("1."), out
 
 
 def test_quarto_extensions_registered(docker_image):
