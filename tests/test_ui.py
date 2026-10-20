@@ -50,10 +50,15 @@ KERNELSPECS = {
 }
 
 
-@pytest.mark.parametrize("kernel", ["python3", "ir"])
-def test_notebook_runs_a_cell(jupyterlab, lab_page, image_flavor, kernel):
-    if kernel == "ir" and image_flavor == "base":
+@pytest.fixture(params=["python3", "ir"])
+def kernel(request, image_flavor):
+    """The kernels to try; skips before a browser page is opened for it."""
+    if request.param == "ir" and image_flavor == "base":
         pytest.skip("the base image has no R kernel")
+    return request.param
+
+
+def test_notebook_runs_a_cell(jupyterlab, kernel, lab_page):
     source, expected = CELLS[kernel]
     notebook = {
         "cells": [

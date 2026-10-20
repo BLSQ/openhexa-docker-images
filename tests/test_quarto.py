@@ -83,7 +83,7 @@ jupyter: python3
 print("rendered " + str(6 * 7))
 ```
 QMD
-quarto render doc.qmd --quiet
+quarto render doc.qmd
 grep -o "rendered 42" doc.html | head -1
 """
     out = run_in_image(docker_image, script)
