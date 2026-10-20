@@ -132,6 +132,25 @@ class JupyterLab:
             {"type": "file", "format": "text", "content": content},
         )
 
+    def wait_for_kernel(self, path: str, timeout: float = 120) -> dict:
+        """Wait until the notebook at `path` has an idle kernel with a frontend
+        connected to it (an open websocket), and return the kernel model. The
+        execution indicator in the page can show idle before that, and a run
+        request sent then is dropped."""
+        deadline = time.monotonic() + timeout
+        while True:
+            for session in self.api("GET", "/api/sessions"):
+                kernel = session.get("kernel") or {}
+                if (
+                    session["path"] == path
+                    and kernel.get("execution_state") == "idle"
+                    and kernel.get("connections", 0) > 0
+                ):
+                    return kernel
+            if time.monotonic() > deadline:
+                raise TimeoutError(f"no connected idle kernel for {path} after {timeout}s")
+            time.sleep(0.5)
+
     def logs(self) -> str:
         return self.container.logs().decode("utf-8", errors="replace")
 
@@ -200,7 +219,8 @@ def lab_page(browser, jupyterlab, request, tmp_path):
     """A browser page with JupyterLab open and its file browser ready.
 
     The page records what the browser saw: `page.console_messages` holds the
-    console messages and uncaught errors as "[type] text" strings, and
+    console messages and uncaught errors as "[type] text" strings,
+    `page.responses` the HTTP status of every URL the page fetched, and
     `page.http_errors` the responses with a 4xx/5xx status and the requests
     that failed, as "[http 404] url" / "[requestfailed] url reason".
 
@@ -211,18 +231,23 @@ def lab_page(browser, jupyterlab, request, tmp_path):
     context = browser.new_context(viewport={"width": 1400, "height": 900})
     page = context.new_page()
     messages: list[str] = []
+    responses: dict[str, int] = {}
     http_errors: list[str] = []
+
+    def on_response(response):
+        responses[response.url] = response.status
+        if response.status >= 400:
+            http_errors.append(f"[http {response.status}] {response.url}")
+
     page.on("console", lambda m: messages.append(f"[{m.type}] {m.text}"))
     page.on("pageerror", lambda e: messages.append(f"[pageerror] {e}"))
-    page.on(
-        "response",
-        lambda r: r.status >= 400 and http_errors.append(f"[http {r.status}] {r.url}"),
-    )
+    page.on("response", on_response)
     page.on(
         "requestfailed",
         lambda r: http_errors.append(f"[requestfailed] {r.url} {r.failure}"),
     )
     page.console_messages = messages
+    page.responses = responses
     page.http_errors = http_errors
 
     def dump_diagnostics():
