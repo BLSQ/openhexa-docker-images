@@ -86,3 +86,16 @@ def test_geospatial_import_logs_no_proj_error(docker_image):
     line ends up in every pipeline log. The base image sets PROJ_DATA."""
     out = run_in_image(docker_image, "python -c 'import fiona' 2>&1; echo done")
     assert "PROJ" not in out, out
+
+
+def test_r_sf_transforms_coordinates(docker_image, image_flavor):
+    """sf needs PROJ_DATA (or the older PROJ_LIB) to find proj.db; without it
+    every CRS is "missing" and st_transform fails."""
+    if image_flavor == "base":
+        pytest.skip("no R in the base image")
+    script = """Rscript -e "suppressMessages(library(sf)); \\
+p <- st_transform(st_sfc(st_point(c(4.35, 50.8)), crs = 4326), 3857); \\
+cat('TRANSFORMED', round(st_coordinates(p)), '\\n')" 2>&1
+"""
+    out = run_in_image(docker_image, script)
+    assert "TRANSFORMED 484240 6585992" in out, out
