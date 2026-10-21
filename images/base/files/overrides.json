@@ -1,5 +1,13 @@
 {
     "@jupyterlab/notebook-extension:tracker": {
         "windowingMode": "defer"
+    },
+    "@jupyterlab/docmanager-extension:plugin": {
+        "defaultViewers": {
+            "quarto": "Notebook"
+        }
+    },
+    "jupyterlab-jupytext:plugin": {
+        "qmd": true
     }
 }

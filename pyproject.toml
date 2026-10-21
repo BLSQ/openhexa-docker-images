@@ -10,11 +10,15 @@ requires-python = ">=3.12"
 dependencies = [
     "pytest>=7.4.0",
     "docker",
-    "colorist==1.8.15"
+    "colorist==1.8.15",
+    "playwright>=1.55,<2",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
-addopts = "-v -s" 
+addopts = "-v -s"
+markers = [
+    "ui: drives JupyterLab in headless Chromium (needs `python -m playwright install chromium`)",
+]
 

@@ -18,11 +18,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Quarto
-RUN wget https://quarto.org/download/latest/quarto-linux-amd64.deb \
-    && dpkg -i quarto-linux-amd64.deb \
-    && rm quarto-linux-amd64.deb
-
 USER ${NB_UID}
 
 # R 4.5+ on conda-forge is built against icu 78, which matches this image's base

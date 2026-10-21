@@ -11,7 +11,7 @@
 #   make test        # test all three images (alias: make t)
 #   make build-base  # build a single image
 #   make test-base   # test a single image
-#   make deps        # install the Python test dependencies
+#   make deps        # install the Python test dependencies and Chromium
 #
 # `make` or `make help` lists every target.
 
@@ -68,7 +68,8 @@ t test: test-base test-blsq test-blsq-r ## Test all three images
 
 ##@ Misc
 
-deps: ## Install the Python test dependencies
+deps: ## Install the Python test dependencies and the Chromium the ui tests drive
 	pip install .
+	python -m playwright install chromium
 
 ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r
