@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.17.12](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.11...1.17.12) (2026-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency colorist to v1.8.15 ([#157](https://github.com/BLSQ/openhexa-docker-images/issues/157)) ([b756476](https://github.com/BLSQ/openhexa-docker-images/commit/b756476aeeb8e0a63741df948976c78b188d5e40))
+
+
+### Miscellaneous
+
+* Add support for Quarto markdown (HEXA-1800) ([#160](https://github.com/BLSQ/openhexa-docker-images/issues/160)) ([7608338](https://github.com/BLSQ/openhexa-docker-images/commit/7608338ab43ff2ebb17aa9afda3cf4e2ef329899))
+* **makefile:** show help by default and echo all commands ([75e1ab1](https://github.com/BLSQ/openhexa-docker-images/commit/75e1ab10a723741db4c7d0ce2b861835ec22caf8))
+
 ## [1.17.11](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.10...1.17.11) (2026-08-21)
 
 
