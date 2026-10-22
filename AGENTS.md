@@ -50,6 +50,10 @@ make ci      # full pipeline: build + test base, blsq, blsq-r
 ```
 
 Single-image targets are also available, e.g. `make build-base`, `make test-blsq`.
+`make build` targets the Docker daemon's architecture, so arm64 on Apple
+Silicon; CI builds and ships linux/amd64. Do not test amd64 images on a Mac:
+under Rosetta the Jupyter server and kernels intermittently deadlock, and the
+ui tests then time out. `PLATFORM=linux/amd64` builds what CI ships.
 Run one test suite at a time: two `make test-*` in parallel share the Docker
 VM and slow each other down tenfold, until the Docker API itself times out.
 

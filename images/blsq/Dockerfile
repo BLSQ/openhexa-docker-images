@@ -18,7 +18,14 @@ USER ${NB_UID}
 RUN ls -la /home/jovyan
 # Install additional Python and R packages.
 # Split into batches to avoid running out of memory.
-RUN mamba install --yes -c conda-forge \
+# r-getpass r-rpostgres have no linux-aarch64 build on conda-forge: on arm64,
+# getPass and RPostgres come from CRAN (below), built against conda's libpq.
+RUN if [ "$(uname -m)" = x86_64 ]; then \
+      arch_pkgs="r-getpass r-rpostgres"; \
+    else \
+      arch_pkgs="libpq"; \
+    fi && \
+    mamba install --yes -c conda-forge \
     # Python packages
     # Pin sqlite: geo stack otherwise drags in the old monolithic 3.32.3, breaking import sqlite3.
     'sqlite>=3.49' \
@@ -61,11 +68,9 @@ RUN mamba install --yes -c conda-forge \
     # R Packages
     'r-irkernel' \
     'r-arrow' \
-    'r-getpass' \
     'r-readxl' \
     'r-rcolorbrewer' \
     'r-rjson' \
-    'r-rpostgres' \
     'r-styler' \
     'r-viridis' \
     'r-nloptr' \
@@ -80,6 +85,7 @@ RUN mamba install --yes -c conda-forge \
     # rJava for OpenStreetMap (CRAN, below): building it from source fails
     # against conda's R, which points at the Java of its own build machine.
     'r-rjava' \
+    ${arch_pkgs} \
   && mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
@@ -88,6 +94,13 @@ RUN mamba install --yes -c conda-forge \
 RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" \
     && R -e "pkgs <- c('GISTools', 'OpenStreetMap'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"
 
+# On arm64, the packages that have no linux-aarch64 build on conda-forge (see
+# the R batch above), with their required dependencies only.
+RUN if [ "$(uname -m)" != x86_64 ]; then \
+      R -e "install.packages(c('getPass', 'RPostgres'), quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" && \
+      R -e "pkgs <- c('getPass', 'RPostgres'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"; \
+    fi
+
 WORKDIR $HOME
 
 # Set PYTHONUNBUFFERED to ensure that Python output is sent straight to terminal
@@ -95,4 +108,4 @@ ENV PYTHONUNBUFFERED=1
 # Set RUFF_CACHE_DIR env variable
 ENV RUFF_CACHE_DIR=/tmp/.ruff_cache
 # Symlink MDBTools ODBC driver into conda lib path
-RUN ln -s /usr/lib/x86_64-linux-gnu/odbc/libmdbodbc.so /opt/conda/lib/libmdbodbc.so
+RUN ln -s /usr/lib/$(uname -m)-linux-gnu/odbc/libmdbodbc.so /opt/conda/lib/libmdbodbc.so

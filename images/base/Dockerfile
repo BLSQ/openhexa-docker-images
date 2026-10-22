@@ -25,7 +25,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # these images never run.
 # renovate: datasource=github-releases depName=quarto-dev/quarto-cli extractVersion=^v(?<version>.*)$
 ARG QUARTO_VERSION=1.10.19
-RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-$(dpkg --print-architecture).deb" && \
     dpkg -i /tmp/quarto.deb && \
     rm /tmp/quarto.deb
 
@@ -43,9 +43,11 @@ RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
 
 # FUSE Azure Blob Storage
 # The package must match the Ubuntu release of the base image (libfuse3 soname).
+# Its architecture suffix is x86_64 on amd64 and arm64 on arm64.
 # renovate: datasource=github-releases depName=Azure/azure-storage-fuse extractVersion=^blobfuse2-(?<version>\d+\.\d+\.\d+)$
 ARG BLOBFUSE2_VERSION=2.5.5
-RUN deb="blobfuse2-${BLOBFUSE2_VERSION}-Ubuntu-$(lsb_release -r -s).x86_64.deb" && \
+RUN arch=$(dpkg --print-architecture | sed 's/^amd64$/x86_64/') && \
+    deb="blobfuse2-${BLOBFUSE2_VERSION}-Ubuntu-$(lsb_release -r -s).${arch}.deb" && \
     curl -fsSL "https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-${BLOBFUSE2_VERSION}/${deb}" -o "/tmp/${deb}" && \
     dpkg -i "/tmp/${deb}" && \
     rm "/tmp/${deb}"

@@ -23,7 +23,11 @@
 BASE_IMAGE   ?= openhexa-base-environment
 BLSQ_IMAGE   ?= openhexa-blsq-environment
 BLSQ_R_IMAGE ?= openhexa-blsq-r-environment
-PLATFORM     ?= linux/amd64
+# The images ship as linux/amd64 (CI). Locally they build for the Docker
+# daemon's own architecture: amd64 images run under Rosetta on Apple Silicon,
+# where the Jupyter server and kernels intermittently deadlock.
+# PLATFORM=linux/amd64 builds what CI ships.
+PLATFORM     ?= linux/$(shell docker version -f '{{.Server.Arch}}' 2>/dev/null || echo amd64)
 
 # Settings of the run-* targets. The container name is derived from the image
 # name, so worktrees that build their own images (see AGENTS.md) do not stop
