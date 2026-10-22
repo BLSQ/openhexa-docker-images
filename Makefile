@@ -11,6 +11,7 @@
 #   make test        # test all three images (alias: make t)
 #   make build-base  # build a single image
 #   make test-base   # test a single image
+#   make test-base-viz  # watch the ui tests of an image in a Chromium window
 #   make deps        # install the Python test dependencies and Chromium
 #   make run-base    # serve an image as JupyterLab on http://localhost:$(RUN_PORT)
 #   make stop        # remove the containers started by the run-* targets
@@ -40,9 +41,14 @@ export DOCKER_HOST
 
 DOCKER_BUILD := docker build --platform $(PLATFORM)
 PYTEST       := python -m pytest tests/ -v
+# The test-*-viz targets: only the ui tests, in a visible Chromium, paused
+# SLOWMO milliseconds after each browser action so you can follow along.
+SLOWMO       ?= 500
+PYTEST_VIZ   := $(PYTEST) -m ui --headed --slowmo $(SLOWMO)
 
 .PHONY: help h build-base build-blsq build-blsq-r b build \
-	test-base test-blsq test-blsq-r t test run-base run-blsq run-blsq-r stop deps ci
+	test-base test-blsq test-blsq-r t test test-base-viz test-blsq-viz test-blsq-r-viz \
+	run-base run-blsq run-blsq-r stop deps ci
 
 h help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## " } \
@@ -75,6 +81,15 @@ test-blsq-r: ## Test the blsq-r image
 	$(PYTEST) --docker-image $(BLSQ_R_IMAGE)
 
 t test: test-base test-blsq test-blsq-r ## Test all three images
+
+test-base-viz: ## Watch the ui tests of the base image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BASE_IMAGE)
+
+test-blsq-viz: ## Watch the ui tests of the blsq image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BLSQ_IMAGE)
+
+test-blsq-r-viz: ## Watch the ui tests of the blsq-r image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BLSQ_R_IMAGE)
 
 ##@ Run
 

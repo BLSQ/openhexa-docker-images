@@ -86,7 +86,9 @@ bundle fails to load in the browser.
   `test_jupyterlab_extensions_load` fails on either. When a ui test fails, the
   fixture writes a full-page screenshot and the recorded messages to the test's
   `tmp_path` and prints their paths: look at them before guessing. Watch a test
-  with `--headed --slowmo 500`, or step through it with `PWDEBUG=1`.
+  with `--headed --slowmo 500` (`make test-base-viz` runs the ui tests of an
+  image that way, `SLOWMO=...` to change the pause), or step through it with
+  `PWDEBUG=1`.
 - **Trying an image by hand:** `make run-base` (or `run-blsq`, `run-blsq-r`)
   serves an image as standalone JupyterLab on `http://localhost:8890/lab?token=hexa`
   and returns once it answers (`RUN_PORT`, `RUN_TOKEN` to change); `make stop`

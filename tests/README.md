@@ -21,6 +21,7 @@ make test-base                                   # one image, every test
 python -m pytest tests/ --docker-image openhexa-base-environment
 python -m pytest tests/ -m "not ui" --docker-image openhexa-base-environment
 python -m pytest tests/test_ui.py --docker-image openhexa-blsq-environment
+make test-base-viz                               # watch the ui tests in a Chromium window
 ```
 
 ## Test structure
