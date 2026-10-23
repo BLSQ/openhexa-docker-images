@@ -44,7 +44,7 @@ RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
 # FUSE Azure Blob Storage
 # The package must match the Ubuntu release of the base image (libfuse3 soname).
 # renovate: datasource=github-releases depName=Azure/azure-storage-fuse extractVersion=^blobfuse2-(?<version>\d+\.\d+\.\d+)$
-ARG BLOBFUSE2_VERSION=2.5.5
+ARG BLOBFUSE2_VERSION=2.5.6
 RUN deb="blobfuse2-${BLOBFUSE2_VERSION}-Ubuntu-$(lsb_release -r -s).x86_64.deb" && \
     curl -fsSL "https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-${BLOBFUSE2_VERSION}/${deb}" -o "/tmp/${deb}" && \
     dpkg -i "/tmp/${deb}" && \
