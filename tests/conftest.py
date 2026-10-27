@@ -161,10 +161,9 @@ class JupyterLab:
 def start_jupyterlab(
     client, docker_image: str, environment: dict[str, str] | None = None, setup: str = ""
 ) -> JupyterLab:
-    """Serve the image as JupyterLab on a free localhost port, the way
-    `make run-*` does, and wait until it answers. `environment` is added to
-    the container's, `setup` is a bash snippet run before the server starts,
-    e.g. to start a sidecar process in the container."""
+    """Start JupyterLab on a free localhost port and wait until it responds.
+    `environment` sets extra container env vars; `setup` is a bash snippet run
+    before the server starts."""
     token = secrets.token_hex(16)
     container = client.containers.run(
         docker_image,
@@ -206,9 +205,7 @@ def start_jupyterlab(
 
 @pytest.fixture(scope="session")
 def jupyterlab(docker_image):
-    """The image under test served as a standalone JupyterLab (no hub, no
-    OpenHEXA app, none of the HEXA_* variables). One server per session: tests
-    use distinct file names and each ui test gets its own browser context."""
+    """Standalone JupyterLab server for the session (without `HEXA_*` env vars)."""
     client = docker.from_env()
     lab = start_jupyterlab(client, docker_image)
     try:
@@ -220,11 +217,9 @@ def jupyterlab(docker_image):
 
 @pytest.fixture(scope="session")
 def jupyterlab_with_gateway(docker_image):
-    """A second server, started with the variables the OpenHEXA app injects
-    when the organization's AI assistant is on, so Jupyternaut's default model
-    is the assistant gateway. The gateway is `tests/fake_gateway.py`, running
-    inside the container: `fake_gateway.requests_received(lab.logs())` tells
-    what it was sent."""
+    """JupyterLab server configured with `HEXA_AI_*` and running
+    `tests/fake_gateway.py` inside the container. Use
+    `fake_gateway.requests_received(lab.logs())` to inspect received requests."""
     client = docker.from_env()
     lab = start_jupyterlab(
         client,
@@ -260,20 +255,15 @@ def browser(request):
 
 @pytest.fixture
 def open_lab(browser, request, tmp_path):
-    """A function opening JupyterLab of a server in a fresh browser context,
-    returning the page once its file browser is ready. `lab_page` is this on
-    the `jupyterlab` server; call it directly for another server, such as
-    `jupyterlab_with_gateway`.
+    """Return a helper that opens a `JupyterLab` server in a fresh browser
+    context and waits for the file browser.
 
-    The page records what the browser saw: `page.console_messages` holds the
-    console messages and uncaught errors as "[type] text" strings,
-    `page.responses` the HTTP status of every URL the page fetched, and
-    `page.http_errors` the responses with a 4xx/5xx status and the requests
-    that failed, as "[http 404] url" / "[requestfailed] url reason".
+    The returned page records:
+    - `page.console_messages`: console logs and uncaught errors
+    - `page.responses`: `{url: status}` for every response
+    - `page.http_errors`: 4xx/5xx responses and failed requests
 
-    When the test fails, a full-page screenshot and the recorded messages are
-    written to the test's tmp_path and their paths printed, so there is no
-    need to add that to each test.
+    On test failure, a full-page screenshot and browser logs are saved to `tmp_path`.
     """
     pages = []
 
@@ -339,6 +329,5 @@ def open_lab(browser, request, tmp_path):
 
 @pytest.fixture
 def lab_page(open_lab, jupyterlab):
-    """A browser page with JupyterLab of the `jupyterlab` server open and its
-    file browser ready; see `open_lab`."""
+    """Open the default `jupyterlab` server in a fresh browser page."""
     return open_lab(jupyterlab)

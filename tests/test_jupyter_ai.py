@@ -1,5 +1,4 @@
-"""Checks on Jupyter AI and the wiring of Jupyternaut to the OpenHEXA assistant
-gateway. Everything runs inside the image under test."""
+"""Tests for Jupyter AI and Jupyternaut's OpenHEXA gateway configuration."""
 
 import json
 from pathlib import Path
@@ -7,13 +6,13 @@ from pathlib import Path
 from . import fake_gateway
 from .testutils import run_in_image
 
-# Starts a Jupyter server on 127.0.0.1:8899 and waits for it.
+# Start a Jupyter server on 127.0.0.1:8899 and wait until it is ready.
 START_SERVER = r"""
 jupyter server --ServerApp.port=8899 --ServerApp.token=t --ServerApp.ip=127.0.0.1 --ServerApp.root_dir=/tmp > /tmp/server.log 2>&1 &
 for i in $(seq 1 120); do curl -sf -o /dev/null http://127.0.0.1:8899/api/status?token=t && break; sleep 0.5; done
 """
 
-# Runs tests/fake_gateway.py in the container, from the FAKE_GATEWAY variable.
+# Run tests/fake_gateway.py in the background from $FAKE_GATEWAY.
 START_FAKE_GATEWAY = r"""
 python -c "$FAKE_GATEWAY" &
 sleep 1
@@ -39,9 +38,8 @@ def test_jupyter_ai_extensions_registered(docker_image):
 
 
 def test_jupyternaut_default_model_is_the_gateway(docker_image):
-    """The Jupyternaut server extension must make the OpenHEXA gateway its
-    default model, from the HEXA_AI_* variables, and the parameters it saves
-    must drive litellm to the gateway with the workspace token."""
+    """When `HEXA_AI_*` is set, Jupyternaut configures the OpenHEXA gateway as
+    its default model with the workspace token."""
     script = START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/server.log; exit 1; }
 """
@@ -54,17 +52,15 @@ curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/serv
         "api_key": fake_gateway.TOKEN,
     }
 
-    # Without the variables, nothing is configured.
+    # Without HEXA_AI_*, no default model is configured.
     out = run_in_image(docker_image, script)
     config = json.loads(out.strip().splitlines()[-1])
     assert config["model_provider_id"] is None
 
 
 def test_jupyternaut_model_reaches_the_gateway(docker_image):
-    """litellm, called with the parameters Jupyternaut saves, streams a
-    completion from the gateway: the transport works. Jupyternaut's own path to
-    the model (its agent and tools) is covered in the browser by
-    test_jupyter_ai_ui.py."""
+    """Calling litellm with Jupyternaut's saved config streams a completion from
+    the gateway."""
     script = START_FAKE_GATEWAY + START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t > /tmp/config.json
 python - <<'EOF'
@@ -96,9 +92,8 @@ EOF
 
 
 def test_jupyternaut_is_the_only_persona(docker_image):
-    """Jupyter AI also ships personas for coding agents (Claude Code, Codex...)
-    that register themselves as soon as their binary is on the PATH. We only
-    offer Jupyternaut, so none of those must be loadable."""
+    """Only the Jupyternaut persona should be available (no external coding
+    agent personas like Claude Code or Codex)."""
     script = r"""
 python - <<'PY'
 from importlib.metadata import entry_points

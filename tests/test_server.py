@@ -17,9 +17,8 @@ def test_server_serves_the_workspace_directory(jupyterlab):
 
 
 def test_server_runs_in_its_root_directory(jupyterlab):
-    # Jupyternaut's file tools default to the working directory while its
-    # notebook tools and the frontend resolve paths against the root: a path
-    # relative to the wrong one gives a "File Load Error" dialog in JupyterLab.
+    # Jupyternaut's file tools resolve paths against cwd while notebook tools
+    # and the frontend use the server root; both must point to WORKSPACE_DIR.
     code, out = jupyterlab.container.exec_run(
         ["bash", "-c", "readlink /proc/$(pgrep -of jupyter-lab)/cwd"]
     )
