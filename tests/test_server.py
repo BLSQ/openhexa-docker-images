@@ -16,6 +16,16 @@ def test_server_serves_the_workspace_directory(jupyterlab):
     assert f"Serving notebooks from local directory: {WORKSPACE_DIR}" in logs, logs
 
 
+def test_server_runs_in_its_root_directory(jupyterlab):
+    # Jupyternaut's file tools default to the working directory while its
+    # notebook tools and the frontend resolve paths against the root: a path
+    # relative to the wrong one gives a "File Load Error" dialog in JupyterLab.
+    code, out = jupyterlab.container.exec_run(
+        ["bash", "-c", "readlink /proc/$(pgrep -of jupyter-lab)/cwd"]
+    )
+    assert out.decode().strip() == WORKSPACE_DIR, out
+
+
 def test_contents_api_is_rooted_at_the_workspace(jupyterlab):
     listing = jupyterlab.api("GET", "/api/contents")
     names = {entry["name"] for entry in listing["content"]}
