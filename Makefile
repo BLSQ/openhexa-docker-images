@@ -11,7 +11,10 @@
 #   make test        # test all three images (alias: make t)
 #   make build-base  # build a single image
 #   make test-base   # test a single image
+#   make test-base-viz  # watch the ui tests of an image in a Chromium window
 #   make deps        # install the Python test dependencies and Chromium
+#   make run-base    # serve an image as JupyterLab on http://localhost:$(RUN_PORT)
+#   make stop        # remove the containers started by the run-* targets
 #
 # `make` or `make help` lists every target.
 
@@ -20,7 +23,19 @@
 BASE_IMAGE   ?= openhexa-base-environment
 BLSQ_IMAGE   ?= openhexa-blsq-environment
 BLSQ_R_IMAGE ?= openhexa-blsq-r-environment
-PLATFORM     ?= linux/amd64
+# The images ship as linux/amd64 (CI). Locally they build for the Docker
+# daemon's own architecture: amd64 images run under Rosetta on Apple Silicon,
+# where the Jupyter server and kernels intermittently deadlock.
+# PLATFORM=linux/amd64 builds what CI ships.
+PLATFORM     ?= linux/$(shell docker version -f '{{.Server.Arch}}' 2>/dev/null || echo amd64)
+
+# Settings of the run-* targets. The container name is derived from the image
+# name, so worktrees that build their own images (see AGENTS.md) do not stop
+# each other's server; give each its own RUN_PORT to run them side by side.
+RUN_PORT     ?= 8890
+RUN_TOKEN    ?= hexa
+RUN_PREFIX   ?= openhexa-run
+run_name      = $(RUN_PREFIX)-$(subst :,-,$(subst /,-,$(1)))
 
 # docker-py ignores Docker CLI contexts, so pin both build and tests to the active endpoint.
 ifeq ($(strip $(DOCKER_HOST)),)
@@ -30,9 +45,14 @@ export DOCKER_HOST
 
 DOCKER_BUILD := docker build --platform $(PLATFORM)
 PYTEST       := python -m pytest tests/ -v
+# The test-*-viz targets: only the ui tests, in a visible Chromium, paused
+# SLOWMO milliseconds after each browser action so you can follow along.
+SLOWMO       ?= 500
+PYTEST_VIZ   := $(PYTEST) -m ui --headed --slowmo $(SLOWMO)
 
 .PHONY: help h build-base build-blsq build-blsq-r b build \
-	test-base test-blsq test-blsq-r t test deps ci
+	test-base test-blsq test-blsq-r t test test-base-viz test-blsq-viz test-blsq-r-viz \
+	run-base run-blsq run-blsq-r stop deps ci
 
 h help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## " } \
@@ -66,9 +86,50 @@ test-blsq-r: ## Test the blsq-r image
 
 t test: test-base test-blsq test-blsq-r ## Test all three images
 
+test-base-viz: ## Watch the ui tests of the base image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BASE_IMAGE)
+
+test-blsq-viz: ## Watch the ui tests of the blsq image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BLSQ_IMAGE)
+
+test-blsq-r-viz: ## Watch the ui tests of the blsq-r image in a Chromium window
+	$(PYTEST_VIZ) --docker-image $(BLSQ_R_IMAGE)
+
+##@ Run
+
+# Serves an image as a standalone JupyterLab, the way the tests do: no hub, no
+# OpenHEXA app. CONTENT_SECURITY_POLICY is required by jupyter_notebook_config.py,
+# and the server root (/home/jovyan/workspace, mounted by the hub) must exist.
+# Published on localhost only: the token is fixed and the server gives a shell.
+define run_image
+	docker rm -f $(call run_name,$(1)) >/dev/null 2>&1 || true
+	docker run -d --name $(call run_name,$(1)) -p 127.0.0.1:$(RUN_PORT):8888 \
+		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" \
+		--entrypoint bash $(1) -c 'mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
+	@for i in $$(seq 1 120); do \
+		curl -sf -o /dev/null "http://127.0.0.1:$(RUN_PORT)/api/status?token=$(RUN_TOKEN)" && exit 0; \
+		[ "$$(docker inspect -f '{{.State.Running}}' $(call run_name,$(1)))" = true ] \
+			|| { docker logs $(call run_name,$(1)); echo "$(call run_name,$(1)) exited"; exit 1; }; \
+		sleep 1; \
+	done; docker logs $(call run_name,$(1)); echo "JupyterLab did not start in 120 s"; exit 1
+	@echo "JupyterLab: http://localhost:$(RUN_PORT)/lab?token=$(RUN_TOKEN)  (container $(call run_name,$(1)); make stop to remove)"
+endef
+
+run-base: ## Serve the base image as JupyterLab on RUN_PORT (default 8890)
+	$(call run_image,$(BASE_IMAGE))
+
+run-blsq: ## Serve the blsq image as JupyterLab on RUN_PORT
+	$(call run_image,$(BLSQ_IMAGE))
+
+run-blsq-r: ## Serve the blsq-r image as JupyterLab on RUN_PORT
+	$(call run_image,$(BLSQ_R_IMAGE))
+
+stop: ## Remove the containers started by the run-* targets
+	docker rm -f $(call run_name,$(BASE_IMAGE)) $(call run_name,$(BLSQ_IMAGE)) $(call run_name,$(BLSQ_R_IMAGE)) 2>/dev/null || true
+
 ##@ Misc
 
-deps: ## Install the Python test dependencies and the Chromium the ui tests drive
+deps: ## Install the Python test dependencies and the Chromium the UI tests drive
 	pip install .
 	python -m playwright install chromium
 

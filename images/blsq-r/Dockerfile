@@ -22,7 +22,17 @@ USER ${NB_UID}
 
 # R 4.5+ on conda-forge is built against icu 78, which matches this image's base
 # Python stack (pyarrow, libmamba/conda).
-RUN mamba install --yes -c conda-forge \
+# r-getpass r-rpostgres r-fpp3 have no linux-aarch64 build on conda-forge: on arm64,
+# getPass, RPostgres and fpp3 come from CRAN (below), built against conda's libpq.
+RUN if [ "$(uname -m)" = x86_64 ]; then \
+      arch_pkgs="r-getpass r-rpostgres r-fpp3"; \
+    else \
+      arch_pkgs="libpq"; \
+    fi && \
+    mamba install --yes -c conda-forge \
+    # Pin sqlite: the R stack otherwise drags in the old monolithic 3.32.3, which
+    # breaks Python's `import sqlite3` and GDAL (hence the R sf package).
+    'sqlite>=3.49' \
     r-base=4.5.* \
     r-irkernel \
     # r-irkernel also pulls in: r-crayon r-digest
@@ -35,11 +45,8 @@ RUN mamba install --yes -c conda-forge \
     #   r-withr r-scales r-farver r-labeling r-munsell r-colorspace r-gtable
     #   r-tzdb r-vroom r-bit64 r-bit r-timechange r-fs r-systemfonts r-textshaping
     #   r-askpass
-    r-getpass \
     r-rcolorbrewer \
     r-rjson \
-    r-rpostgres \
-    # r-rpostgres also pulls in: r-dbi
     r-styler \
     r-viridis \
     r-nloptr \
@@ -69,17 +76,27 @@ RUN mamba install --yes -c conda-forge \
     r-pagedown \
     r-httr \
     r-reticulate \
-    r-fpp3 \
     r-survey \
+    # rJava for OpenStreetMap (CRAN, below): building it from source fails
+    # against conda's R, which points at the Java of its own build machine.
+    r-rjava \
+    ${arch_pkgs} \
     && mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
 
-# R packages (only available on cran)
-RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap', 'DHS.rates'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())"
+# R packages (only available on cran). install.packages() only warns when a
+# package fails, so check they all load and fail the build otherwise.
+RUN R -e "options(Ncpus = parallel::detectCores()); install.packages(c('GISTools', 'OpenStreetMap', 'DHS.rates'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" \
+    && R -e "pkgs <- c('GISTools', 'OpenStreetMap', 'DHS.rates'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"
+
+# On arm64, the packages that have no linux-aarch64 build on conda-forge (see
+# the R batch above), with their required dependencies only.
+RUN if [ "$(uname -m)" != x86_64 ]; then \
+      R -e "install.packages(c('getPass', 'RPostgres', 'fpp3'), quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" && \
+      R -e "pkgs <- c('getPass', 'RPostgres', 'fpp3'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"; \
+    fi
 
 USER ${NB_UID}
 WORKDIR $HOME
 
-# Set PROJ_LIB env variable needed by the R sf package
-ENV PROJ_LIB=/opt/conda/share/proj

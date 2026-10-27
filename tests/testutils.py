@@ -28,6 +28,7 @@ def run_local_pipeline(
             environment={"HEXA_ENVIRONMENT": "LOCAL_PIPELINE", **environment},
             stdout=True,
             stderr=True,
+            remove=True,
         )
         logs = logs.decode("utf-8")
 
@@ -47,22 +48,30 @@ def run_in_image(
     environment: dict[str, str] | None = None,
 ) -> str:
     """Run a bash script inside the image, bypassing the OpenHEXA entrypoint,
-    and return its combined output."""
+    and return its combined stdout and stderr. A non-zero exit raises a
+    RuntimeError carrying that output, so the failure can be read from the
+    test report. The container is removed either way."""
     client = docker.from_env()
     try:
-        logs = client.containers.run(
+        container = client.containers.create(
             docker_image,
             command=["bash", "-c", script],
             entrypoint=[],
             environment=environment or {},
-            stdout=True,
-            stderr=True,
         )
-        logs = logs.decode("utf-8")
+        try:
+            container.start()
+            status = container.wait()["StatusCode"]
+            logs = container.logs(stdout=True, stderr=True).decode("utf-8", "replace")
+        finally:
+            container.remove(force=True)
         print("\n")
         effect_underline("Container logs")
         effect_dim(logs)
+        if status != 0:
+            raise RuntimeError(
+                f"script exited with status {status} in {docker_image}:\n{logs}"
+            )
         return logs
     finally:
         client.close()
-

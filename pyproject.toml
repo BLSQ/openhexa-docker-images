@@ -21,4 +21,3 @@ addopts = "-v -s"
 markers = [
     "ui: drives JupyterLab in headless Chromium (needs `python -m playwright install chromium`)",
 ]
-
