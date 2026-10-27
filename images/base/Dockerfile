@@ -89,24 +89,21 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
-# jupyterlab-quarto renders Quarto markdown (callouts, cross-references...) in
-# notebook cells. Only published on PyPI; it has no Python dependencies.
-# Jupyter AI: chat panel with the litellm-backed Jupyternaut assistant.
-# Installed with pip rather than mamba: the conda recipe of openhexa.sdk pins
-# ariadne-codegen<0.15, whose declared websockets<12 requirement conflicts with
-# jupyter-server-mcp (websockets>=15). The SDK only imports websockets behind a
-# try/except for GraphQL subscriptions it does not use, so a newer websockets is
-# harmless at runtime; pip tolerates the stale pin where the conda solver does not.
+# jupyterlab-quarto renders Quarto markdown in notebook cells (PyPI only).
+# Jupyter AI adds the Jupyternaut chat panel (backed by litellm). Installed via
+# pip because openhexa.sdk's conda package pins ariadne-codegen<0.15
+# (websockets<12), which conflicts with jupyter-server-mcp (websockets>=15).
+# The SDK does not use GraphQL subscriptions at runtime, so a newer websockets
+# is safe.
 RUN pip install --no-cache-dir \
   'jupyterlab-quarto>=0.3,<0.4' \
   'jupyter-ai>=3.2,<3.3' \
   'jupyter-ai-jupyternaut>=0.1,<0.2' \
   'jupyter-ai-litellm>=0.1,<0.2' \
-  # litellm 1.106 imports its proxy's MCP catalog whenever tools are passed,
-  # which needs mcp 2.x; langchain-mcp-adapters (Jupyternaut's tools) pins
-  # mcp<2. Jupyternaut then fails on every message, so hold litellm back.
+  # litellm >=1.106 requires mcp 2.x when tools are passed, conflicting with
+  # langchain-mcp-adapters (mcp<2).
   'litellm<1.106' \
-  # Keep click where openhexa.sdk pins it; pip would otherwise upgrade it.
+  # Preserve openhexa.sdk's click pin.
   'click~=8.1.3' && \
   fix-permissions "${CONDA_DIR}"
 
@@ -114,7 +111,7 @@ RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
-# Points Jupyternaut at the OpenHEXA assistant gateway (HEXA_AI_* variables).
+# Configures Jupyternaut to use the OpenHEXA assistant gateway (HEXA_AI_*).
 COPY jupyter_jupyter_ai_jupyternaut_config.py /etc/jupyter/
 COPY --chown=${NB_UID}:${NB_UID} files/overrides.json /opt/conda/share/jupyter/lab/settings/
 

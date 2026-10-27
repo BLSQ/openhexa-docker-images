@@ -14,7 +14,7 @@
 #   make test-base-viz  # watch the ui tests of an image in a Chromium window
 #   make deps        # install the Python test dependencies and Chromium
 #   make run-base    # serve an image as JupyterLab on http://localhost:$(RUN_PORT)
-#   make run-base RUN_FAKE_GATEWAY=1  # ... with Jupyternaut answering from a fake gateway
+#   make run-base RUN_FAKE_GATEWAY=1  # ... with Jupyternaut using a fake gateway
 #   make stop        # remove the containers started by the run-* targets
 #
 # `make` or `make help` lists every target.
@@ -37,13 +37,11 @@ RUN_PORT     ?= 8890
 RUN_TOKEN    ?= hexa
 RUN_PREFIX   ?= openhexa-run
 run_name      = $(RUN_PREFIX)-$(subst :,-,$(subst /,-,$(1)))
-# Extra `docker run` flags, e.g. RUN_ARGS="-e HEXA_AI_MODEL=..." to inject the
-# variables the OpenHEXA app would.
+# Extra `docker run` flags, e.g. RUN_ARGS="-e HEXA_AI_MODEL=...".
 RUN_ARGS     ?=
-# RUN_FAKE_GATEWAY=1 configures Jupyternaut for the OpenHEXA assistant gateway
-# and runs tests/fake_gateway.py in its place inside the container, so the chat
-# panel answers without the OpenHEXA app or model credentials. The variables
-# are those of tests/fake_gateway.py; `docker logs` shows what it received.
+# Set RUN_FAKE_GATEWAY=1 to point Jupyternaut at tests/fake_gateway.py inside
+# the container so chat works without OpenHEXA or model credentials.
+# Use `docker logs` to inspect received requests.
 RUN_FAKE_GATEWAY ?=
 ifneq ($(strip $(RUN_FAKE_GATEWAY)),)
 RUN_ARGS  += -e HEXA_AI_PROVIDER=openhexa -e HEXA_AI_MODEL=claude-opus-4-6 \

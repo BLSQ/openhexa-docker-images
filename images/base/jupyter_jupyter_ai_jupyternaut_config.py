@@ -1,22 +1,13 @@
-"""Default model of Jupyter AI's Jupyternaut persona: the OpenHEXA assistant gateway.
+"""Configure Jupyternaut to use the OpenHEXA assistant gateway by default.
 
-Jupyternaut talks to models through litellm. OpenHEXA runs the organization's
-model behind an OpenAI-compatible endpoint, the assistant gateway, so the
-notebook server holds no model credentials: litellm's "openai" provider is
-pointed at $HEXA_SERVER_URL/assistant/gateway/v1 and authenticates with the
-workspace token the server already has. OpenHEXA charges the usage to the
-organization and traces the calls.
+When the organization's AI assistant is enabled, OpenHEXA sets:
+- HEXA_AI_PROVIDER="openhexa"
+- HEXA_AI_MODEL (e.g. "claude-opus-4-6")
 
-OpenHEXA injects, when the organization's assistant is on:
-
-  HEXA_AI_PROVIDER   "openhexa", meaning the gateway
-  HEXA_AI_MODEL      name of the model the gateway runs, e.g. claude-opus-4-6,
-                     for the model picker (the gateway decides what runs)
-
-This makes that model the "default" entry of the chat model picker, so users
-don't have to configure anything. They can still add other models, with their
-own keys, in the Jupyternaut settings. Nothing is configured without these
-variables, so images keep working with OpenHEXA versions that do not send them.
+This points litellm's OpenAI provider at $HEXA_SERVER_URL/assistant/gateway/v1
+using the workspace token ($HEXA_TOKEN), so no model credentials live in the
+notebook server. Users can still configure their own models and keys in the
+Jupyternaut settings. If these variables are absent, nothing is configured.
 """
 
 import os

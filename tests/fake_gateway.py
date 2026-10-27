@@ -1,15 +1,9 @@
-"""A stand-in for the OpenHEXA assistant gateway, run inside the image under test.
+"""Fake OpenHEXA assistant gateway for testing Jupyternaut inside a container.
 
-It answers every chat completion with one streamed reply and prints what it
-received as a `GATEWAY {json}` line, so a test can check from the container
-logs how Jupyternaut called it. The module is both imported by the tests (for
-the constants and `requests_received`) and executed inside the container, where
-`jupyter_jupyter_ai_jupyternaut_config.py` points Jupyternaut at it through
-`GATEWAY_ENV`:
-
-    python -c "$FAKE_GATEWAY" &   # with FAKE_GATEWAY=$(cat tests/fake_gateway.py)
-
-`make run-base RUN_FAKE_GATEWAY=1` serves an image this way.
+Responds to every chat completion request with a streamed reply and logs each
+request as a `GATEWAY {json}` line to stdout. Imported by tests (for constants
+and `requests_received`) and executed inside the container via `GATEWAY_ENV`
+(or `make run-base RUN_FAKE_GATEWAY=1`).
 """
 
 import json
@@ -19,8 +13,7 @@ MODEL = "claude-opus-4-6"
 TOKEN = "workspace-token:signature"
 REPLY = "Hello from the gateway"
 
-# What the OpenHEXA app injects when the organization's assistant is on,
-# pointing at this gateway.
+# Environment variables injected by OpenHEXA when the AI assistant is enabled.
 GATEWAY_ENV = {
     "HEXA_AI_PROVIDER": "openhexa",
     "HEXA_AI_MODEL": MODEL,
@@ -32,7 +25,7 @@ PREFIX = "GATEWAY "
 
 
 def requests_received(logs: str) -> list[dict]:
-    """The requests the gateway logged, in order."""
+    """Parse logged gateway requests from container output."""
     return [
         json.loads(line[len(PREFIX) :])
         for line in logs.splitlines()
