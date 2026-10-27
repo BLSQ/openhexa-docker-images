@@ -1,18 +1,14 @@
-"""Tests for Jupyter AI and Jupyternaut's OpenHEXA gateway configuration."""
-
 import json
 from pathlib import Path
 
 from . import fake_gateway
 from .testutils import run_in_image
 
-# Start a Jupyter server on 127.0.0.1:8899 and wait until it is ready.
 START_SERVER = r"""
 jupyter server --ServerApp.port=8899 --ServerApp.token=t --ServerApp.ip=127.0.0.1 --ServerApp.root_dir=/tmp > /tmp/server.log 2>&1 &
 for i in $(seq 1 120); do curl -sf -o /dev/null http://127.0.0.1:8899/api/status?token=t && break; sleep 0.5; done
 """
 
-# Run tests/fake_gateway.py in the background from $FAKE_GATEWAY.
 START_FAKE_GATEWAY = r"""
 python -c "$FAKE_GATEWAY" &
 sleep 1
@@ -38,8 +34,6 @@ def test_jupyter_ai_extensions_registered(docker_image):
 
 
 def test_jupyternaut_default_model_is_the_gateway(docker_image):
-    """When `HEXA_AI_*` is set, Jupyternaut configures the OpenHEXA gateway as
-    its default model with the workspace token."""
     script = START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/server.log; exit 1; }
 """
@@ -52,15 +46,12 @@ curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t || { cat /tmp/serv
         "api_key": fake_gateway.TOKEN,
     }
 
-    # Without HEXA_AI_*, no default model is configured.
     out = run_in_image(docker_image, script)
     config = json.loads(out.strip().splitlines()[-1])
     assert config["model_provider_id"] is None
 
 
 def test_jupyternaut_model_reaches_the_gateway(docker_image):
-    """Calling litellm with Jupyternaut's saved config streams a completion from
-    the gateway."""
     script = START_FAKE_GATEWAY + START_SERVER + r"""
 curl -sf http://127.0.0.1:8899/api/jupyternaut/config?token=t > /tmp/config.json
 python - <<'EOF'

@@ -205,7 +205,6 @@ def start_jupyterlab(
 
 @pytest.fixture(scope="session")
 def jupyterlab(docker_image):
-    """Standalone JupyterLab server for the session (without `HEXA_*` env vars)."""
     client = docker.from_env()
     lab = start_jupyterlab(client, docker_image)
     try:
@@ -218,8 +217,7 @@ def jupyterlab(docker_image):
 @pytest.fixture(scope="session")
 def jupyterlab_with_gateway(docker_image):
     """JupyterLab server configured with `HEXA_AI_*` and running
-    `tests/fake_gateway.py` inside the container. Use
-    `fake_gateway.requests_received(lab.logs())` to inspect received requests."""
+    `tests/fake_gateway.py` inside the container."""
     client = docker.from_env()
     lab = start_jupyterlab(
         client,
@@ -329,5 +327,4 @@ def open_lab(browser, request, tmp_path):
 
 @pytest.fixture
 def lab_page(open_lab, jupyterlab):
-    """Open the default `jupyterlab` server in a fresh browser page."""
     return open_lab(jupyterlab)

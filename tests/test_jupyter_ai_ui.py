@@ -1,5 +1,3 @@
-"""End-to-end browser tests for the Jupyternaut chat panel against `tests/fake_gateway.py`."""
-
 import time
 
 import pytest
@@ -10,8 +8,6 @@ pytestmark = pytest.mark.ui
 
 
 def send_chat_message(page, text: str):
-    """Open the chat side panel, start a new chat, send `text`, and return the
-    messages locator."""
     page.locator(".jp-SideBar .lm-TabBar-tab[data-id='JupyterlabChat:sidepanel']").click()
     panel = page.locator(".jp-chat-sidepanel")
     panel.locator(".jp-chat-add").first.click()
@@ -29,7 +25,6 @@ def send_chat_message(page, text: str):
 
 
 def wait_for_reply(messages, expected: str, timeout: float = 120) -> str:
-    """Wait until Jupyternaut's reply contains `expected` (failing immediately on `Error:`)."""
     deadline = time.monotonic() + timeout
     while True:
         reply = messages.filter(has_text="Jupyternaut").last
@@ -66,6 +61,5 @@ def test_jupyternaut_answers_through_the_gateway(jupyterlab_with_gateway, open_l
 
 
 def test_jupyternaut_asks_for_a_model_without_the_variables(lab_page):
-    """Without `HEXA_AI_*`, Jupyternaut prompts the user to configure a model."""
     messages = send_chat_message(lab_page, "hi")
     wait_for_reply(messages, "No chat model is configured")
