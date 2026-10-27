@@ -77,7 +77,7 @@ h help: ## Show this help
 
 ##@ Build
 
-build-base: ## Build the base image
+build-base: ## Build the base image, e.g. BASE_IMAGE=openhexa-base-environment:my-tag
 	$(DOCKER_BUILD) -t $(BASE_IMAGE) images/base
 
 build-blsq: build-base ## Build the blsq image (on top of base)
@@ -86,11 +86,11 @@ build-blsq: build-base ## Build the blsq image (on top of base)
 build-blsq-r: build-base ## Build the blsq-r image (on top of base, adds R)
 	$(DOCKER_BUILD) --build-arg BASE_IMAGE=$(BASE_IMAGE) -t $(BLSQ_R_IMAGE) images/blsq-r
 
-b build: build-base build-blsq build-blsq-r ## Build all three images
+b build: build-base build-blsq build-blsq-r ## Build all three images (BASE_IMAGE, BLSQ_IMAGE, BLSQ_R_IMAGE)
 
 ##@ Test
 
-test-base: ## Test the base image
+test-base: ## Test the base image, e.g. BASE_IMAGE=openhexa-base-environment:my-tag
 	$(PYTEST) --docker-image $(BASE_IMAGE)
 
 test-blsq: ## Test the blsq image
@@ -130,7 +130,7 @@ define run_image
 	@echo "JupyterLab: http://localhost:$(RUN_PORT)/lab?token=$(RUN_TOKEN)  (container $(call run_name,$(1)); make stop to remove)"
 endef
 
-run-base: ## Serve the base image as JupyterLab on RUN_PORT (default 8890)
+run-base: ## Serve the base image as JupyterLab, e.g. RUN_PORT=8891 RUN_FAKE_GATEWAY=1 RUN_ARGS="-e HEXA_..."
 	$(call run_image,$(BASE_IMAGE))
 
 run-blsq: ## Serve the blsq image as JupyterLab on RUN_PORT
@@ -148,4 +148,4 @@ deps: ## Install the Python test dependencies and the Chromium the UI tests driv
 	pip install .
 	python -m playwright install chromium
 
-ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r
+ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r, e.g. BASE_IMAGE=... BLSQ_IMAGE=... BLSQ_R_IMAGE=...
