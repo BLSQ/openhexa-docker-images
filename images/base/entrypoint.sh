@@ -23,11 +23,16 @@ show_help() {
 }
 
 case "$command" in
-"notebook")
-  start-notebook.sh $arguments
-  ;;
-"singleuser")
-  start-singleuser.sh $arguments
+"notebook" | "singleuser")
+  # Jupyternaut's file tools default to the working directory: make it the
+  # server root (jupyter_notebook_config.py). The workspace bucket is mounted
+  # after the server starts (post-start hook): wait for it, so the directory
+  # is the mount, not the one hidden under it.
+  if [[ -n $WORKSPACE_BUCKET_NAME && $WORKSPACE_STORAGE_ENGINE != local ]]; then
+    timeout 60 bash -c 'until mountpoint -q /home/jovyan/workspace; do sleep 1; done' || echo "Workspace not mounted after 60s, starting anyway"
+  fi
+  mkdir -p /home/jovyan/workspace && cd /home/jovyan/workspace
+  start-$command.sh $arguments
   ;;
 "pipeline")
   if [[ "$REMOTE_DEBUGGER" == "true" ]]; then
