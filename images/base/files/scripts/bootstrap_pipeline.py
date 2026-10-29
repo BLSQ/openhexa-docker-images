@@ -3,6 +3,8 @@ import argparse
 import base64
 import json
 import os
+import shutil
+import signal
 import subprocess
 import sys
 import traceback
@@ -12,6 +14,9 @@ import papermill as pm
 import requests
 from openhexa.sdk import workspace
 from openhexa.sdk.pipelines import download_pipeline, import_pipeline
+
+# py-spy writes the profile here when it stops (HEXA_PROFILE=true)
+PROFILE_PATH = "/tmp/hexa_profile.txt"
 
 
 def run_pipeline(config):
@@ -45,6 +50,41 @@ def run_pipeline(config):
         print("Running pipeline...")
         pipeline = import_pipeline("pipeline")
         pipeline(config=config)
+
+
+def start_profiler():
+    """Sample this process and its subprocesses (task pool workers, papermill
+    kernel) with py-spy. Profiling never changes the pipeline's result: any
+    failure is only a warning."""
+    try:
+        return subprocess.Popen(
+            ["py-spy", "record", "--pid", str(os.getpid()), "--subprocesses"]
+            + ["--idle", "--nonblocking", "--format", "raw", "-o", PROFILE_PATH]
+        )
+    except OSError as e:  # EPERM without SYS_PTRACE, see the Dockerfile
+        print(f"Warning: profiler could not start: {e}", file=sys.stderr)
+        return None
+
+
+def stop_profiler(profiler, command):
+    try:
+        profiler.send_signal(signal.SIGINT)  # py-spy writes the file on SIGINT
+        profiler.wait(timeout=10)
+        path = Path(PROFILE_PATH)
+        if not path.exists():
+            raise RuntimeError("py-spy wrote no profile")
+        if command == "cloudrun":  # the workspace bucket is mounted there
+            path = (
+                Path(workspace.files_path)
+                / ".profiles"
+                / f"{os.environ['HEXA_RUN_ID']}.txt"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(PROFILE_PATH, path)
+        print(f"Profile saved to {path}")
+    except Exception as e:
+        profiler.kill()
+        print(f"Warning: no profile saved: {e}", file=sys.stderr)
 
 
 def configure_cloud_run():
@@ -127,6 +167,15 @@ if __name__ == "__main__":
 
             print("Pipeline downloaded.")
 
+    profiler = start_profiler() if os.getenv("HEXA_PROFILE") == "true" else None
+    if profiler:
+        # A timed-out run gets SIGTERM, then SIGKILL 30s later: save the
+        # profile in between. os._exit, as unwinding the task pool can hang.
+        def on_sigterm(signum, frame):
+            stop_profiler(profiler, args.command)
+            os._exit(128 + signum)
+
+        signal.signal(signal.SIGTERM, on_sigterm)
     try:
         run_pipeline(pipeline_config)
         print("Pipeline completed.")
@@ -134,3 +183,7 @@ if __name__ == "__main__":
         print(f"Pipeline failed: {e}", file=sys.stderr)
         traceback.print_exc()
         sys.exit(1)
+    finally:
+        if profiler:  # also for failed runs
+            signal.signal(signal.SIGTERM, signal.SIG_IGN)
+            stop_profiler(profiler, args.command)
