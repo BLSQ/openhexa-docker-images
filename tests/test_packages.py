@@ -34,7 +34,7 @@ PYTHON_MODULES = {
 
 R_PACKAGES = {
     "base": [],
-    "blsq": ["IRkernel", "arrow", "sf", "raster", "RPostgres", "GISTools", "OpenStreetMap"],
+    "blsq": ["IRkernel", "arrow", "sf", "raster", "RPostgres", "GISTools", "OpenStreetMap", "openhexa"],
     "blsq-r": [
         "IRkernel",
         "arrow",
@@ -46,6 +46,7 @@ R_PACKAGES = {
         "GISTools",
         "OpenStreetMap",
         "DHS.rates",
+        "openhexa",
     ],
 }
 

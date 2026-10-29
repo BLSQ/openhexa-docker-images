@@ -75,6 +75,7 @@ RUN if [ "$(uname -m)" = x86_64 ]; then \
     r-qpdf \
     r-pagedown \
     r-httr \
+    r-httr2 \
     r-reticulate \
     r-survey \
     # rJava for OpenStreetMap (CRAN, below): building it from source fails
@@ -96,6 +97,16 @@ RUN if [ "$(uname -m)" != x86_64 ]; then \
       R -e "install.packages(c('getPass', 'RPostgres', 'fpp3'), quiet=TRUE, repos='https://cran.r-project.org/', Ncpus=parallel::detectCores())" && \
       R -e "pkgs <- c('getPass', 'RPostgres', 'fpp3'); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if (length(missing)) stop('CRAN packages failed to install: ', paste(missing, collapse = ', '))"; \
     fi
+
+# The OpenHEXA R SDK, pinned to a release of https://github.com/BLSQ/openhexa-sdk-r.
+# r-httr2 comes from conda above, its other imports with the R packages there:
+# repos = NULL installs the archive alone, and the check fails the build if the
+# package or one of its dependencies is missing. Also installed in blsq:
+# Renovate bumps both in the same PR.
+# renovate: datasource=github-releases depName=BLSQ/openhexa-sdk-r extractVersion=^v(?<version>.*)$
+ARG OPENHEXA_R_SDK_VERSION=0.1.1
+RUN R -e "install.packages('https://github.com/BLSQ/openhexa-sdk-r/archive/refs/tags/v${OPENHEXA_R_SDK_VERSION}.tar.gz', repos = NULL, type = 'source')" \
+    && R -e "if (!requireNamespace('openhexa', quietly = TRUE) || packageVersion('openhexa') != '${OPENHEXA_R_SDK_VERSION}') stop('The openhexa R package failed to install')"
 
 USER ${NB_UID}
 WORKDIR $HOME
