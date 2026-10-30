@@ -24,7 +24,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # self-contained; the conda-forge package needs conda activation scripts that
 # these images never run.
 # renovate: datasource=github-releases depName=quarto-dev/quarto-cli extractVersion=^v(?<version>.*)$
-ARG QUARTO_VERSION=1.10.19
+ARG QUARTO_VERSION=1.10.20
 RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-$(dpkg --print-architecture).deb" && \
     dpkg -i /tmp/quarto.deb && \
     rm /tmp/quarto.deb
