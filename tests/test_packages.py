@@ -100,3 +100,14 @@ cat('TRANSFORMED', round(st_coordinates(p)), '\\n')" 2>&1
 """
     out = run_in_image(docker_image, script)
     assert "TRANSFORMED 484240 6585992" in out, out
+
+
+def test_r_sessions_attach_openhexa(docker_image, image_flavor):
+    """Rprofile.site attaches the OpenHEXA R SDK, so notebooks can call its
+    functions without library(openhexa)."""
+    if image_flavor == "base":
+        pytest.skip("no R in the base image")
+    script = """Rscript -e "cat('ATTACHED', 'package:openhexa' %in% search(), is.function(get_user), '\\n')" 2>&1
+"""
+    out = run_in_image(docker_image, script)
+    assert "ATTACHED TRUE TRUE" in out, out
