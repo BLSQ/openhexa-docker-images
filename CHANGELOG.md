@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.0...1.18.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* auto import openhexa R client in notebooks ([#167](https://github.com/BLSQ/openhexa-docker-images/issues/167)) ([1592ba1](https://github.com/BLSQ/openhexa-docker-images/commit/1592ba162048b72d75831d54581a7c87084d0d1f))
+
 ## [1.18.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.11...1.18.0) (2026-10-29)
 
 
