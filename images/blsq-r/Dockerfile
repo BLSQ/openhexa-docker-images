@@ -108,6 +108,11 @@ ARG OPENHEXA_R_SDK_VERSION=0.1.1
 RUN R -e "install.packages('https://github.com/BLSQ/openhexa-sdk-r/archive/refs/tags/v${OPENHEXA_R_SDK_VERSION}.tar.gz', repos = NULL, type = 'source')" \
     && R -e "if (!requireNamespace('openhexa', quietly = TRUE) || packageVersion('openhexa') != '${OPENHEXA_R_SDK_VERSION}') stop('The openhexa R package failed to install')"
 
+# Attach the OpenHEXA R SDK in every R session, so notebooks can call get_user()
+# etc. without library(openhexa). Appended to the Rprofile.site of the Jupyter
+# base image, which sets the plot mimetypes.
+RUN echo 'options(defaultPackages = c(getOption("defaultPackages"), "openhexa"))' >> "$(R RHOME)/etc/Rprofile.site"
+
 USER ${NB_UID}
 WORKDIR $HOME
 
