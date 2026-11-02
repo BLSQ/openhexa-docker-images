@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.1...1.18.2) (2026-11-02)
+
+
+### Bug Fixes
+
+* add context to headers urrllib and requests (HEXA-1877) ([#170](https://github.com/BLSQ/openhexa-docker-images/issues/170)) ([3612d24](https://github.com/BLSQ/openhexa-docker-images/commit/3612d24ad72b3b2199febadc2f39021b9dca5f40))
+
 ## [1.18.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.0...1.18.1) (2026-10-30)
 
 
