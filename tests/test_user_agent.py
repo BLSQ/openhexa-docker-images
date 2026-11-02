@@ -1,6 +1,5 @@
 import json
 import re
-import shutil
 from pathlib import Path
 
 from .testutils import run_in_image, run_local_pipeline
@@ -64,25 +63,34 @@ def test_code_pipeline_sends_user_agent_from_main_and_task(docker_image):
 
 
 def test_notebook_pipeline_sends_user_agent_from_kernel(docker_image):
-    notebook_dir = pipelines_dir / "user_agent_notebook"
-    # bootstrap_pipeline.py writes the executed notebook there.
-    outputs_dir = notebook_dir / ".runs_outputs"
-    try:
-        logs = run_local_pipeline(
-            docker_image,
-            notebook_dir,
-            {
-                **RUN_CONTEXT,
-                "HEXA_PIPELINE_TYPE": "notebook",
-                "HEXA_NOTEBOOK_PATH": "user_agent.ipynb",
-                # workspace.files_path, where the notebook is looked up.
-                "WORKSPACE_FILES_PATH": "/home/hexa/pipeline",
-            },
-        )
-        assert "Pipeline completed." in logs, logs
-        executed = json.loads((outputs_dir / "user_agent.ipynb").read_text())
-    finally:
-        shutil.rmtree(outputs_dir, ignore_errors=True)
+    # bootstrap_pipeline.py writes the executed notebook to .runs_outputs next
+    # to the notebook. A bind mount is not writable by jovyan when the host
+    # directory belongs to another uid (Linux, CI), so the notebook is written
+    # inside the container and the executed one printed after a marker.
+    notebook = (pipelines_dir / "user_agent_notebook" / "user_agent.ipynb").read_text()
+    out = run_in_image(
+        docker_image,
+        f"""set -e
+mkdir -p /tmp/workspace
+cat > /tmp/workspace/user_agent.ipynb <<'NOTEBOOK'
+{notebook}
+NOTEBOOK
+/usr/local/bin/entrypoint.sh pipeline run
+echo EXECUTED NOTEBOOK
+cat /tmp/workspace/.runs_outputs/user_agent.ipynb
+""",
+        environment={
+            **RUN_CONTEXT,
+            "HEXA_ENVIRONMENT": "LOCAL_PIPELINE",
+            "HEXA_PIPELINE_TYPE": "notebook",
+            "HEXA_NOTEBOOK_PATH": "user_agent.ipynb",
+            # workspace.files_path, where the notebook is looked up.
+            "WORKSPACE_FILES_PATH": "/tmp/workspace",
+        },
+    )
+    logs, _, executed = out.partition("EXECUTED NOTEBOOK\n")
+    assert "Pipeline completed." in logs, out
+    executed = json.loads(executed)
     text = "".join(
         "".join(output.get("text", ""))
         for cell in executed["cells"]
