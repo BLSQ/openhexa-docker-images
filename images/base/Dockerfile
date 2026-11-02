@@ -104,6 +104,9 @@ RUN site_packages="$(python -c 'import site; print(site.getsitepackages()[0])')"
     echo "${site_packages}/sitecustomize.py already exists" >&2; exit 1; \
   fi && \
   mv /tmp/sitecustomize.py "${site_packages}/" && \
+  # Compile it now, as jovyan: otherwise the first Python run of a child image
+  # running as root writes a root-owned .pyc that fix-permissions cannot chgrp.
+  python -m py_compile "${site_packages}/sitecustomize.py" && \
   fix-permissions "${CONDA_DIR}"
 
 # custom config
