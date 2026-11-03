@@ -60,10 +60,21 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(scope="session")
 def docker_image(request):
-    """Fixture that returns the docker image specified via command line or None."""
+    """The image under test, from `--docker-image`. CI builds it with buildx and
+    pushes it to a local registry only, so pull it into the daemon when it is
+    not there yet: `containers.run` does that by itself, `containers.create`
+    does not, and test files run in alphabetical order."""
     docker_image = request.config.getoption("--docker-image")
     if docker_image is None:
         pytest.fail("Docker image not specified")
+    client = docker.from_env()
+    try:
+        try:
+            client.images.get(docker_image)
+        except docker.errors.ImageNotFound:
+            client.images.pull(docker_image)
+    finally:
+        client.close()
     return docker_image
 
 
