@@ -91,7 +91,7 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   'duckdb>=1.3,<1.5' \
   # Install openhexa-sdk & openhexa-toolbox from anaconda \
   'bioconda::epiweeks' \
-  'openhexa.sdk=2.23.0' \
+  'openhexa.sdk=2.23.1' \
   'openhexa.toolbox=2.11.3' \
   # Jupyter extensions
   'jupyter-resource-usage' \
@@ -110,6 +110,19 @@ RUN pip install --no-cache-dir 'jupyterlab-quarto>=0.3,<0.4' && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
+
+# Sets the OpenHEXA User-Agent in pipeline runs (see the file). The build fails
+# if the base image ever ships a sitecustomize of its own: merge ours into it.
+COPY --chown=${NB_UID}:${NB_GID} files/sitecustomize.py /tmp/sitecustomize.py
+RUN site_packages="$(python -c 'import site; print(site.getsitepackages()[0])')" && \
+  if [ -e "${site_packages}/sitecustomize.py" ]; then \
+    echo "${site_packages}/sitecustomize.py already exists" >&2; exit 1; \
+  fi && \
+  mv /tmp/sitecustomize.py "${site_packages}/" && \
+  # Compile it now, as jovyan: otherwise the first Python run of a child image
+  # running as root writes a root-owned .pyc that fix-permissions cannot chgrp.
+  python -m py_compile "${site_packages}/sitecustomize.py" && \
+  fix-permissions "${CONDA_DIR}"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/

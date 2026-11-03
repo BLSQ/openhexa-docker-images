@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.18.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.1...1.18.2) (2026-11-02)
+
+
+### Bug Fixes
+
+* add context to headers urrllib and requests (HEXA-1877) ([#170](https://github.com/BLSQ/openhexa-docker-images/issues/170)) ([3612d24](https://github.com/BLSQ/openhexa-docker-images/commit/3612d24ad72b3b2199febadc2f39021b9dca5f40))
+
+## [1.18.1](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.0...1.18.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* auto import openhexa R client in notebooks ([#167](https://github.com/BLSQ/openhexa-docker-images/issues/167)) ([1592ba1](https://github.com/BLSQ/openhexa-docker-images/commit/1592ba162048b72d75831d54581a7c87084d0d1f))
+
+## [1.18.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.11...1.18.0) (2026-10-29)
+
+
+### Features
+
+* add SDK R client ([#166](https://github.com/BLSQ/openhexa-docker-images/issues/166)) ([19ccbc6](https://github.com/BLSQ/openhexa-docker-images/commit/19ccbc6900843ff53141752abed1c6a340bf62ed))
+
+
+### Bug Fixes
+
+* **deps:** update dependency colorist to v1.8.15 ([#157](https://github.com/BLSQ/openhexa-docker-images/issues/157)) ([b756476](https://github.com/BLSQ/openhexa-docker-images/commit/b756476aeeb8e0a63741df948976c78b188d5e40))
+
+
+### Miscellaneous
+
+* Add support for Quarto markdown (HEXA-1800) ([#160](https://github.com/BLSQ/openhexa-docker-images/issues/160)) ([7608338](https://github.com/BLSQ/openhexa-docker-images/commit/7608338ab43ff2ebb17aa9afda3cf4e2ef329899))
+* Improve tooling and testing strategies ([#161](https://github.com/BLSQ/openhexa-docker-images/issues/161)) ([50df0b8](https://github.com/BLSQ/openhexa-docker-images/commit/50df0b8f4beea9061dfb481c60db3984ee60fb8a))
+* **makefile:** show help by default and echo all commands ([75e1ab1](https://github.com/BLSQ/openhexa-docker-images/commit/75e1ab10a723741db4c7d0ce2b861835ec22caf8))
+* upgrade OH SDK version to 2.23.0 ([#164](https://github.com/BLSQ/openhexa-docker-images/issues/164)) ([99a1bb1](https://github.com/BLSQ/openhexa-docker-images/commit/99a1bb1794d5d880a26c7c625243c1ad15f5dcbc))
+
 ## [1.17.11](https://github.com/BLSQ/openhexa-docker-images/compare/1.17.10...1.17.11) (2026-08-21)
 
 
