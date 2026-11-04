@@ -85,10 +85,11 @@ def run_in_image(
 class ProfiledRun(NamedTuple):
     exit_code: int
     logs: str
-    # py-spy's raw profile, one (frames, sample count) per stack, outermost
-    # frame first; with --subprocesses, each process in the chain adds a
-    # `process <pid>:"<command>"` frame. Empty when no profile was saved.
-    stacks: list[tuple[list[str], int]]
+    # py-spy's Chrome trace: "B" and "E" events when a frame enters and leaves
+    # the stack of a thread. With --subprocesses, each process in the chain
+    # adds a `process <pid>:"<command>"` frame. Empty when no profile was
+    # saved.
+    events: list[dict]
 
 
 def run_profiled_pipeline(
@@ -127,50 +128,58 @@ def run_profiled_pipeline(
                 container.stop(timeout=30)
             exit_code = container.wait()["StatusCode"]
             logs = container.logs().decode("utf-8")
-            stacks = read_profile(container)
+            events = read_profile(container)
         finally:
             container.remove(force=True)
 
         print("\n")
         effect_underline(f"Pipeline logs (exit code {exit_code})")
         effect_dim(logs)
-        print_profile_summary(stacks)
-        return ProfiledRun(exit_code, logs, stacks)
+        print_profile_summary(events)
+        return ProfiledRun(exit_code, logs, events)
     finally:
         client.close()
 
 
-def read_profile(container) -> list[tuple[list[str], int]]:
+def read_profile(container) -> list[dict]:
     try:
-        stream, _ = container.get_archive("/tmp/hexa_profile.txt")
+        stream, _ = container.get_archive("/tmp/hexa_profile.json")
     except docker.errors.NotFound:
         return []
     with tarfile.open(fileobj=io.BytesIO(b"".join(stream))) as tar:
         raw = tar.extractfile(tar.getmembers()[0]).read().decode("utf-8", "replace")
-    stacks, line = [], ""
-    for part in raw.splitlines():
-        line += part
-        frames, _, count = line.rpartition(" ")
-        if count.isdigit():
-            stacks.append((frames.split(";"), int(count)))
-            line = ""
-        else:
-            line += "\n"
-    return stacks
+    return json.loads(raw)
 
 
-def print_profile_summary(stacks: list[tuple[list[str], int]], top: int = 10):
-    """Print the samples per process and the functions they were taken in."""
-    processes, functions = Counter(), Counter()
-    for frames, count in stacks:
-        processes[[f for f in frames if f.startswith("process ")][-1][:100]] += count
-        functions[frames[-1]] += count
-    effect_underline(f"Profile: {sum(processes.values())} samples")
+def frame_times(events: list[dict]) -> Counter:
+    """Return the seconds spent in each (pid, frame name), callees included."""
+    stacks, times = {}, Counter()
+    for event in events:
+        stack = stacks.setdefault((event["pid"], event["tid"]), [])
+        if event["ph"] == "B":
+            stack.append((event["name"], event["ts"]))
+        elif stack:
+            name, start = stack.pop()
+            times[(event["pid"], name)] += (event["ts"] - start) / 1e6
+    return times
+
+
+def process_names(events: list[dict]) -> dict[int, str]:
+    return {
+        event["pid"]: event["name"]
+        for event in events
+        if event["ph"] == "B" and event["name"].startswith(f"process {event['pid']}:")
+    }
+
+
+def print_profile_summary(events: list[dict], top: int = 10):
+    """Print the functions that took the most time, per process."""
+    names = process_names(events)
+    times = frame_times(events)
+    effect_underline(f"Profile: {len(events)} events")
     effect_dim(
         "\n".join(
-            ["Samples per process:"]
-            + [f"{n:>7}  {p}" for p, n in processes.most_common()]
-            + [f"Top {top} functions sampled:"]
-            + [f"{n:>7}  {f}" for f, n in functions.most_common(top)]
+            f"{seconds:>7.2f}s  {name}  ({names.get(pid, pid)[:60]})"
+            for (pid, name), seconds in times.most_common(top)
         )
     )
