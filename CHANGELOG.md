@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.2...1.18.3) (2026-11-04)
+
+
+### Miscellaneous
+
+* **deps:** update dependency blsq/openhexa-sdk-r to v0.1.2 ([#174](https://github.com/BLSQ/openhexa-docker-images/issues/174)) ([4461b89](https://github.com/BLSQ/openhexa-docker-images/commit/4461b894f12975cbba89659b003d95253361213d))
+
 ## [1.18.2](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.1...1.18.2) (2026-11-02)
 
 
