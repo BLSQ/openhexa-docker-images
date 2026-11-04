@@ -104,7 +104,7 @@ RUN if [ "$(uname -m)" != x86_64 ]; then \
 # package or one of its dependencies is missing. Also installed in blsq:
 # Renovate bumps both in the same PR.
 # renovate: datasource=github-releases depName=BLSQ/openhexa-sdk-r extractVersion=^v(?<version>.*)$
-ARG OPENHEXA_R_SDK_VERSION=0.1.1
+ARG OPENHEXA_R_SDK_VERSION=0.1.2
 RUN R -e "install.packages('https://github.com/BLSQ/openhexa-sdk-r/archive/refs/tags/v${OPENHEXA_R_SDK_VERSION}.tar.gz', repos = NULL, type = 'source')" \
     && R -e "if (!requireNamespace('openhexa', quietly = TRUE) || packageVersion('openhexa') != '${OPENHEXA_R_SDK_VERSION}') stop('The openhexa R package failed to install')"
 
