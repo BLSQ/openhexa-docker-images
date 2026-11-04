@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import argparse
 import base64
+import gzip
 import json
 import os
-import shutil
+import re
 import signal
 import subprocess
 import sys
@@ -14,9 +15,16 @@ import papermill as pm
 import requests
 from openhexa.sdk import workspace
 from openhexa.sdk.pipelines import download_pipeline, import_pipeline
+from openhexa.sdk.utils import graphql
 
 # py-spy writes the profile here when it stops (HEXA_PROFILE=true)
-PROFILE_PATH = "/tmp/hexa_profile.txt"
+PROFILE_PATH = "/tmp/hexa_profile.json"
+# The server refuses larger profiles, and requests above a few MB
+MAX_PROFILE_SIZE = 100 * 1024 * 1024
+MAX_COMPRESSED_PROFILE_SIZE = 3_500_000
+# py-spy names process frames after their command line, which holds the run
+# config and therefore secret parameters
+PROFILE_CONFIG_ARGUMENT = re.compile(rb"(--config[= ])[A-Za-z0-9+/=_-]+")
 
 
 def run_pipeline(config):
@@ -59,7 +67,12 @@ def start_profiler():
     try:
         return subprocess.Popen(
             ["py-spy", "record", "--pid", str(os.getpid()), "--subprocesses"]
-            + ["--idle", "--nonblocking", "--format", "raw", "-o", PROFILE_PATH]
+            # A Chrome trace keeps when each frame ran in each process, to show
+            # tasks running in parallel
+            + ["--idle", "--nonblocking", "--format", "chrometrace"]
+            + ["-o", PROFILE_PATH]
+            # Full paths tell pipeline code from libraries
+            + ["--full-filenames"]
         )
     except OSError as e:  # EPERM without SYS_PTRACE, see the Dockerfile
         print(f"Warning: profiler could not start: {e}", file=sys.stderr)
@@ -73,18 +86,38 @@ def stop_profiler(profiler, command):
         path = Path(PROFILE_PATH)
         if not path.exists():
             raise RuntimeError("py-spy wrote no profile")
-        if command == "cloudrun":  # the workspace bucket is mounted there
-            path = (
-                Path(workspace.files_path)
-                / ".profiles"
-                / f"{os.environ['HEXA_RUN_ID']}.txt"
-            )
-            path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(PROFILE_PATH, path)
+        path.write_bytes(
+            PROFILE_CONFIG_ARGUMENT.sub(rb"\1<redacted>", path.read_bytes())
+        )
         print(f"Profile saved to {path}")
+        if command == "cloudrun":
+            upload_profile(path)
+            print("Profile uploaded.")
     except Exception as e:
         profiler.kill()
         print(f"Warning: no profile saved: {e}", file=sys.stderr)
+
+
+def upload_profile(path):
+    if path.stat().st_size > MAX_PROFILE_SIZE:
+        raise RuntimeError("profile is too large to upload")
+    compressed = gzip.compress(path.read_bytes())
+    if len(compressed) > MAX_COMPRESSED_PROFILE_SIZE:
+        raise RuntimeError("profile is too large to upload")
+    profile = base64.b64encode(compressed).decode()
+    result = graphql(
+        """
+        mutation uploadPipelineRunProfile($input: UploadPipelineRunProfileInput!) {
+            uploadPipelineRunProfile(input: $input) {
+                success
+                errors
+            }
+        }
+        """,
+        {"input": {"profile": profile}},
+    )["uploadPipelineRunProfile"]
+    if not result["success"]:
+        raise RuntimeError(f"upload failed: {', '.join(result['errors'])}")
 
 
 def configure_cloud_run():
