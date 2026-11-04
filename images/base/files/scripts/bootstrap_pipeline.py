@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import argparse
 import base64
+import gzip
 import json
 import os
+import re
+import signal
 import subprocess
 import sys
 import traceback
@@ -12,6 +15,16 @@ import papermill as pm
 import requests
 from openhexa.sdk import workspace
 from openhexa.sdk.pipelines import download_pipeline, import_pipeline
+from openhexa.sdk.utils import graphql
+
+# py-spy writes the profile here when it stops (HEXA_PROFILE=true)
+PROFILE_PATH = "/tmp/hexa_profile.json"
+# The server refuses larger profiles, and requests above a few MB
+MAX_PROFILE_SIZE = 100 * 1024 * 1024
+MAX_COMPRESSED_PROFILE_SIZE = 3_500_000
+# py-spy names process frames after their command line, which holds the run
+# config and therefore secret parameters
+PROFILE_CONFIG_ARGUMENT = re.compile(rb"(--config[= ])[A-Za-z0-9+/=_-]+")
 
 
 def run_pipeline(config):
@@ -45,6 +58,66 @@ def run_pipeline(config):
         print("Running pipeline...")
         pipeline = import_pipeline("pipeline")
         pipeline(config=config)
+
+
+def start_profiler():
+    """Sample this process and its subprocesses (task pool workers, papermill
+    kernel) with py-spy. Profiling never changes the pipeline's result: any
+    failure is only a warning."""
+    try:
+        return subprocess.Popen(
+            ["py-spy", "record", "--pid", str(os.getpid()), "--subprocesses"]
+            # A Chrome trace keeps when each frame ran in each process, to show
+            # tasks running in parallel
+            + ["--idle", "--nonblocking", "--format", "chrometrace"]
+            + ["-o", PROFILE_PATH]
+            # Full paths tell pipeline code from libraries
+            + ["--full-filenames"]
+        )
+    except OSError as e:  # EPERM without SYS_PTRACE, see the Dockerfile
+        print(f"Warning: profiler could not start: {e}", file=sys.stderr)
+        return None
+
+
+def stop_profiler(profiler, command):
+    try:
+        profiler.send_signal(signal.SIGINT)  # py-spy writes the file on SIGINT
+        profiler.wait(timeout=10)
+        path = Path(PROFILE_PATH)
+        if not path.exists():
+            raise RuntimeError("py-spy wrote no profile")
+        path.write_bytes(
+            PROFILE_CONFIG_ARGUMENT.sub(rb"\1<redacted>", path.read_bytes())
+        )
+        print(f"Profile saved to {path}")
+        if command == "cloudrun":
+            upload_profile(path)
+            print("Profile uploaded.")
+    except Exception as e:
+        profiler.kill()
+        print(f"Warning: no profile saved: {e}", file=sys.stderr)
+
+
+def upload_profile(path):
+    if path.stat().st_size > MAX_PROFILE_SIZE:
+        raise RuntimeError("profile is too large to upload")
+    compressed = gzip.compress(path.read_bytes())
+    if len(compressed) > MAX_COMPRESSED_PROFILE_SIZE:
+        raise RuntimeError("profile is too large to upload")
+    profile = base64.b64encode(compressed).decode()
+    result = graphql(
+        """
+        mutation uploadPipelineRunProfile($input: UploadPipelineRunProfileInput!) {
+            uploadPipelineRunProfile(input: $input) {
+                success
+                errors
+            }
+        }
+        """,
+        {"input": {"profile": profile}},
+    )["uploadPipelineRunProfile"]
+    if not result["success"]:
+        raise RuntimeError(f"upload failed: {', '.join(result['errors'])}")
 
 
 def configure_cloud_run():
@@ -127,6 +200,15 @@ if __name__ == "__main__":
 
             print("Pipeline downloaded.")
 
+    profiler = start_profiler() if os.getenv("HEXA_PROFILE") == "true" else None
+    if profiler:
+        # A timed-out run gets SIGTERM, then SIGKILL 30s later: save the
+        # profile in between. os._exit, as unwinding the task pool can hang.
+        def on_sigterm(signum, frame):
+            stop_profiler(profiler, args.command)
+            os._exit(128 + signum)
+
+        signal.signal(signal.SIGTERM, on_sigterm)
     try:
         run_pipeline(pipeline_config)
         print("Pipeline completed.")
@@ -134,3 +216,7 @@ if __name__ == "__main__":
         print(f"Pipeline failed: {e}", file=sys.stderr)
         traceback.print_exc()
         sys.exit(1)
+    finally:
+        if profiler:  # also for failed runs
+            signal.signal(signal.SIGTERM, signal.SIG_IGN)
+            stop_profiler(profiler, args.command)
