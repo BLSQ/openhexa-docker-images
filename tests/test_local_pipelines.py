@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from tests.testutils import run_local_pipeline, run_profiled_pipeline
+from tests.testutils import (
+    frame_times,
+    process_names,
+    run_local_pipeline,
+    run_profiled_pipeline,
+)
 
 # Get the pipelines directory
 pipelines_dir = Path(__file__).parent / "pipelines"
@@ -36,22 +41,18 @@ def test_profiled_pipeline(docker_image):
     run = run_profiled_pipeline(docker_image, pipelines_dir / "profiled")
 
     assert run.exit_code == 0
-    assert "Profile saved to /tmp/hexa_profile.txt" in run.logs
+    assert "Profile saved to /tmp/hexa_profile.json" in run.logs
 
-    def processes(frames):
-        return [f for f in frames if f.startswith("process ")]
-
-    def functions(frames):
-        return [f.split(" (")[0] for f in frames if not f.startswith("process ")]
-
-    assert any(len(processes(frames)) == 1 for frames, _ in run.stacks)
-    worker_busy = sum(
-        count
-        for frames, count in run.stacks
-        if "spawn_main" in processes(frames)[-1]
-        and functions(frames)[-2:] == ["burn_cpu", "busy_loop"]
-    )
-    assert worker_busy >= 150, f"{worker_busy} samples in busy_loop, expected ~300"
+    names = process_names(run.events)
+    busy = {
+        pid: seconds
+        for (pid, name), seconds in frame_times(run.events).items()
+        if name == "busy_loop"
+    }
+    assert len(busy) == 1, busy
+    [(pid, seconds)] = busy.items()
+    assert "spawn_main" in names[pid], "busy_loop should run in a task worker"
+    assert seconds >= 2, f"{seconds:.2f}s in busy_loop, expected ~3s"
 
 
 def test_profiled_pipeline_without_ptrace(docker_image):
@@ -59,7 +60,7 @@ def test_profiled_pipeline_without_ptrace(docker_image):
 
     assert run.exit_code == 0
     assert "Warning: profiler could not start" in run.logs
-    assert run.stacks == []
+    assert run.events == []
 
 
 def test_profiled_pipeline_failure(docker_image):
@@ -69,8 +70,10 @@ def test_profiled_pipeline_failure(docker_image):
 
     assert run.exit_code == 1
     assert "Failing on purpose" in run.logs
-    assert "Profile saved to /tmp/hexa_profile.txt" in run.logs
-    assert run.stacks
+    assert "Profile saved to /tmp/hexa_profile.json" in run.logs
+    names = process_names(run.events).values()
+    assert any("--config <redacted>" in name for name in names)
+    assert not any("eyJmYWlsIjogdHJ1ZX0" in name for name in names)
 
 
 def test_profiled_pipeline_timeout(docker_image):
@@ -83,5 +86,5 @@ def test_profiled_pipeline_timeout(docker_image):
     )
 
     assert run.exit_code == 143  # SIGTERM, not 137 (SIGKILL)
-    assert "Profile saved to /tmp/hexa_profile.txt" in run.logs
-    assert run.stacks
+    assert "Profile saved to /tmp/hexa_profile.json" in run.logs
+    assert run.events
