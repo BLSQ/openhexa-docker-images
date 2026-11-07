@@ -31,7 +31,7 @@ RUN curl -fsSL -o /tmp/quarto.deb "https://github.com/quarto-dev/quarto-cli/rele
 
 # FUSE Google Cloud Storage
 # renovate: datasource=github-releases depName=GoogleCloudPlatform/gcsfuse extractVersion=^v(?<version>.*)$
-ARG GCSFUSE_VERSION=3.5.2
+ARG GCSFUSE_VERSION=3.13.0
 RUN gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
   curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
   gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
