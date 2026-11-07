@@ -89,9 +89,20 @@ RUN mamba install --yes  -c conda-forge -c blsqtech  \
   mamba clean --all -f -y && \
   fix-permissions "${CONDA_DIR}"
 
-# jupyterlab-quarto renders Quarto markdown (callouts, cross-references...) in
-# notebook cells. Only published on PyPI; it has no Python dependencies.
-RUN pip install --no-cache-dir 'jupyterlab-quarto>=0.3,<0.4' && \
+# Installed via pip rather than mamba: jupyterlab-quarto is PyPI-only, and
+# openhexa.sdk's conda package pins ariadne-codegen<0.15 (websockets<12), which
+# conflicts with jupyter-server-mcp (websockets>=15). The SDK does not use
+# GraphQL subscriptions at runtime, so a newer websockets is safe.
+RUN pip install --no-cache-dir \
+  'jupyterlab-quarto>=0.3,<0.4' \
+  'jupyter-ai>=3.2,<3.3' \
+  'jupyter-ai-jupyternaut>=0.1,<0.2' \
+  'jupyter-ai-litellm>=0.1,<0.2' \
+  # litellm >=1.106 requires mcp 2.x when tools are passed, conflicting with
+  # langchain-mcp-adapters (mcp<2).
+  'litellm<1.106' \
+  # Preserve openhexa.sdk's click pin.
+  'click~=8.1.3' && \
   fix-permissions "${CONDA_DIR}"
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
@@ -111,6 +122,7 @@ RUN site_packages="$(python -c 'import site; print(site.getsitepackages()[0])')"
 
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
+COPY jupyter_jupyter_ai_jupyternaut_config.py /etc/jupyter/
 COPY --chown=${NB_UID}:${NB_UID} files/overrides.json /opt/conda/share/jupyter/lab/settings/
 
 ENV HEXA_ENVIRONMENT=CLOUD_JUPYTER

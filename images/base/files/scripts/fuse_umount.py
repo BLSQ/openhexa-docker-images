@@ -4,6 +4,7 @@ import subprocess
 subprocess.run(
     [
         "umount",
+        "--lazy",  # the server's working directory is the mount
         "/home/jovyan/workspace",
     ]
 )
