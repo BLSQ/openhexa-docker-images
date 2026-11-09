@@ -36,6 +36,16 @@ RUN_PORT     ?= 8890
 RUN_TOKEN    ?= hexa
 RUN_PREFIX   ?= openhexa-run
 run_name      = $(RUN_PREFIX)-$(subst :,-,$(subst /,-,$(1)))
+RUN_ARGS     ?=
+# Set RUN_FAKE_GATEWAY=1 to point Jupyternaut at tests/fake_gateway.py inside
+# the container so chat works without OpenHEXA or model credentials.
+RUN_FAKE_GATEWAY ?=
+ifneq ($(strip $(RUN_FAKE_GATEWAY)),)
+RUN_ARGS  += -e HEXA_AI_PROVIDER=openhexa -e HEXA_AI_MODEL=claude-opus-4-6 \
+	-e HEXA_SERVER_URL=http://127.0.0.1:4318/ -e HEXA_TOKEN=workspace-token:signature \
+	-e FAKE_GATEWAY="$$(cat tests/fake_gateway.py)"
+RUN_SETUP  = python -c "$$FAKE_GATEWAY" &
+endif
 
 # docker-py ignores Docker CLI contexts, so pin both build and tests to the active endpoint.
 ifeq ($(strip $(DOCKER_HOST)),)
@@ -62,7 +72,7 @@ h help: ## Show this help
 
 ##@ Build
 
-build-base: ## Build the base image
+build-base: ## Build the base image, e.g. BASE_IMAGE=openhexa-base-environment:my-tag
 	$(DOCKER_BUILD) -t $(BASE_IMAGE) images/base
 
 build-blsq: build-base ## Build the blsq image (on top of base)
@@ -71,11 +81,11 @@ build-blsq: build-base ## Build the blsq image (on top of base)
 build-blsq-r: build-base ## Build the blsq-r image (on top of base, adds R)
 	$(DOCKER_BUILD) --build-arg BASE_IMAGE=$(BASE_IMAGE) -t $(BLSQ_R_IMAGE) images/blsq-r
 
-b build: build-base build-blsq build-blsq-r ## Build all three images
+b build: build-base build-blsq build-blsq-r ## Build all three images (BASE_IMAGE, BLSQ_IMAGE, BLSQ_R_IMAGE)
 
 ##@ Test
 
-test-base: ## Test the base image
+test-base: ## Test the base image, e.g. BASE_IMAGE=openhexa-base-environment:my-tag
 	$(PYTEST) --docker-image $(BASE_IMAGE)
 
 test-blsq: ## Test the blsq image
@@ -104,8 +114,8 @@ test-blsq-r-viz: ## Watch the ui tests of the blsq-r image in a Chromium window
 define run_image
 	docker rm -f $(call run_name,$(1)) >/dev/null 2>&1 || true
 	docker run -d --name $(call run_name,$(1)) -p 127.0.0.1:$(RUN_PORT):8888 \
-		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" \
-		--entrypoint bash $(1) -c 'mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
+		-e CONTENT_SECURITY_POLICY="frame-ancestors 'self'" $(RUN_ARGS) \
+		--entrypoint bash $(1) -c '$(RUN_SETUP) mkdir -p ~/workspace && exec /usr/local/bin/entrypoint.sh notebook --ServerApp.token=$(RUN_TOKEN) --ServerApp.password='
 	@for i in $$(seq 1 120); do \
 		curl -sf -o /dev/null "http://127.0.0.1:$(RUN_PORT)/api/status?token=$(RUN_TOKEN)" && exit 0; \
 		[ "$$(docker inspect -f '{{.State.Running}}' $(call run_name,$(1)))" = true ] \
@@ -115,7 +125,7 @@ define run_image
 	@echo "JupyterLab: http://localhost:$(RUN_PORT)/lab?token=$(RUN_TOKEN)  (container $(call run_name,$(1)); make stop to remove)"
 endef
 
-run-base: ## Serve the base image as JupyterLab on RUN_PORT (default 8890)
+run-base: ## Serve the base image as JupyterLab, e.g. RUN_PORT=8891 RUN_FAKE_GATEWAY=1 RUN_ARGS="-e HEXA_..."
 	$(call run_image,$(BASE_IMAGE))
 
 run-blsq: ## Serve the blsq image as JupyterLab on RUN_PORT
@@ -133,4 +143,4 @@ deps: ## Install the Python test dependencies and the Chromium the UI tests driv
 	pip install .
 	python -m playwright install chromium
 
-ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r
+ci: build-base test-base build-blsq test-blsq build-blsq-r test-blsq-r ## Full pipeline: build + test base, blsq, blsq-r, e.g. BASE_IMAGE=... BLSQ_IMAGE=... BLSQ_R_IMAGE=...

@@ -52,9 +52,12 @@ To run a single test file directly:
 make test-base PYTEST="python -m pytest tests/test_quarto_ui.py --headed --slowmo 500"
 ```
 
-`make` lists the build, test and run targets; `make run-base` serves an image
-as JupyterLab on http://localhost:8890/lab?token=hexa (`RUN_PORT` and
-`RUN_TOKEN` to change) and `make stop` removes it.
+`make` lists the build, test and run targets. `make run-base` starts a
+standalone JupyterLab server on http://localhost:8890/lab?token=hexa
+(override with `RUN_PORT` and `RUN_TOKEN`) and `make stop` removes it. Pass
+`RUN_ARGS` to add `docker run` flags (such as `HEXA_*` environment variables)
+or `RUN_FAKE_GATEWAY=1` to test the Jupyternaut chat against a local fake
+gateway.
 
 ## Image tags
 
