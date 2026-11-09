@@ -61,7 +61,7 @@ RUN arch=$(dpkg --print-architecture | sed 's/^amd64$/x86_64/') && \
 # gives SYS_PTRACE to py-spy, if the container has it, else py-spy won't start.
 # Outside conda, so no later fix-permissions clears the capability.
 # renovate: datasource=pypi depName=py-spy
-ARG PY_SPY_VERSION=0.4.2
+ARG PY_SPY_VERSION=0.4.3
 RUN pip install --no-cache-dir --no-deps --target /tmp/py-spy "py-spy==${PY_SPY_VERSION}" && \
     install -m 755 /tmp/py-spy/bin/py-spy /usr/local/bin/py-spy && \
     rm -rf /tmp/py-spy && \
