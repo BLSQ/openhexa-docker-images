@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.3...1.19.0) (2026-11-09)
+
+
+### Features
+
+* run pyspy along pipeline runs and upload the profile to the pipeline run (HEXA-1814) ([#165](https://github.com/BLSQ/openhexa-docker-images/issues/165)) ([4d66973](https://github.com/BLSQ/openhexa-docker-images/commit/4d66973a8301b1d4db2fcaa2f5c3a2c64a8d1978))
+
 ## [1.18.3](https://github.com/BLSQ/openhexa-docker-images/compare/1.18.2...1.18.3) (2026-11-04)
 
 
