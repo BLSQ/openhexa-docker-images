@@ -32,9 +32,9 @@ case "$command" in
 "pipeline")
   if [[ "$REMOTE_DEBUGGER" == "true" ]]; then
     echo "Starting pipeline with debugpy on port 5678..."
-    python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5678 --wait-for-client /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
+    exec python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5678 --wait-for-client /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
   else
-    python /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
+    exec python /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
   fi
   ;;
 "help")

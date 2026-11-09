@@ -13,7 +13,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   # FUSE Amazon S3
   apt-get install -y s3fs fuse3 libfuse3-dev \
   # Fuse requirements
-  gnupg lsb-release
+  gnupg lsb-release \
+  # setcap, for py-spy
+  libcap2-bin
 
 # Install Node.js 22.x
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
@@ -51,6 +53,19 @@ RUN arch=$(dpkg --print-architecture | sed 's/^amd64$/x86_64/') && \
     curl -fsSL "https://github.com/Azure/azure-storage-fuse/releases/download/blobfuse2-${BLOBFUSE2_VERSION}/${deb}" -o "/tmp/${deb}" && \
     dpkg -i "/tmp/${deb}" && \
     rm "/tmp/${deb}"
+
+# py-spy profiles pipeline runs started with HEXA_PROFILE=true (see
+# bootstrap_pipeline.py). It attaches to its parent, the pipeline, which Yama
+# (ptrace_scope=1) only allows with CAP_SYS_PTRACE. The pipeline runs as
+# jovyan, out of reach of the container's capabilities: this file capability
+# gives SYS_PTRACE to py-spy, if the container has it, else py-spy won't start.
+# Outside conda, so no later fix-permissions clears the capability.
+# renovate: datasource=pypi depName=py-spy
+ARG PY_SPY_VERSION=0.4.2
+RUN pip install --no-cache-dir --no-deps --target /tmp/py-spy "py-spy==${PY_SPY_VERSION}" && \
+    install -m 755 /tmp/py-spy/bin/py-spy /usr/local/bin/py-spy && \
+    rm -rf /tmp/py-spy && \
+    setcap cap_sys_ptrace+ep /usr/local/bin/py-spy
 
 
 WORKDIR $HOME
