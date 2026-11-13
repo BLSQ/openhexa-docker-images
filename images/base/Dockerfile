@@ -111,6 +111,10 @@ RUN pip install --no-cache-dir 'jupyterlab-quarto>=0.3,<0.4' && \
 
 RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 
+# "Copy Shareable Link" in the file browser: under JupyterHub the link goes
+# through /hub/user-redirect, which drops the workspace (the named server).
+RUN jupyter labextension disable "@jupyterlab/filebrowser-extension:share-file"
+
 # Sets the OpenHEXA User-Agent in pipeline runs (see the file). The build fails
 # if the base image ever ships a sitecustomize of its own: merge ours into it.
 COPY --chown=${NB_UID}:${NB_GID} files/sitecustomize.py /tmp/sitecustomize.py
