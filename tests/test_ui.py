@@ -93,3 +93,15 @@ def test_notebook_runs_a_cell(jupyterlab, kernel, lab_page):
     if dialog.is_visible():
         dialog.get_by_role("button", name="Select").click()
     panel.locator(".jp-OutputArea-output", has_text=expected).wait_for(timeout=120_000)
+
+
+def test_no_shareable_link_in_file_menu(jupyterlab, lab_page):
+    """Under JupyterHub the link drops the workspace, so the image removes it."""
+    name = "ui_test_share.txt"
+    jupyterlab.put_file(name, "share")
+
+    lab_page.locator(".jp-DirListing-item", has_text=name).click(button="right")
+    menu = lab_page.locator(".lm-Menu:visible")
+    # The menu is open and is the file one, or the absence below proves nothing.
+    menu.get_by_text("Copy Path", exact=True).wait_for(timeout=10_000)
+    assert menu.get_by_text("Copy Shareable Link").count() == 0
