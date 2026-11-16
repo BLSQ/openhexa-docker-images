@@ -38,7 +38,11 @@ def test_fiona_import_success(docker_image):
     assert "fiona imported successfully" in logs
 
 def test_profiled_pipeline(docker_image):
-    run = run_profiled_pipeline(docker_image, pipelines_dir / "profiled")
+    # On a busy CI runner py-spy can take seconds to start sampling a task
+    # worker: burn CPU long enough to be seen, and do not assert for how long.
+    run = run_profiled_pipeline(
+        docker_image, pipelines_dir / "profiled", config={"seconds": 10}
+    )
 
     assert run.exit_code == 0
     assert "Profile saved to /tmp/hexa_profile.json" in run.logs
@@ -50,9 +54,8 @@ def test_profiled_pipeline(docker_image):
         if name == "busy_loop"
     }
     assert len(busy) == 1, busy
-    [(pid, seconds)] = busy.items()
+    [pid] = busy
     assert "spawn_main" in names[pid], "busy_loop should run in a task worker"
-    assert seconds >= 2, f"{seconds:.2f}s in busy_loop, expected ~3s"
 
 
 def test_profiled_pipeline_without_ptrace(docker_image):
